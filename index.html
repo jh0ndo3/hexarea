@@ -24,7 +24,8 @@
   header.compact { gap:5px; padding:6px; }
   header.compact .pl { padding:4px 6px; border-radius:8px; }
   header.compact .pl .n { display:flex; justify-content:space-between; align-items:baseline; gap:4px; font-size:11px; white-space:nowrap; }
-  header.compact .pl .v { font-size:14px; }
+  header.compact .pl .v { font-size:12px; line-height:1.25; margin-left:auto; }
+  header.compact .pl .n { flex-wrap:wrap; }   /* 肉が多いときは、名前の下の行に回る */
   header.compact .pl .v small { font-size:10px; font-weight:600; }
   header.compact .pl .s { font-size:10px; line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:-.02em; }
   header.compact .pl .s b { margin:0 3px 0 1px; font-variant-numeric:tabular-nums; }
@@ -56,6 +57,8 @@
   #suDots { display:flex; gap:5px; justify-content:center; margin-top:14px; }
   #suDots span { width:8px; height:8px; border-radius:50%; background:var(--border); }
   #settingsBox .srow select { width:100px; font:inherit; padding:5px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--fg); }
+  .pl .v .mt { display:inline-block; filter:brightness(0); }   /* 肉のシルエット（白黒）: 明るい画面では黒 */
+  @media (prefers-color-scheme: dark) { .pl .v .mt { filter:brightness(0) invert(1); } }   /* 暗い画面では白 */
   .pl .v { font-size:18px; font-weight:700; font-variant-numeric:tabular-nums; }
   .pl .s { font-size:12px; color:var(--muted); }
   #bar { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:8px 12px; background:var(--bar); border-bottom:1px solid var(--border); }
@@ -1049,7 +1052,7 @@ function draw() {
 function buildHeader() {   // 人数に合わせて、上のプレイヤー欄を作り直す
   const h = document.getElementById('hdr'), cmp = NP > 2;
   h.classList.toggle('compact', cmp); h.style.setProperty('--cols', NP === 4 ? 2 : Math.min(NP, 3));   // 4人は2×2
-  h.innerHTML = PL().map(p => `<div class="pl" id="pl${p}">` + (cmp ? `<div class="n"><span class="nm" style="color:${COLORS[p]}">${isCPU(p) ? '[AI]' : ''}${esc(name(p))}</span><span class="v"><span id="sp${p}"></span><small> 行動</small></span></div>` : `<div class="n nm" style="color:${COLORS[p]}">${isCPU(p) ? '[AI]' : ''}${esc(name(p))}</div><div class="v"><span id="sp${p}"></span> 行動</div>`) + `<div class="s">` +
+  h.innerHTML = PL().map(p => `<div class="pl" id="pl${p}">` + (cmp ? `<div class="n"><span class="nm" style="color:${COLORS[p]}">${isCPU(p) ? '[AI]' : ''}${esc(name(p))}</span><span class="v"><span id="sp${p}"></span></span></div>` : `<div class="n nm" style="color:${COLORS[p]}">${isCPU(p) ? '[AI]' : ''}${esc(name(p))}</div><div class="v"><span id="sp${p}"></span></div>`) + `<div class="s">` +
     (cmp ? `領地<b id="cn${p}"></b> 資源<b id="rp${p}"></b> 戦力<b id="pw${p}"></b><br>食料+<b id="in${p}"></b> 貯蔵<b id="cap${p}"></b> 回数<b id="ac${p}"></b>`
          : `領地 <span id="cn${p}"></span> ／ 食料 +<span id="in${p}"></span> ／ 貯蔵 <span id="cap${p}"></span> ／ 資源 <span id="rp${p}"></span> ／ 戦力 <span id="pw${p}"></span> ／ 回数 <span id="ac${p}"></span>`) + `</div></div>`).join('');
   document.querySelectorAll('#tiNP .np').forEach(b => b.classList.toggle('on', +b.dataset.np === NP));
@@ -1067,7 +1070,7 @@ function render() {
     document.getElementById('gateBtn').style.display = cpuT ? 'none' : '';
   }
   for (const p of PL()) {
-    document.getElementById('sp'+p).textContent = gm ? '∞' : sp[p];
+    { const se = document.getElementById('sp'+p); const M = '<span class="mt">🍖</span>'; se.innerHTML = gm ? M + '∞' : sp[p] > 0 ? M.repeat(Math.min(sp[p], 12)) : '0'; se.title = '食料 ' + (gm ? '∞' : sp[p]); }   // 残りの食料を肉の数で表す
     document.getElementById('cap'+p).textContent = gm ? '∞' : sp[p] + '/' + spCap(p);   // 貯蔵: 現在の食料／上限
     document.getElementById('ac'+p).textContent = gm ? '∞' : selecting ? '-' : (!over && turn === p) ? actions : (isDay() || skills[p].fire ? 2 : 1);   // 貯蔵（食料の上限）: 3、土器の作製で5
     document.getElementById('cn'+p).textContent = count(p);
