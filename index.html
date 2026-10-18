@@ -47,6 +47,10 @@
   #suColors .sw { width:30px; height:30px; clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); }
   #suColors button.on { border:2px solid var(--fg); background:var(--bar); }
   #suColors button:disabled { opacity:.3; cursor:default; }
+  #suType { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+  #suType button { padding:7px 0 6px; border-radius:10px; font-size:12px; font-weight:700; line-height:1.35; }
+  #suType button.on { border:2px solid var(--fg); background:var(--bar); }
+  #suTypeNote { font-size:11px; color:var(--muted); margin-top:6px; min-height:15px; }
   #setupBox .btns { display:flex; gap:8px; justify-content:space-between; margin-top:18px; }
   #suNext { font-weight:700; color:#fff; border:none; padding:8px 20px; }
   #suDots { display:flex; gap:5px; justify-content:center; margin-top:14px; }
@@ -55,7 +59,9 @@
   .pl .v { font-size:18px; font-weight:700; font-variant-numeric:tabular-nums; }
   .pl .s { font-size:12px; color:var(--muted); }
   #bar { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:8px 12px; background:var(--bar); border-bottom:1px solid var(--border); }
-  #msg { flex:1; font-size:14px; font-weight:600; min-width:0; }
+  #msg { flex:1 0 auto; font-size:14px; font-weight:600; }
+  #bar { gap:6px; padding:8px 10px; }
+  #bar button { padding:6px 8px; font-size:13px; }
   button { font:inherit; font-size:14px; padding:6px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--fg); cursor:pointer; }
   #status { padding:6px 70px 6px 12px; min-height:20px; font-size:13px; font-weight:600; background:var(--bar); border-top:1px solid var(--border); }
   #wrap { flex:1; min-height:0; position:relative; }
@@ -114,6 +120,7 @@
   #confirmBox .btns { display:flex; gap:10px; justify-content:center; margin-top:14px; }
   #rules, #treeBox, #toolBox { position:relative; max-width:480px; max-height:80%; overflow-y:auto; box-sizing:border-box; padding:16px 18px; font-size:14px; color:var(--fg); background:var(--bar); border:1px solid var(--border); border-radius:14px; line-height:1.7; }
   #rules h2, #treeBox h2, #toolBox h2 { margin:0 0 8px; font-size:16px; }
+  body.spec #toolBtn, body.spec #prayBtn, body.spec #treeBtn, body.spec #end, body.spec #gmBtn { display:none !important; }
   #gate { position:fixed; inset:0; z-index:30; display:none; align-items:center; justify-content:center; text-align:center; padding:24px; background:var(--bg); }
   #gate.open { display:flex; }
   #gateTitle { font-size:26px; font-weight:800; margin-bottom:8px; }
@@ -234,7 +241,7 @@
 </head>
 <body>
 <header id="hdr"></header>
-<div id="bar"><div id="msg"></div><button id="settingsBtn">設定</button><button id="end">ターン終了</button><span id="onlineTag" style="display:none"></span><button id="resultBtn" style="display:none">結果</button><button id="reset">リセット</button></div>
+<div id="bar"><div id="msg"></div><button id="settingsBtn">⚙️ 設定</button><button id="end">⏭ ターン終了</button><span id="onlineTag" style="display:none"></span><button id="resultBtn" style="display:none">🏆 結果</button><button id="reset">🔄 リセット</button></div>
 <div id="wrap"><canvas id="c"></canvas><div id="dayBox"></div><button id="gmBtn">GM</button><button id="treeBtn" aria-label="スキル一覧"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 28V21C22 19.5 25.5 16.5 25.5 11.5C25.5 6.5 21.5 3 16 3C10.5 3 6.5 7 6.5 12C6.5 13.5 7 14.5 7.8 15.5L5.5 19.5L7.8 20.5V24.5C7.8 26 9 27 10.5 27H13.5C15 27 16.2 26 16.2 24.5"/><path d="M11.5 12C10 10.5 11 8 13 8C13.5 6.5 16 6 17 7.5C18.5 6.8 20.5 8 20 9.8C21.5 10.5 21.5 13 19.8 13.5C19.5 15 17.5 15.8 16.2 15C15 16 12.8 15.7 12.5 14.2C11.3 14.2 10.6 13 11.5 12z"/><path d="M16 15.5C16 17.5 15 18 15 20.5"/><path d="M13.8 10.4C14.8 9.8 15.9 10.2 16.4 11.2"/><path d="M17.6 9.6C18.6 10 18.9 11.1 18.5 12"/></svg></button><button id="prayBtn" aria-label="命の糧"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10.8C15.2 10 14 10.3 13.4 11.3L10.6 17.2C10 18.4 9.9 19.4 10.1 20.6"/><path d="M13.6 23.4L14.6 22.6C15.6 22 16 21.2 16 20V12.5"/><path d="M8.2 23L10.6 20.6L13.6 23.6L11.2 26z"/><path d="M12.6 19.2L13.6 14.3C13.8 13.3 15.2 13 15.6 14"/><path d="M 16 10.8 C 16.8 10 18 10.3 18.6 11.3 L 21.4 17.2 C 22 18.4 22.1 19.4 21.9 20.6"/><path d="M 18.4 23.4 L 17.4 22.6 C 16.4 22 16 21.2 16 20 V12.5"/><path d="M 23.8 23 L 21.4 20.6 L 18.4 23.6 L 20.8 26 z"/><path d="M 19.4 19.2 L 18.4 14.3 C 18.2 13.3 16.8 13 16.4 14"/><path d="M16.0 9.0L16.0 6.5"/><path d="M12.4 8.8L11.2 6.6"/><path d="M8.8 10.8L6.6 9.6"/><path d="M6.5 15.0L4.0 15.0"/><path d="M19.6 8.8L20.8 6.6"/><path d="M23.2 10.8L25.4 9.6"/><path d="M25.5 15.0L28.0 15.0"/></svg></button><button id="toolBtn" aria-label="ツール"><svg viewBox="60 60 900 900" overflow="visible" fill="none" stroke="currentColor" stroke-width="44" stroke-linejoin="round" stroke-linecap="round"><g style="fill:var(--bar)"><path d="M207 790L650 347L705 392L257 840A35 35 0 0 1 207 790Z"/><path d="M487 183C590 180 680 215 730 258L668 310C620 270 560 225 487 183Z"/><path d="M792 325C845 395 870 470 862 563C840 505 790 430 745 382Z"/><path d="M757 242L807 293L712 400L645 335Z"/><path d="M170 218C265 198 335 208 370 237L440 311L400 403L350 447L262 488L185 410C150 330 155 260 170 218Z"/><path d="M287 335L355 358L712 716L655 754L316 413Z"/><path d="M712 716L775 732L800 757L707 848L682 822L668 765L655 754Z"/></g><path d="M383 455L407 432M642 725L668 700"/></svg></button></div>
 <div id="status"></div>
 <div id="gate"><div><div id="gateTitle"></div><div id="gateSub"></div><button id="gateBtn">ターンを開始</button></div></div>
@@ -259,6 +266,8 @@
   <div class="srow"><button id="setPlayers">👥 プレイヤーの名前と色</button></div>
   <div class="srow" id="setSound"><span>BGM <b id="vBgm"></b></span><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sBgmOn"> BGMを流す</label><input type="range" id="sBgmVol" min="0" max="100" step="5"></div>
   <div class="srow" id="setSfx"><span>効果音 <b id="vSfx"></b></span><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sSfxOn"> 効果音を鳴らす</label><input type="range" id="sSfxVol" min="0" max="100" step="5"></div>
+  <div class="srow" id="setDay"><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sDayVis"> ☀️ 昼（朝・昼）はマップ全体が見える</label></div>
+  <div class="note" id="setDayNote">夜（夕・夜）は、通常どおり視界が狭まります。</div>
   <div id="setRates">
   <div class="note" style="color:var(--fg)">🛠 出現率（GMモードのみ変更できます）</div>
   <label class="srow"><span>山の出現率 <b id="vMount"></b></span><input type="range" id="sMount" min="0" max="30" step="1"></label>
@@ -278,6 +287,7 @@
   <div id="suStep"></div><h2 id="suTitle"></h2>
   <label class="lbl" for="suName">名前（8文字まで）</label><input id="suName" maxlength="8" autocomplete="off"><div id="suErr" aria-live="polite"></div>
   <span class="lbl">色</span><div id="suColors"></div>
+  <span class="lbl">操作</span><div id="suType"></div><div id="suTypeNote"></div>
   <div class="btns"><button id="suBack"></button><button id="suNext"></button></div>
   <div id="suDots"></div>
 </div></div>
@@ -287,6 +297,7 @@
 <li>六角形のマップで、自分の色のマス（領地）を広げます。</li>
 <li>設定したラウンド数が終わった時、または盤面が埋まった時に、領地が最も多いプレイヤーの勝ちです。最多が複数なら引き分けです。</li>
 <li>相手の領地を現在地（白枠）以外すべて奪うと、そのプレイヤーは脱落し、残りの領地は空きマスに戻ります。最後の1人になったプレイヤーは、その場で勝利です。</li>
+<li>🏴 <b>拠点潰し</b>：相手が最初に選んだ拠点（家のマーク）を戦闘で奪うと、領地が残っていても、その相手は脱落します（2人戦ではその場で勝利）。村は対象外です。相手の現在地（白枠）は奪えないので、拠点にいる間は守られます。</li>
 <li>ゲームが終わると、対戦結果（順位・領地の推移・戦闘などの記録）が表示されます。「盤面を見る」で閉じたあとも、上の「結果」ボタンで開き直せます。</li>
 </ul></div></details>
 <details><summary>ゲームの準備</summary><div class="sec"><ul>
@@ -328,6 +339,7 @@
 <li>拠点・村と現在地（白枠）は、周囲まで広く見えます。</li>
 <li>それ以外の自領は、そのマスだけが見えます。</li>
 <li>見えないマスは、輪郭だけが表示されます。</li>
+<li>☀️ 設定の「昼（朝・昼）はマップ全体が見える」がオンのとき（初期値）、昼は盤面全体が見えます。夜（夕・夜）は、下の通常の視界になります。拠点を選ぶ間は対象外です。オンライン対戦では、ホストが部屋ごとに決めます。</li>
 <li>夜間は視界が狭まります（火の発見で無効）。神秘の探究を習得すると、視界が広がります。</li>
 <li>ゲーム終了後は、盤面全体が見えます。</li>
 </ul></div></details>
@@ -336,7 +348,7 @@
 <dt>平地</dt><dd>移動に食料1。</dd>
 <dt>山 ▲</dt><dd>移動に食料2（牧畜の開始で1）。単独、2マスの直線、3マスのかたまり（直線に限らない）で出現し、最外周にも出ます。山同士は離れていて、拠点候補に隣接する山は1マスまでです。</dd>
 <dt>水域 ≈</dt><dd>通行できません。最大3マスまでつながり、3マスのときは直線になりません。拠点候補の周囲1マスには出ません。</dd>
-<dt>森（緑）</dt><dd>獣の縄張りです。獣の戦力は、つながった森のマス数（1〜3）です。2マスの森はマップの半径の3分の2以内、3マスの森は3分の1以内にだけ出ます。拠点候補の周囲1マスには出ません。</dd>
+<dt>森（緑）</dt><dd>獣の縄張りです。獣の戦力は、つながった森のマス数（1〜3）です。2マス以上の森の獣に勝つと、牧畜の開始が解放されます。2マスの森はマップの半径の3分の2以内、3マスの森は3分の1以内にだけ出ます。拠点候補の周囲1マスには出ません。</dd>
 </dl>
 <ul><li>地形は毎回ランダムで、同じ種類同士がなるべく離れるよう、マップ全体に分散して置かれます。</li></ul>
 </div></details>
@@ -378,7 +390,7 @@
 </dl>
 <h3>新石器</h3><dl>
 <dt>農耕の確立 <small>資源2・食料1</small></dt><dd><b>解放：</b>磨製石器の加工を習得し、水域に面した平地を領地にする<br><b>効果：</b>昼間の食料収入+1</dd>
-<dt>牧畜の開始 <small>資源1・食料1</small></dt><dd><b>解放：</b>獣に勝つ<br><b>効果：</b>夜間の食料収入+1。山の移動の食料が1になる</dd>
+<dt>牧畜の開始 <small>資源1・食料1</small></dt><dd><b>解放：</b>2マス以上の森の獣に勝つ<br><b>効果：</b>夜間の食料収入+1。山の移動の食料が1になる</dd>
 <dt>磨製石器の加工 <small>資源2</small></dt><dd><b>解放：</b>打製石器の加工を習得したあと、山を領地にする<br><b>効果：</b>磨製石器が手に入る（対人戦の戦力+1）</dd>
 <dt>土器の作製 <small>資源2</small></dt><dd><b>解放：</b>火の発見を習得し、山を領地にする<br><b>効果：</b>ツールで土器を作製でき、資源2につき食料の貯蔵上限+1（最大3個）</dd>
 <dt>煮炊きの技術 <small>資源2・食料1</small></dt><dd><b>解放：</b>土器の作製を習得する<br><b>効果：</b>道でつながった半径2マス以内の自領へ、行動1・食料1で移動できる</dd>
@@ -406,6 +418,7 @@
 <li>参加者は自分の名前と色を決めます。人数がそろうと、ホストが対戦を始められます。参加した順にP1、P2…になります。</li>
 <li>盤面は自分の視界だけが表示され、確認画面はありません。自分の番以外は操作できません。</li>
 <li>通信が切れても自動でつなぎ直します。ページを閉じた場合は、同じ端末・同じブラウザで同じIDを入力すると、自分の席に戻れます（ホストも同じIDで入り直すと対戦を再開できます）。</li>
+<li>👁 <b>観戦</b>：タイトル画面の「観戦」（またはオンライン画面）でルームIDを入れると、席を取らずに、ほかの人の対戦を盤面全体を見ながら眺められます（操作はできません）。ホストは待合室で観戦を許可しないこともできます。観戦者には全員の情報が見えるため、対戦中のプレイヤーは観戦に入らないでください。</li>
 <li>終了後の「もう一度」は、ホストだけが押せます（同じメンバーで新しいマップになります）。</li>
 <li>オンライン対戦中は、GMモードとチュートリアルは使えません。</li>
 </ul></div></details>
@@ -416,23 +429,29 @@
 <li>BGMと効果音のON/OFF・音量は、「設定」からいつでも変えられます。</li>
 <li>プレイ人数・ラウンド数・名前と色は、ゲーム開始前（最初のプレイヤーが拠点を選ぶ前）だけ変更できます。出現率の変更はGMモードのみです。</li>
 <li>「設定」の「チュートリアル」で、本物の盤面を使った基本の案内を体験できます。</li>
+<li>「AI対戦」では、P1があなた、P2以降がAI（🤖）になります。プレイヤー設定の「操作」で、席ごとに人間・AI（やさしい／ふつう／つよい）を選べます。オフライン対戦でも、一部の席をAIにできます（1人以上は人間が必要です）。</li>
+<li>♟ 各プレイヤーの現在地（白枠のマス）には、そのプレイヤーの色のコマが置かれます（見えているときだけ）。</li>
+<li>AIも同じルールで遊び、見えていないマスの資源は知りません。AIの番は自動で進み、人間が2人以上いるときは、AIの番の間も盤面を隠します。</li>
 </ul></div></details><div style="text-align:right;margin-top:12px"><button id="helpClose">閉じる</button></div></div></div>
 
 <div id="title"><div id="titleLogo"></div><h1>HEXAREA</h1><div class="sub">新石器時代の、2〜6人対戦</div>
   <div id="tiNP"></div>
   <button class="tbtn main" id="tiStart">オフライン対戦</button>
+  <button class="tbtn" id="tiAI">🤖 AI対戦</button>
+  <button class="tbtn" id="tiSpec">👁 観戦</button>
   <button class="tbtn" id="tiOnline">🌐 オンライン対戦</button>
   <button class="tbtn" id="tiTut">🎓 チュートリアル</button>
   <div class="small"><button class="tbtn" id="tiSet">設定</button><button class="tbtn" id="tiRule">ルール</button></div>
-  <div class="tip">「オフライン対戦」は1台の端末を交代で使います。<br>「オンライン対戦」は、それぞれの端末からルームIDで参加します。</div></div>
+  <div class="tip">「オフライン対戦」は1台の端末を交代で使います。<br>「AI対戦」は、コンピューター（AI）と対戦します。<br>「観戦」は、オンライン対戦の部屋のIDを入れて、ほかの人の対戦を見ます。<br>「オンライン対戦」は、それぞれの端末からルームIDで参加します。</div></div>
 <div id="online"><div id="onBox">
   <div id="onMenu">
     <h2>オンライン対戦</h2>
     <div class="onNote" id="onAvail" style="white-space:pre-line">それぞれの端末から同じ部屋に入って対戦します。</div>
     <span class="lbl">ルームを作成（ID発行）</span>
     <div class="onRow"><select id="onNP"><option value="2">2人</option><option value="3">3人</option><option value="4">4人</option><option value="5">5人</option><option value="6">6人</option></select><button id="onCreate" class="onMain" style="flex:1">ルームを作成</button></div>
-    <span class="lbl">IDを入力して参加</span>
-    <div class="onRow"><input id="onCode" maxlength="4" placeholder="ルームID" autocomplete="off" autocapitalize="characters"><button id="onJoin" class="onMain">参加</button></div>
+    <span class="lbl">IDを入力して参加・観戦</span>
+    <div class="onRow"><input id="onCode" maxlength="4" placeholder="ルームID" autocomplete="off" autocapitalize="characters"><button id="onJoin" class="onMain">参加</button><button id="onWatch">👁 観戦</button></div>
+    <div class="onNote">「観戦」は、ほかの人の対戦を、盤面全体を見ながら眺めます（操作はできません）。ホストが観戦を許可しているルームだけ見られます。</div>
     <div id="onErr" aria-live="polite"></div>
     <div class="btns"><button id="onClose">タイトルへ</button></div>
   </div>
@@ -442,9 +461,11 @@
     <div class="onNote">一緒に遊ぶ人に、このページとルームIDを伝えてください。</div>
     <div class="onNote" id="onHostNote">あなたがホストです。対戦が終わるまで、このページを閉じないでください。</div>
     <span class="lbl">参加者 <span id="onCount"></span></span><div id="onList"></div>
-    <label class="lbl" for="onName">あなたの名前（8文字まで）</label><input id="onName" maxlength="8" autocomplete="off">
-    <span class="lbl">あなたの色</span><div id="onColors"></div>
-    <div id="onHostOpts"><span class="lbl">対戦の設定（ホストのみ）</span><div class="onRow"><select id="onSetNP"><option value="2">2人</option><option value="3">3人</option><option value="4">4人</option><option value="5">5人</option><option value="6">6人</option></select><span>ラウンド</span><input type="number" id="onSetRounds" min="1" max="999"></div></div>
+    <div id="onMine"><label class="lbl" for="onName">あなたの名前（8文字まで）</label><input id="onName" maxlength="8" autocomplete="off">
+    <span class="lbl">あなたの色</span><div id="onColors"></div></div>
+    <div id="onHostOpts"><span class="lbl">対戦の設定（ホストのみ）</span><div class="onRow"><select id="onSetNP"><option value="2">2人</option><option value="3">3人</option><option value="4">4人</option><option value="5">5人</option><option value="6">6人</option></select><span>ラウンド</span><input type="number" id="onSetRounds" min="1" max="999"></div>
+      <label class="onRow" style="gap:8px;margin-top:8px"><input type="checkbox" id="onSetDV"> ☀️ 昼（朝・昼）はマップ全体が見える</label>
+      <label class="onRow" style="gap:8px;margin-top:4px"><input type="checkbox" id="onSetSpec"> 👁 観戦を許可する（観戦者には盤面全体が見えます）</label></div>
     <div id="onWait" class="onNote" style="margin-top:12px"></div>
     <div id="onErr2" aria-live="polite"></div>
     <div class="btns"><button id="onLeave">退出</button><button id="onStart" class="onMain">対戦を始める</button></div>
@@ -514,8 +535,20 @@ let size = 36, cx = 0, cy = 0;
 let busy = false, timer = null;
 let ONLINE = null;   // オンライン対戦中: {code, seat, uid, playing}
 const onPlay = () => !!(ONLINE && ONLINE.playing);
-const viewP = () => onPlay() ? ONLINE.seat : turn;   // 盤面を見るプレイヤー（オンラインでは自分の席）
-const myTurn = () => !onPlay() || ONLINE.seat === turn;
+const loadDV = () => { try { return localStorage.getItem('hexDayVision') !== '0'; } catch (e) { return true; } };   // 設定: 昼はマップ全体が見える（初期値: オン）
+let dayVision = loadDV();   // オンライン対戦中は、ホストが決めた部屋の設定になる
+const fullDay = () => dayVision && !selecting && isDay();   // 昼（朝・昼）は、盤面全体が見える（拠点を選ぶ間は、選んだ拠点を隠すため対象外）
+// AI（コンピューター）が操作する席: {席番号: 強さ}（1=やさしい 2=ふつう 3=つよい）。オフライン対戦のみ
+let CPU = {};
+try { const sv = JSON.parse(localStorage.getItem('hexCpu') || 'null'); if (sv && typeof sv === 'object') for (const k in sv) { const q = +k, v = +sv[k]; if (q >= 1 && q <= 6 && v >= 1 && v <= 3) CPU[q] = v; } } catch (e) {}
+const saveCpu = () => { try { localStorage.setItem('hexCpu', JSON.stringify(CPU)); } catch (e) {} };
+const tutOn = () => { try { return TUT.on || TUT.starting; } catch (e) { return false; } };
+const spectating = () => !!(ONLINE && ONLINE.spec && ONLINE.playing);   // 観戦者（オンライン対戦の部屋を、盤面全体を見ながら眺める人）
+const isCPU = p => !ONLINE && p >= 1 && p <= NP && !!CPU[p] && !tutOn();
+const humansAlive = () => PL().filter(q => !isCPU(q) && alive[q]).length;
+const humanSeat = () => (viewer && !isCPU(viewer) && alive[viewer]) ? viewer : (PL().find(q => !isCPU(q) && alive[q]) || viewer || turn);   // AIの番のときに盤面を見る人
+const viewP = () => onPlay() ? (ONLINE.spec ? turn : ONLINE.seat) : isCPU(turn) ? humanSeat() : turn;   // 盤面を見るプレイヤー（オンラインでは自分の席。AIの番では人間の席）
+const myTurn = () => onPlay() ? ONLINE.seat === turn : !isCPU(turn);
 let langOpen = per(false), fireOpen = per(false), stoneOpen = per(false), pending = per(() => []), popupQ = [], gmBackup = null, xOpen = {};   // xOpen: 新石器スキルの解放状態
 const XIDS = ['farm','herd','polish','pottery','faith','cook','settle']; const resetX = () => { for (const k of XIDS) xOpen[k] = per(false); }; resetX(); let baseCell = {};   // 「言語の獲得」の解放状態と、表示待ちのお知らせ   // 手番交代の1秒待ち中は操作を受け付けない
 
@@ -526,7 +559,7 @@ function init() {
   for (let q=-RADIUS;q<=RADIUS;q++) for (let r=-RADIUS;r<=RADIUS;r++)
     if (Math.abs(q+r) <= RADIUS) cells.set(key(q,r), {q,r,o:0,t:'p'});
   genTerrain(); genResources();
-  sp = per(startSp); started = per(false); rp = per(startRp); pw = per(1); bless = per(0); pot = per(0); boost = {stone:per(0), polish:per(0)}; tool = {stone:per(0), polish:per(0)}; lock = {stone:per(0), polish:per(0)}; fixed = {stone:per(0), polish:per(0)}; skills = per(() => ({})); last = per(null); alive = per(true); turn = firstPicker(); viewer = turn; round = 1; actions = 0; over = false; winner = 0; selecting = true;
+  sp = per(startSp); started = per(false); rp = per(startRp); pw = per(1); bless = per(0); pot = per(0); boost = {stone:per(0), polish:per(0)}; tool = {stone:per(0), polish:per(0)}; lock = {stone:per(0), polish:per(0)}; fixed = {stone:per(0), polish:per(0)}; skills = per(() => ({})); last = per(null); alive = per(true); turn = firstPicker(); viewer = isCPU(turn) ? (PL().find(q => !isCPU(q)) || turn) : turn; round = 1; actions = 0; over = false; winner = 0; selecting = true;
   langOpen = per(false); fireOpen = per(false); stoneOpen = per(false); resetX(); baseCell = {}; pending = per(() => []); popupQ = []; buildHeader(); document.getElementById('notice').classList.remove('open'); if (gm) gmGrant();
   msg = `R1/${MAX_ROUNDS}（朝） ${name(turn)}は拠点を選んでください`; hover = null;
   render();
@@ -762,7 +795,7 @@ function act(c) {
   if (busy || !isLegal(c, turn)) return;
   if (isBattle(c, turn)) {   // 相手の色のマス・森のマス: 確認のうえ戦闘
     const wild = c.forest && c.o === 0;
-    ask(wild ? `獣（戦力 ${forestSize(c)}）の縄張りです。<br>戦闘しますか？（自分の戦力 ${battlePower(turn, true, c)} ／ 食料${cost(c, turn)}消費）` : `${name(c.o)}と戦闘しますか？<br>（自分の戦力 ${battlePower(turn, false, c)} ／ 相手の戦力 ${battlePower(c.o, false, c)} ／ 食料${cost(c, turn)}消費）`, '戦闘', () => battle(c));
+    ask(wild ? `獣（戦力 ${forestSize(c)}）の縄張りです。<br>戦闘しますか？（自分の戦力 ${battlePower(turn, true, c)} ／ 食料${cost(c, turn)}消費）` : `${name(c.o)}と戦闘しますか？<br>（自分の戦力 ${battlePower(turn, false, c)} ／ 相手の戦力 ${battlePower(c.o, false, c)} ／ 食料${cost(c, turn)}消費）` + (c === baseCell[c.o] ? '<br>🏴 ここは相手の拠点です。奪うと相手は脱落します' : ''), '戦闘', () => battle(c));
     return;
   }
   if (isHarvest(c, turn) && !pickMode && c !== last[turn] && isTarget(c, turn) && sp[turn] >= 1 && sp[turn] >= moveCost(c, turn)) {   // 回収と移動の両方できるマス（言語の獲得）: 選べる
@@ -817,13 +850,19 @@ function battle(c) {   // 戦闘に挑む（確認済み）。勝利でマスを
   msg = `${name(p)} ${title}：${sub}`;
   if (me > foe) {
     meetCheck(p, c);
-    if (count(p) >= 10) unlock(p, '部族社会の発展'); checkUnlocks(p, c); if (wild) unlock(p, '獣の馴化', 'herd');
+    if (count(p) >= 10) unlock(p, '部族社会の発展'); checkUnlocks(p, c); if (wild && foe >= 2) unlock(p, '獣の馴化', 'herd');   // 2マス以上の森の獣に勝ったときだけ解放
   }
-  popupQ.push({t: title, s: sub});
-  if (me > foe && !wild && enemyLeft(o) === 0) {   // 相手の領地を現在地以外すべて奪った → 脱落
+  if (!isCPU(p)) popupQ.push({t: title, s: sub});
+  else if (!wild && !isCPU(o)) {   // AIに攻められた人へ、守った側から見た結果を知らせる
+    const ds = me > foe ? `マスを奪われた…（戦力 ${me} 対 ${foe}）` + (sub.includes('資源') ? ' 資源を1奪われた' : '') : me === foe ? `引き分け（戦力 ${me} 対 ${foe}）相手はこのマスを通行した` : `撃退した！（戦力 ${me} 対 ${foe}）`;
+    (o === viewP() && humansAlive() < 2 ? popupQ : pending[o]).push({t: `⚔ ${name(p)}の攻撃`, s: ds});
+  }
+  const baseHit = me > foe && !wild && c === baseCell[o];   // 拠点潰し: 相手の最初の拠点を奪った
+  if (me > foe && !wild && (baseHit || enemyLeft(o) === 0)) {   // 相手の拠点を奪った／領地を現在地以外すべて奪った → 脱落
+    if (baseHit) { popupQ.push({t: '拠点潰し', s: `${name(o)}の拠点を奪った！`}); msg += ' ／ 🏴拠点を奪った！'; }
     eliminate(o);
     const rest = PL().filter(q => alive[q]);
-    if (rest.length === 1) { showPopup(); finish(p, NP === 2 ? '相手の領地を現在地以外すべて奪った' : '他のプレイヤーをすべて脱落させた'); render(); return; }
+    if (rest.length === 1) { showPopup(); finish(p, baseHit ? `${NP === 2 ? '相手' : name(o)}の拠点を奪った（拠点潰し）` : NP === 2 ? '相手の領地を現在地以外すべて奪った' : '他のプレイヤーをすべて脱落させた'); render(); return; }
     popupQ.push({t: '脱落', s: `${name(o)}は領地を失い、脱落した`}); msg += ` ／ ${name(o)}が脱落！`;
   }
   showPopup();
@@ -835,8 +874,9 @@ function finishAct() {
     busy = true; render();   // 結果を見せて1秒後に確認を出す
     timer = setTimeout(() => {
       busy = false; if (over || selecting) return;
+      if (isCPU(turn)) { endTurn(); return; }   // AIは確認なしでターンを終える
       ask(`${name(turn)}は行動できなくなりました。<br>ターンを終了しますか？`, 'ターン終了', endTurn);
-    }, 1000);
+    }, isCPU(turn) ? 600 : 1000);
   } else { advance(); render(); }
 }
 
@@ -902,6 +942,25 @@ function hexPath(x,y,s) {
   }
   ctx.closePath();
 }
+function visionOf(V) {   // プレイヤーVの視界（full: 資源まで見える ／ part: 地形だけ見える）
+  const full = new Set(), part = new Set();
+  const disk = (set, sc, n) => { for (let dq = -n; dq <= n; dq++) for (let dr = Math.max(-n, -dq - n); dr <= Math.min(n, -dq + n); dr++) set.add(key(sc.q + dq, sc.r + dr)); };
+  if (!V || !alive[V]) return {full, part};
+  if (fullDay()) { for (const kk of cells.keys()) full.add(kk); return {full, part}; }
+  for (const sc of cells.values()) if (sc.o === V || sc === last[V]) { full.add(key(sc.q, sc.r)); const lv = visLevel(sc, V); if (lv === 2) disk(part, sc, 1); else if (lv >= 3) disk(full, sc, lv - 2); }
+  return {full, part};
+}
+function drawPawn(x, y, r, col) {   // ♟ プレイヤーの色のコマ（白い縁どり）
+  const P = new Path2D();
+  P.arc(0, -0.58, 0.3, 0, Math.PI * 2);
+  P.moveTo(-0.15, -0.3); P.lineTo(0.15, -0.3); P.bezierCurveTo(0.13, -0.05, 0.32, 0.1, 0.36, 0.42); P.lineTo(-0.36, 0.42); P.bezierCurveTo(-0.32, 0.1, -0.13, -0.05, -0.15, -0.3); P.closePath();
+  P.roundRect ? P.roundRect(-0.5, 0.4, 1.0, 0.3, 0.12) : P.rect(-0.5, 0.4, 1.0, 0.3);
+  ctx.save(); ctx.translate(x, y); ctx.scale(r, r); ctx.lineJoin = 'round';
+  ctx.lineWidth = 0.2; ctx.strokeStyle = '#fff'; ctx.stroke(P);
+  ctx.fillStyle = col; ctx.fill(P);
+  ctx.lineWidth = 0.05; ctx.strokeStyle = 'rgba(0,0,0,0.45)'; ctx.stroke(P);
+  ctx.restore();
+}
 function draw() {
   const rect = canvas.getBoundingClientRect();
   ctx.clearRect(0,0,rect.width,rect.height);
@@ -913,7 +972,7 @@ function draw() {
   //   // 視界レベル: 1=そのマスのみ ／ 2=周囲1マスの地形も ／ 3=周囲1マスすべて ／ 4以降は半径が1ずつ増える
   const disk = (set, sc, n) => { for (let dq = -n; dq <= n; dq++) for (let dr = Math.max(-n, -dq - n); dr <= Math.min(n, -dq + n); dr++) set.add(key(sc.q + dq, sc.r + dr)); };
   const sel = selecting && !over, V = viewP(), MT = myTurn();   // V: 視点のプレイヤー ／ MT: 自分が操作できるか
-  if (over || gm || (onPlay() && !alive[V])) for (const kk of cells.keys()) full.add(kk);
+  if (over || gm || spectating() || fullDay() || ((onPlay() || isCPU(turn)) && !alive[V])) for (const kk of cells.keys()) full.add(kk);
   else if (sel) { for (const sc of cells.values()) if (isBase(sc)) disk(full, sc, 2); }   // 拠点選び中は候補6か所の半径2マスが見える
   else for (const sc of cells.values()) {
     if (sc.o === V || sc === last[V]) { full.add(key(sc.q, sc.r)); const lv = visLevel(sc, V); if (lv === 2) disk(nores, sc, 1); else if (lv >= 3) disk(full, sc, lv - 2); }
@@ -983,25 +1042,29 @@ function draw() {
       ctx.fillText('≈', x, y);
     }
     if (sel && isBase(c)) drawHouse(x, y - size*0.05, size*0.38);   // 拠点候補・選んだ拠点: 家のマーク
+    const pq = PL().find(q => last[q] === c && alive[q]);   // ♟ 現在地（白枠のマス）にプレイヤーのコマ
+    if (pq && !selecting) drawPawn(x, y + size*0.08, size*0.42, COLORS[pq]);
   }
 }
 function buildHeader() {   // 人数に合わせて、上のプレイヤー欄を作り直す
   const h = document.getElementById('hdr'), cmp = NP > 2;
   h.classList.toggle('compact', cmp); h.style.setProperty('--cols', NP === 4 ? 2 : Math.min(NP, 3));   // 4人は2×2
-  h.innerHTML = PL().map(p => `<div class="pl" id="pl${p}">` + (cmp ? `<div class="n"><span class="nm" style="color:${COLORS[p]}">${esc(name(p))}</span><span class="v"><span id="sp${p}"></span><small> 行動</small></span></div>` : `<div class="n nm" style="color:${COLORS[p]}">${esc(name(p))}</div><div class="v"><span id="sp${p}"></span> 行動</div>`) + `<div class="s">` +
-    (cmp ? `領地<b id="cn${p}"></b> 資源<b id="rp${p}"></b> 戦力<b id="pw${p}"></b><br>食料+<b id="in${p}"></b> 貯蔵<b id="cap${p}"></b> 回数<b id="ac${p}"></b>`
-         : `領地 <span id="cn${p}"></span> ／ 食料 +<span id="in${p}"></span> ／ 貯蔵 <span id="cap${p}"></span> ／ 資源 <span id="rp${p}"></span> ／ 戦力 <span id="pw${p}"></span> ／ 回数 <span id="ac${p}"></span>`) + `</div></div>`).join('');
+  h.innerHTML = PL().map(p => `<div class="pl" id="pl${p}">` + (cmp ? `<div class="n"><span class="nm" style="color:${COLORS[p]}">${isCPU(p) ? '🤖' : ''}${esc(name(p))}</span><span class="v">⚡<span id="sp${p}"></span><small> 行動</small></span></div>` : `<div class="n nm" style="color:${COLORS[p]}">${isCPU(p) ? '🤖' : ''}${esc(name(p))}</div><div class="v">⚡<span id="sp${p}"></span> 行動</div>`) + `<div class="s">` +
+    (cmp ? `🚩<b id="cn${p}"></b> 💎<b id="rp${p}"></b> ⚔️<b id="pw${p}"></b><br>🍖+<b id="in${p}"></b> 📦<b id="cap${p}"></b> 🎯<b id="ac${p}"></b>`
+         : `🚩領地 <span id="cn${p}"></span> ／ 🍖食料 +<span id="in${p}"></span> ／ 📦貯蔵 <span id="cap${p}"></span> ／ 💎資源 <span id="rp${p}"></span> ／ ⚔️戦力 <span id="pw${p}"></span> ／ 🎯回数 <span id="ac${p}"></span>`) + `</div></div>`).join('');
   document.querySelectorAll('#tiNP .np').forEach(b => b.classList.toggle('on', +b.dataset.np === NP));
   requestAnimationFrame(() => { if (cells) resize(); });
 }
 function render() {
-  const gate = document.getElementById('gate'), needGate = !onPlay() && !over && turn !== viewer;   // 手番が替わったら確認画面で盤面を隠す
+  const cpuT = isCPU(turn), gate = document.getElementById('gate');
+  const needGate = !onPlay() && !over && (cpuT ? humansAlive() >= 2 : turn !== viewer);   // 手番が替わったら確認画面で盤面を隠す（人間が2人以上いるときは、AIの番も隠す）
   gate.classList.toggle('open', needGate);
   if (needGate) {
     const t = document.getElementById('gateTitle');
-    t.textContent = `${name(turn)}のターン`; t.style.color = COLORS[turn];
-    document.getElementById('gateSub').textContent = selecting ? '拠点を選びます　準備ができたら押してください' : `R${Math.min(round, MAX_ROUNDS)}/${MAX_ROUNDS}（${phase()}）　行動回数 ${gm ? '∞' : actions}　準備ができたら押してください`;
+    t.textContent = `${cpuT ? '🤖 ' : ''}${name(turn)}のターン`; t.style.color = COLORS[turn];
+    document.getElementById('gateSub').textContent = cpuT ? 'AIが考えています…' : selecting ? '拠点を選びます　準備ができたら押してください' : `R${Math.min(round, MAX_ROUNDS)}/${MAX_ROUNDS}（${phase()}）　行動回数 ${gm ? '∞' : actions}　準備ができたら押してください`;
     document.getElementById('gateBtn').style.background = COLORS[turn];
+    document.getElementById('gateBtn').style.display = cpuT ? 'none' : '';
   }
   for (const p of PL()) {
     document.getElementById('sp'+p).textContent = gm ? '∞' : sp[p];
@@ -1025,7 +1088,7 @@ function render() {
   const st = document.getElementById('status');   // バッジ以外の文は下のステータス欄に表示
   st.textContent = msg.replace(/R\d+\/\d+（[朝昼夕夜]）\s*/, '');
   st.style.color = over && winner ? COLORS[winner] : '';
-  document.getElementById('end').disabled = over || selecting;
+  document.getElementById('end').disabled = over || selecting || cpuT;
   draw();
 }
 
@@ -1077,6 +1140,7 @@ function unlock(p, title, kind = 'lang') {
   const st = kind === 'fire' ? fireOpen : kind === 'stone' ? stoneOpen : kind === 'lang' ? langOpen : xOpen[kind];
   if (st[p]) return;
   st[p] = true;
+  if (isCPU(p)) return;   // AIには、お知らせを出さない
   (p === turn ? popupQ : pending[p]).push({t: title, s: `「${(SKILLS.find(k => k.id === kind) || {name: '言語の獲得'}).name}」を解放`});
   showPopup();
 }
@@ -1312,7 +1376,7 @@ const SFX = (() => {
   wrap('pickBase', (orig, a) => { const o0 = a[0].o; orig.apply(null, a); if (o0 === 0 && a[0].o !== 0) SFX.play('base'); });
   wrap('switchTurn', (orig, a) => { const t0 = turn; orig.apply(null, a); if (!over && turn !== t0) SFX.play('turn'); });
   wrap('finish', (orig, a) => { orig.apply(null, a); SFX.play('fanfare'); });
-  wrap('unlock', (orig, a) => { const st = () => JSON.stringify([langOpen, fireOpen, stoneOpen, xOpen]), b = st(); orig.apply(null, a); if (a[0] === turn && b !== st()) SFX.play('unlock'); });
+  wrap('unlock', (orig, a) => { const st = () => JSON.stringify([langOpen, fireOpen, stoneOpen, xOpen]), b = st(); orig.apply(null, a); if (a[0] === turn && !isCPU(a[0]) && b !== st()) SFX.play('unlock'); });
   // スキルの習得・ツールの使用は、無名のクリック処理なので、前後の状態を比べて鳴らす
   const tb = document.getElementById('treeBody'), tl = document.getElementById('toolBody');
   const learned = () => JSON.stringify(skills), toolSt = () => JSON.stringify([tool, pot, boost, fixed]);
@@ -1328,9 +1392,9 @@ const SFX = (() => {
 
 // チュートリアル（本物の盤面に重ねる吹き出しガイド）。拠点・移動・資源・戦闘・昼夜・食料の基本だけを案内する
 const TUT = (() => {
-  let on = false, i = 0, T = null, starting = false, prevNP = null;   // チュートリアルは2人対戦で行う
+  let on = false, i = 0, top = 0, T = null, starting = false, prevNP = null;   // i: 表示中の手順 / top: 実際に進んだ手順（戻って読み返しているときは i < top）   // チュートリアルは2人対戦で行う
   const el = document.createElement('div'); el.id = 'tut';
-  el.innerHTML = '<div id="tutHead"><b id="tutNo"></b><button id="tutQuit">やめる</button></div><div id="tutText"></div><div id="tutBtns"><button id="tutKeep">このまま続ける</button><button id="tutNext" class="main"></button></div>';
+  el.innerHTML = '<div id="tutHead"><b id="tutNo"></b><button id="tutQuit">やめる</button></div><div id="tutText"></div><div id="tutBtns"><button id="tutBack">◀ 戻る</button><button id="tutKeep">このまま続ける</button><button id="tutNext" class="main"></button></div>';
   document.getElementById('wrap').appendChild(el);
   const $ = id => document.getElementById(id);
   const STEPS = [
@@ -1344,20 +1408,24 @@ const TUT = (() => {
     {text: '光っている緑のマスは、獣の縄張りです。タップして戦闘しましょう。自分の戦力が獣より大きければ勝ちで、マスを奪って食料+1。拠点の近くでは戦力が上がります。負けても、行動回数と食料は消費します。', hl: () => [T.F], only: c => c === T.F, done: () => !T.F.forest},
     {text: '時間帯は、朝→昼→夕→夜の順に進みます（左上の🌞🌙をタップで確認）。夜は行動回数が1に減り、視界が狭くなり、戦力も-1されます。'},
     {text: '食料は毎ターン+2され、貯蔵は3までです。移動・戦闘・資源の回収に使います（平地は1、山▲は2、水域≈は通れません）。食料が足りないと動けないので、計画的に使いましょう。'},
-    {text: '勝利条件は、ラウンド終了時に領地が多いこと、または相手の領地を現在地以外すべて奪うことです。村・スキル・ツール・命の糧は、右上のボタンと❔のルール説明で確認できます。', last: true}
+    {text: '勝利条件は、ラウンド終了時に領地が多いこと、相手の領地を現在地以外すべて奪うこと、または相手の拠点を奪う（拠点潰し）ことです。村・スキル・ツール・命の糧は、右上のボタンと❔のルール説明で確認できます。', last: true}
   ];
-  const cur = () => STEPS[Math.min(i, STEPS.length - 1)];
+  const cur = () => STEPS[Math.min(i, STEPS.length - 1)], real = () => STEPS[Math.min(top, STEPS.length - 1)];
   function update() {
     if (!on || !cells) { el.style.display = 'none'; return; }
-    let g = 0; while (i < STEPS.length - 1 && STEPS[i].done && STEPS[i].done() && g++ < 20) i++;
-    const s = cur(), hl = s.hl ? s.hl() : [];
+    const follow = i >= top; let g = 0;
+    while (top < STEPS.length - 1 && STEPS[top].done && STEPS[top].done() && g++ < 20) top++;
+    if (follow) i = top;   // 読み返していないときは、進んだ手順に追いつく
+    const rev = i < top, s = cur(), hl = !rev && s.hl ? s.hl() : [];
     el.style.display = 'block';
     $('tutNo').textContent = `チュートリアル ${i + 1}/${STEPS.length}`;
     $('tutText').textContent = s.text;
-    const nb = $('tutNext'); nb.textContent = s.last ? '新しいゲームを始める' : s.done ? 'スキップ' : '次へ'; nb.className = s.done ? '' : 'main';
+    const nb = $('tutNext'); nb.textContent = s.last ? '新しいゲームを始める' : (s.done && !rev) ? 'スキップ' : '次へ'; nb.className = (s.done && !rev) ? '' : 'main';
     $('tutKeep').style.display = s.last ? '' : 'none';
-    const top = hl.length && toPixel(hl[0].q, hl[0].r).y > canvas.getBoundingClientRect().height / 2;   // 光らせるマスが下半分なら、吹き出しは上に出す
-    el.style.top = top ? '62px' : 'auto'; el.style.bottom = top ? 'auto' : '62px';
+    $('tutBack').style.display = i > 0 ? '' : 'none';
+    $('tutText').textContent = (rev ? '【読み返し中】' : '') + s.text;
+    const low = hl.length && toPixel(hl[0].q, hl[0].r).y > canvas.getBoundingClientRect().height / 2;   // 光らせるマスが下半分なら、吹き出しは上に出す
+    el.style.top = low ? '62px' : 'auto'; el.style.bottom = low ? 'auto' : '62px';
   }
   function stop(restore = true) { on = false; el.style.display = 'none'; if (restore && prevNP) NP = prevNP; prevNP = null; }
   function start() {
@@ -1377,15 +1445,16 @@ const TUT = (() => {
     R.res = true; F.forest = true;
     const p2 = BASES.map(([q, r]) => cells.get(key(q, r))).reduce((a, c) => hexDist(c, b) > hexDist(a, b) ? c : a);
     T = {b, m1, R, F, p2}; sp[1] = 3;   // チュートリアルでは、食料を多めにしておく
-    on = true; i = 0; render();
+    on = true; i = 0; top = 0; render();
   }
-  $('tutNext').addEventListener('click', () => { if (cur().last) { stop(); init(); } else { i++; render(); } });
+  $('tutNext').addEventListener('click', () => { if (cur().last) { stop(); init(); } else { i++; if (i > top) top = i; render(); } });
+  $('tutBack').addEventListener('click', () => { if (i > 0) { i--; render(); } });
   $('tutKeep').addEventListener('click', () => { stop(false); render(); });
   $('tutQuit').addEventListener('click', () => ask('チュートリアルをやめて、新しいゲームを始めますか？', 'やめる', () => { stop(); init(); }));
   return {
     get on() { return on; }, get starting() { return starting; }, get p2() { return T && T.p2; },
-    hl() { return on && cells && T ? (cur().hl ? cur().hl() : []) : []; },
-    allow(c) { const s = cur(); return !s.only || s.only(c); },
+    hl() { return on && cells && T && i >= top ? (cur().hl ? cur().hl() : []) : []; },
+    allow(c) { const s = real(); return !s.only || s.only(c); },   // 読み返し中も、実際に進んだ手順の指示に従う
     nudge() { msg = '光っているマスをタップしてください'; render(); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); },
     update, start, stop
   };
@@ -1430,6 +1499,9 @@ const SETUP = (() => {
       return `<button data-k="${k}" class="${k === PCOL[idx] ? 'on' : ''}" ${owner ? 'disabled' : ''}><span class="sw" style="background:${c.c}"></span>${owner ? 'P' + owner : c.n}</button>`;
     }).join('');
     $('suBack').textContent = idx > 1 ? '戻る' : fromTitle ? 'タイトルへ' : 'キャンセル';
+    const lv = CPU[idx] || 0;   // 操作: 人間 / AIの強さ
+    $('suType').innerHTML = ['👤<br>人間', '🤖<br>やさしい', '🤖<br>ふつう', '🤖<br>つよい'].map((t, k) => `<button data-t="${k}" class="${k === lv ? 'on' : ''}">${t}</button>`).join('');
+    $('suTypeNote').textContent = lv ? 'このプレイヤーはAIが自動で操作します' : '';
     $('suNext').textContent = idx < NP ? '次へ' : '拠点選びへ';
     $('suNext').style.background = col;
     $('suDots').innerHTML = PL().map(q => `<span style="${q <= idx ? `background:${q === idx ? col : PALETTE[PCOL[q]].c}` : ''}"></span>`).join('');
@@ -1448,18 +1520,28 @@ const SETUP = (() => {
   }
   const keepName = () => { const v = cleanName(); if (v) PNAME[idx] = v; else delete PNAME[idx]; };
   function done() {
-    box.classList.remove('open'); applyColors(); savePlayers(); buildHeader();
-    if (selecting && PL().every(q => !started[q])) msg = `R1/${MAX_ROUNDS}（朝） ${name(turn)}は拠点を選んでください`;
+    box.classList.remove('open'); applyColors(); savePlayers(); saveCpu(); buildHeader();
+    if (selecting && PL().every(q => !started[q])) { viewer = isCPU(turn) ? (PL().find(q => !isCPU(q)) || turn) : turn; msg = `R1/${MAX_ROUNDS}（朝） ${name(turn)}は拠点を選んでください`; }
     render();
   }
   $('suColors').addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if (!b || b.disabled) return; keepName(); PCOL[idx] = +b.dataset.k; show(); });
+  $('suType').addEventListener('click', e => {   // 人間 ⇔ AI の切り替え。AIにしたとき名前が空なら「AI番号」を入れる
+    const b = e.target.closest('button[data-t]'); if (!b) return;
+    keepName(); const t = +b.dataset.t, ai = 'AI' + idx;
+    if (t) { CPU[idx] = t; if (!PNAME[idx]) PNAME[idx] = ai; } else { delete CPU[idx]; if (PNAME[idx] === ai) delete PNAME[idx]; }
+    show();
+  });
   $('suName').addEventListener('input', checkName);
-  $('suNext').addEventListener('click', () => { if (!checkName()) return; keepName(); if (idx < NP) { idx++; show(); } else done(); });
+  $('suNext').addEventListener('click', () => {
+    if (!checkName()) return; keepName();
+    if (idx >= NP && PL().every(q => CPU[q])) { $('suErr').textContent = '全員をAIにはできません。1人以上を「人間」にしてください'; return; }
+    if (idx < NP) { idx++; show(); } else done();
+  });
   $('suName').addEventListener('keydown', e => { if (e.key === 'Enter') $('suNext').click(); });
   $('suBack').addEventListener('click', () => {
     keepName();
     if (idx > 1) { idx--; show(); return; }
-    box.classList.remove('open'); applyColors(); buildHeader(); render();
+    box.classList.remove('open'); applyColors(); saveCpu(); buildHeader(); render();
     if (fromTitle) document.getElementById('title').classList.remove('hide');
   });
   return { open(title) { fromTitle = !!title; idx = 1; show(); box.classList.add('open'); } };
@@ -1474,7 +1556,13 @@ document.getElementById('settingsBtn').addEventListener('click', () => { documen
   const npBox = document.getElementById('tiNP');   // プレイ人数（2〜6人）
   npBox.innerHTML = '<span>人数</span>' + [2,3,4,5,6].map(n => `<button class="np${n === NP ? ' on' : ''}" data-np="${n}">${n}</button>`).join('');
   npBox.addEventListener('click', e => { const b = e.target.closest('.np'); if (!b || !canEdit()) return; NP = +b.dataset.np; MAX_ROUNDS = ROUNDS_BY_NP[NP]; init(); });   // 人数に合わせて、マップの大きさとラウンド数も変わる
-  document.getElementById('tiStart').addEventListener('click', () => { close(); SETUP.open(true); });   // 名前と色を決めてから拠点選びへ
+  document.getElementById('tiStart').addEventListener('click', () => { CPU = {}; saveCpu(); close(); buildHeader(); SETUP.open(true); });   // 名前と色を決めてから拠点選びへ（全員が人間）
+  document.getElementById('tiAI').addEventListener('click', () => {   // AI対戦: P1が人間、P2以降がAI（強さは前回の設定を引き継ぐ）
+    const lv = Math.max(...Object.values(CPU), 0) || 2; CPU = {};
+    for (let q = 2; q <= 6; q++) { CPU[q] = lv; if (!PNAME[q] || /^P\d$/.test(PNAME[q])) PNAME[q] = 'AI' + q; }
+    if (PNAME[1] && /^AI\d$/.test(PNAME[1])) delete PNAME[1];
+    saveCpu(); close(); buildHeader(); SETUP.open(true);
+  });
   document.getElementById('tiTut').addEventListener('click', () => { close(); TUT.start(); });
   document.getElementById('tiSet').addEventListener('click', () => document.getElementById('settingsBtn').click());
   document.getElementById('tiRule').addEventListener('click', () => document.getElementById('helpBtn').click());
@@ -1485,7 +1573,7 @@ document.getElementById('helpClose').addEventListener('click', () => help.classL
 help.addEventListener('click', e => { if (e.target === help) help.classList.remove('open'); });
 // スキルツリー（資源ポイントで習得。習得は自分のターン中にアクションを使わず行える）
 const isOpen = (k, p) => !k.lock || (k.lock === 'fire' ? fireOpen[p] : k.lock === 'stone' ? stoneOpen[p] : k.lock === 'lang' ? langOpen[p] : xOpen[k.lock][p]);
-const COND = {"fire": "山に隣接する資源マスを初めて回収する（山火事の痕跡）", "lang": "①火の発見後に夜を終える（火を囲む夜） ②他のプレイヤーと領地が隣り合う（未知の存在との出会い） ③自領が10マスに到達（部族社会の発展）", "stone": "資源ポイントが2以上になる（打撃の共鳴）", "farm": "磨製石器の加工を習得し、水域に面した平地を領地にする（大地の開墾）", "herd": "獣に勝つ（獣の馴化）", "polish": "打製石器の加工を習得したあと、山を領地にする（研磨の技術）", "pottery": "火の発見を習得し、山を領地にする（形を成す粘土）", "cook": "土器の作製を習得する（炎が生む滋養）", "settle": "農耕の確立と牧畜の開始を習得し、村を1つ建設する（集落の礎）", "faith": "言語の獲得を習得したあと、周囲6マスに山・水域・森の3種類以上の地形がある場所で命の糧を捧げる（静寂の儀式）"};   // GM用: 解放条件
+const COND = {"fire": "山に隣接する資源マスを初めて回収する（山火事の痕跡）", "lang": "①火の発見後に夜を終える（火を囲む夜） ②他のプレイヤーと領地が隣り合う（未知の存在との出会い） ③自領が10マスに到達（部族社会の発展）", "stone": "資源ポイントが2以上になる（打撃の共鳴）", "farm": "磨製石器の加工を習得し、水域に面した平地を領地にする（大地の開墾）", "herd": "2マス以上の森の獣に勝つ（獣の馴化）", "polish": "打製石器の加工を習得したあと、山を領地にする（研磨の技術）", "pottery": "火の発見を習得し、山を領地にする（形を成す粘土）", "cook": "土器の作製を習得する（炎が生む滋養）", "settle": "農耕の確立と牧畜の開始を習得し、村を1つ建設する（集落の礎）", "faith": "言語の獲得を習得したあと、周囲6マスに山・水域・森の3種類以上の地形がある場所で命の糧を捧げる（静寂の儀式）"};   // GM用: 解放条件
 const SKILLS = [{id:'fire', name:'火の発見', cost:1, spCost:1, lock:'fire', desc:'夜間（夕・夜）の行動回数+1。夜間の視界の低下と戦力-1がなくなる。'},
   {id:'lang', name:'言語の獲得', cost:0, spCost:1, lock:'lang', desc:'道でつながった半径2マス以内の、未回収の資源マスをタップして、1回の行動と食料1で回収できる（通常は今いるマスだけ）。移動できるマスは、タップで回収か移動かを選べる。'},
   {id:'stone', name:'打製石器の加工', cost:1, spCost:1, lock:'stone', desc:'習得すると打製石器が手に入る。ツール（⛏）で「使用」するたびに、そのターンの獣との戦闘の戦力+1。使うとゲージが半分減り、2回使うと壊れる。'},
@@ -1499,7 +1587,7 @@ const SKILLS = [{id:'fire', name:'火の発見', cost:1, spCost:1, lock:'fire', 
 function renderTree() {
   const p = viewP(), body = document.getElementById('treeBody');   // オンラインでは自分のスキルを表示
   body.innerHTML = `<div style="margin-bottom:10px;font-weight:700">${name(p)}　資源ポイント: ${gm ? '∞' : rp[p]}</div>` + SKILLS.map(k => {
-    if (!isOpen(k, p)) return `<div style="border:1px dashed var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;color:var(--muted)"><div style="font-weight:700">？？？</div><div style="font-size:12px">まだ解放されていません</div></div>`;
+    if (!isOpen(k, p)) return `<div style="border:1px dashed var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;color:var(--muted)"><div style="font-weight:700">🔒 ${k.name}<span style="font-size:11px;font-weight:400"> （未解放）</span></div><div style="font-size:12px">${k.desc}</div><div style="font-size:12px;margin-top:2px;color:#b8860b">🔓 解放条件: ${COND[k.id]}</div><div style="font-size:12px;margin-top:2px">必要: 資源ポイント ${k.cost} ／ 行動回数 ${k.spCost}${k.foodCost ? ` ／ 食料 ${k.foodCost}` : ''}</div></div>`;
     const got = skills[p][k.id], can = myTurn() && !busy && !over && !selecting && !got && (gm || (rp[p] >= k.cost && actions >= k.spCost && sp[p] >= (k.foodCost || 0)));
     return `<div style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px">
       <div style="flex:1"><div style="font-weight:700">${k.name}</div><div style="font-size:12px;color:var(--muted)">${k.desc}</div>${gm ? `<div style="font-size:12px;margin-top:2px;color:#b8860b">🔓 解放条件: ${COND[k.id]}</div>` : ''}<div style="font-size:12px;margin-top:2px">必要: 資源ポイント ${k.cost} ／ 行動回数 ${k.spCost}${k.foodCost ? ` ／ 食料 ${k.foodCost}` : ''}（所持: 資源 ${gm ? '∞' : rp[p]} ／ 行動回数 ${gm ? '∞' : actions}${k.foodCost ? ` ／ 食料 ${gm ? '∞' : sp[p]}` : ''}）</div></div>
@@ -1507,16 +1595,20 @@ function renderTree() {
   }).join('');
 }
 document.getElementById('treeBody').addEventListener('click', e => {
-  const id = e.target.dataset && e.target.dataset.skill; if (!id) return;
+  const id = e.target.dataset && e.target.dataset.skill; if (!id || !myTurn()) return;
+  learnSkill(id);
+});
+function learnSkill(id) {   // スキルの習得（手番のプレイヤー）。AIもこれを使う
   const k = SKILLS.find(x => x.id === id);
-  if (!k || over || busy || selecting || !isOpen(k, turn) || skills[turn][id] || (!gm && (rp[turn] < k.cost || actions < k.spCost || sp[turn] < (k.foodCost || 0)))) return;
+  if (!k || over || busy || selecting || !isOpen(k, turn) || skills[turn][id] || (!gm && (rp[turn] < k.cost || actions < k.spCost || sp[turn] < (k.foodCost || 0)))) return false;
   if (!gm) { rp[turn] -= k.cost; actions -= k.spCost; sp[turn] -= (k.foodCost || 0); } skills[turn][id] = true;
   if (id === 'stone' || id === 'polish') tool[id][turn] = 2;   // 習得したら、満タンの石器がすぐ使える
   if (id === 'fire' && !isDay()) actions += 1;   // 夜に習得したら、このターンから+1アクション
   msg = `${name(turn)} が「${k.name}」を習得！`; checkUnlocks(turn, last[turn]);
   render(); renderTree();
   if (!gm && actions <= 0) { tree.classList.remove('open'); finishAct(); }   // 行動回数を使い切ったらターン終了の確認へ
-});
+  return true;
+}
 const tree = document.getElementById('tree');
 const TOOLS = [{id:'stone', name:'打製石器', target:'獣との戦闘', cost:1, act:1}, {id:'polish', name:'磨製石器', target:'対人戦', cost:2, act:1}];   // 作製コスト = 習得コスト
 const toolPanel = document.getElementById('tools');
@@ -1716,7 +1808,7 @@ const ONL = (() => {
     return {debug: 0, config};
   }
   let peer = null, conn = null, conns = new Map(), connWait = null;   // conn: 参加者→ホスト / conns: ホストが持つ参加者ごとの接続
-  let uid = null, freshUid = false, adopted = false;
+  let uid = null, freshUid = false, adopted = false, watching = false, savedUid = null;   // watching: 観戦者として入っている
   let code = '', isHost = false, gameDoc = null, players = [], onlineSet = new Set();
   let G = null, P = [];   // ホストだけが持つ、部屋の正本（G: 部屋の状態 / P: 参加者）
   let applying = false, ver = 0, lastSent = '', authTurn = 0, lastOut = null;
@@ -1784,7 +1876,7 @@ const ONL = (() => {
     if (!d || typeof d !== 'object' || !['lobby', 'play', 'closed'].includes(d.phase)) return null;
     const np = Math.max(2, Math.min(6, parseInt(d.np) || 2));
     const seats = {}; if (d.seats && typeof d.seats === 'object') for (let p = 1; p <= 6; p++) if (typeof d.seats[p] === 'string' && d.seats[p]) seats[p] = safeSeg(d.seats[p]);
-    return {host: safeSeg(d.host || ''), np, rounds: Math.max(1, Math.min(999, parseInt(d.rounds) || ROUNDS_BY_NP[np])), phase: d.phase, seats,
+    return {host: safeSeg(d.host || ''), np, rounds: Math.max(1, Math.min(999, parseInt(d.rounds) || ROUNDS_BY_NP[np])), phase: d.phase, seats, dv: d.dv !== false, spec: d.spec !== false,
       v: Number.isFinite(+d.v) ? +d.v : 0, s: typeof d.s === 'string' && d.s.length <= MAX_S ? d.s : ''};
   }
   const cleanPlayers = list => Array.isArray(list) ? list.slice(0, 12).filter(x => x && typeof x === 'object' && typeof x.uid === 'string')
@@ -1818,13 +1910,14 @@ const ONL = (() => {
     'playing': 'このルームはすでに対戦中です',
     'full': 'このルームは満員です',
     'closed': 'ホストとの接続が切れました',
+    'nospec': 'このルームは観戦を許可していません',
     'offline': 'インターネットに接続されていません。接続を確認してください'
   };
   const errText = e => ERR[e && e.type] || '通信に失敗しました。もう一度お試しください';
 
   function menuState() {
     const ok = !!window.Peer;
-    $('onCreate').disabled = !ok || busyUI; $('onJoin').disabled = !ok || busyUI;
+    $('onCreate').disabled = !ok || busyUI; $('onJoin').disabled = !ok || busyUI; $('onWatch').disabled = !ok || busyUI;
     $('onAvail').textContent = !ok ? ERR.nolib
       : 'インターネット経由で、それぞれの端末から同じルームに入って対戦します。ルームを作った人がホストになります。'
         + (TURN_CONFIG.relayOnly ? '\n🔒 通信は中継サーバーを経由するため、対戦相手にあなたのIPアドレスは見えません。' : '\n⚠ 端末どうしが直接通信するため、対戦相手にIPアドレスが見える場合があります。');
@@ -1873,7 +1966,7 @@ const ONL = (() => {
     let p = null, c = '';
     for (let i = 0; i < 5 && !p; i++) { c = genCode(); try { p = await newPeer(PFX + c); } catch (e) { if (e.type !== 'unavailable-id') throw e; } }
     if (!p) throw {type: 'unavailable-id'};
-    becomeHost(p, c, {host: uid, np, rounds: ROUNDS_BY_NP[np], phase: 'lobby', v: 0, s: '', seats: {}}, []);
+    becomeHost(p, c, {host: uid, np, rounds: ROUNDS_BY_NP[np], phase: 'lobby', v: 0, s: '', seats: {}, dv: dayVision, spec: true}, []);
   });
   // IDを入力して参加する
   const join = () => withBusy(async () => {
@@ -1899,6 +1992,18 @@ const ONL = (() => {
     }
     lsSet('hexOnline', {code: c, uid});
   });
+  // 観戦: 席を取らずに部屋へ入り、盤面全体を眺める（操作はできない）
+  const watch = () => withBusy(async () => {
+    setErr('');
+    if (navigator.onLine === false) throw {type: 'offline'};
+    const c = $('onCode').value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (c.length !== 4) { setErr('ルームIDは4文字です'); return; }
+    if (!watching) savedUid = uid;
+    watching = true; uid = 's' + Math.random().toString(36).slice(2, 12); adopted = false;   // 観戦者のIDは毎回新しく作る（席とは別）
+    peer = await newPeer();
+    enterLocal(c);
+    await connectHost();
+  });
   async function rehost(sh) {
     const g = cleanGame(sh.G);
     if (!g || (g.s && (() => { try { validateState(JSON.parse(g.s)); return false; } catch (e) { return true; } })())) { lsSet('hexHost', null); throw {type: 'peer-unavailable'}; }   // 保存データが壊れていたら使わない
@@ -1917,7 +2022,7 @@ const ONL = (() => {
     hostGone = false; netMsg = ''; nameSynced = false; clearTimeout(retryT);
     clearInterval(beatT); beatT = setInterval(beat, 4000); heard = Date.now();
     if (!backup) backup = {NP, MAX_ROUNDS, PNAME: {...PNAME}, PCOL: {...PCOL}};
-    ONLINE = {code: c, seat: 0, uid, playing: false};
+    ONLINE = {code: c, seat: 0, uid, playing: false, spec: watching};
     myName = cleanName(backup.PNAME[1] || ''); myCol = backup.PCOL[1] ?? 0; $('onName').value = myName;
   }
   function teardown() {
@@ -1925,6 +2030,8 @@ const ONL = (() => {
     const p = peer, cs = [...conns.values(), conn];
     peer = null; conn = null; conns = new Map(); connWait = null;
     setTimeout(() => { for (const cn of cs) try { if (cn) cn.close(); } catch (e) {} try { if (p) p.destroy(); } catch (e) {} }, 300);   // 最後の連絡を送り切ってから閉じる
+    if (watching) { uid = savedUid || uid; watching = false; }
+    dayVision = loadDV(); document.body.classList.remove('spec');
     code = ''; gameDoc = null; players = []; onlineSet = new Set(); isHost = false; G = null; P = []; ONLINE = null; busy = false; netMsg = '';
     if (backup) { NP = backup.NP; MAX_ROUNDS = backup.MAX_ROUNDS; PNAME = backup.PNAME; PCOL = backup.PCOL; applyColors(); backup = null; }
   }
@@ -1936,14 +2043,14 @@ const ONL = (() => {
       // 対戦の途中なら状態を残しておき、同じIDで入り直すと再開できる
     } else {
       send(conn, {t: 'bye'});
-      if (lobby || over) lsSet('hexOnline', null);
+      if ((lobby || over) && !watching) lsSet('hexOnline', null);
     }
     teardown();
     RESULT.close(); box.classList.remove('open');
     init();
     if (showTitle) $('title').classList.remove('hide');
   }
-  const leaveMsg = () => isHost && !over
+  const leaveMsg = () => watching ? '観戦をやめて、タイトルに戻りますか？' : isHost && !over
     ? 'オンライン対戦から退出しますか？<br>あなたはホストです。退出すると、あなたが同じIDで入り直すまで対戦が止まります。'
     : 'オンライン対戦から退出しますか？<br>同じIDを入力すると、あとで自分の席に戻れます。';
 
@@ -1995,6 +2102,17 @@ const ONL = (() => {
     if (++cn.cnt > 30) { if (cn.cnt > 120) { hostDrop(cn); try { cn.close(); } catch (e) {} } return; }
     if (m.t === 'ping') { send(cn, {t: 'pong'}); return; }
     if (m.t === 'sync') { if (cn.uid && conns.get(cn.uid) === cn) send(cn, {t: 'game', d: G, force: true}); return; }
+    if (m.t === 'hello' && m.spec) {   // 観戦者: 席を取らずに、部屋の状態だけを受け取る
+      const su = safeSeg(m.uid || '');
+      if (G.spec === false) { send(cn, {t: 'err', e: 'nospec'}); setTimeout(() => { try { cn.close(); } catch (e) {} }, 500); return; }
+      if (!su || su === uid || P.some(x => x.uid === su) || Object.values(G.seats || {}).includes(su)) { send(cn, {t: 'dup'}); return; }
+      const old = conns.get(su);
+      if (!old && [...conns.values()].filter(x => x.spec).length >= 8) { send(cn, {t: 'err', e: 'full'}); setTimeout(() => { try { cn.close(); } catch (e) {} }, 500); return; }
+      if (old && old !== cn) { try { old.close(); } catch (e) {} }
+      cn.uid = su; cn.spec = true; conns.set(su, cn);
+      send(cn, {t: 'welcome'}); hostPush(false, true); send(cn, {t: 'game', d: G});
+      return;
+    }
     if (m.t === 'hello') {
       const u = safeSeg(m.uid || '');
       if (!u || u === uid) { send(cn, {t: 'dup'}); return; }
@@ -2045,7 +2163,7 @@ const ONL = (() => {
         if (e) { try { cn.close(); } catch (_) {} rej(e); } else res();
       }
       connWait = fin;
-      cn.on('open', () => send(cn, {t: 'hello', uid, adopt: adopted, name: myName, col: myCol}));
+      cn.on('open', () => send(cn, {t: 'hello', uid, adopt: adopted, name: myName, col: myCol, spec: watching}));
       cn.on('data', m => {
         if (!m || typeof m !== 'object') return;
         if (conn === cn || !done) heard = Date.now();
@@ -2114,6 +2232,7 @@ const ONL = (() => {
     $('onShareLink').style.display = location.protocol.startsWith('http') ? '' : 'none';
     $('onHostNote').style.display = isHost ? '' : 'none';
     $('onCount').textContent = `${Math.min(players.length, np)} / ${np}人`;
+    $('onHostNote').style.display = isHost ? '' : 'none';
     $('onList').innerHTML = players.map((pl, i) => {
       const col = (PALETTE[pl.col] || PALETTE[0]).c;
       const tags = [i < np ? 'P' + (i + 1) : '満員のため待機', pl.uid === gameDoc.host ? 'ホスト' : '', pl.uid === uid ? 'あなた' : ''].filter(Boolean).join('・');
@@ -2129,14 +2248,17 @@ const ONL = (() => {
     $('onName').style.borderColor = (PALETTE[myCol] || PALETTE[0]).c;
     const dup = myName && others.some(x => cleanName(x.name) && normName(cleanName(x.name)) === normName(myName));
     setErr2(netMsg || (dup ? `「${myName}」はほかの参加者と同じ名前です。別の名前にしてください` : ''));
-    $('onHostOpts').style.display = isHost ? '' : 'none';
+    $('onHostOpts').style.display = isHost ? '' : 'none'; $('onMine').style.display = watching ? 'none' : '';
     if (isHost) {
+      $('onSetDV').checked = !!gameDoc.dv; $('onSetSpec').checked = gameDoc.spec !== false;
       if (document.activeElement !== $('onSetNP')) $('onSetNP').value = np;
       if (document.activeElement !== $('onSetRounds')) $('onSetRounds').value = gameDoc.rounds;
     }
     const short = np - players.length;
+    const dvNote = gameDoc.dv ? '昼はマップ全体が見えます' : '視界は通常のルールです';
     $('onWait').textContent = isHost ? (short > 0 ? `あと${short}人の参加を待っています。` : '人数がそろいました。対戦を始められます。')
-                                     : `ホストが対戦を始めるのを待っています（${np}人対戦・${gameDoc.rounds}ラウンド）。`;
+                                     : watching ? `👁 観戦中です。対戦が始まると、盤面が表示されます（${np}人対戦・${gameDoc.rounds}ラウンド・${dvNote}）。`
+                                     : `ホストが対戦を始めるのを待っています（${np}人対戦・${gameDoc.rounds}ラウンド・${dvNote}）。`;
     $('onStart').style.display = isHost ? '' : 'none';
     $('onStart').disabled = short > 0 || busyUI;
   }
@@ -2154,17 +2276,17 @@ const ONL = (() => {
       leave(false).then(() => { open(); setErr('ホストがルームを閉じました'); });
       return;
     }
-    gameDoc = d; isHost = d.host === uid;
+    gameDoc = d; isHost = d.host === uid; dayVision = d.dv !== false;   // 昼の全体表示は、ホストが決めた部屋の設定
     if (d.phase === 'lobby') { renderLobby(); return; }
     if (d.phase !== 'play') return;
-    const seat = +(Object.keys(d.seats || {}).find(k => d.seats[k] === uid) || 0);
-    if (!seat) { leave(false).then(() => { open(); setErr('対戦が始まりましたが、定員のため参加できませんでした'); }); return; }
+    const seat = watching ? 0 : +(Object.keys(d.seats || {}).find(k => d.seats[k] === uid) || 0);
+    if (!seat && !watching) { leave(false).then(() => { open(); setErr('対戦が始まりましたが、定員のため参加できませんでした'); }); return; }
     if (!(+d.v > ver) || !d.s) return;   // 自分の送信や古いデータは無視する
     let S; try { S = validateState(JSON.parse(d.s)); } catch (e) { console.warn('受け取った盤面が不正です', e); if (!isHost) resync(); return; }
     if (!S.PCOL || +seat > S.NP) return;
     const prevVer = ver; ver = +d.v; lastSent = d.s;
     const first = !onPlay();
-    ONLINE = {code, seat, uid, playing: true};
+    ONLINE = {code, seat, uid, playing: true, spec: watching};
     box.classList.remove('open'); $('title').classList.add('hide'); $('setup').classList.remove('open');
     try { applyState(S, first); }
     catch (e) {   // 反映の途中で失敗した: 最新の盤面を取り直す
@@ -2212,7 +2334,7 @@ const ONL = (() => {
 
   // 自分の番の操作を送る（render のたびに確認し、変化があれば送る）
   function maybeCommit() {
-    if (applying || !onPlay() || authTurn !== ONLINE.seat || !cells || !code) return;
+    if (applying || !onPlay() || watching || authTurn !== ONLINE.seat || !cells || !code) return;
     const s = JSON.stringify(exportState());
     if (s === lastSent) return;
     lastSent = s; authTurn = turn;   // 手番が移ったら、以後は次の人が送る
@@ -2264,6 +2386,7 @@ const ONL = (() => {
 
   // 画面の操作
   $('tiOnline').addEventListener('click', open);
+  $('tiSpec').addEventListener('click', () => { open(); $('onCode').focus(); });   // タイトルの「観戦」: ルームIDを入れる画面へ
   $('onClose').addEventListener('click', () => { box.classList.remove('open'); $('title').classList.remove('hide'); });
   $('onCreate').addEventListener('click', create);
   $('onJoin').addEventListener('click', join);
@@ -2288,6 +2411,9 @@ const ONL = (() => {
   });
   $('onColors').addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if (!b || b.disabled) return; myCol = +b.dataset.k; renderLobby(); saveMe({col: myCol}); });
   $('onSetNP').addEventListener('change', () => { const np = Math.max(2, Math.min(6, parseInt($('onSetNP').value) || 2)); if (isHost && G && G.phase === 'lobby') { G.np = np; G.rounds = ROUNDS_BY_NP[np]; hostPush(true, false); } });
+  $('onSetDV').addEventListener('change', () => { if (isHost && G && G.phase === 'lobby') { G.dv = $('onSetDV').checked; hostPush(true, false); } });
+  $('onSetSpec').addEventListener('change', () => { if (isHost && G && G.phase === 'lobby') { G.spec = $('onSetSpec').checked; hostPush(true, false); } });
+  $('onWatch').addEventListener('click', watch);
   $('onSetRounds').addEventListener('change', () => { const r = Math.max(1, Math.min(999, parseInt($('onSetRounds').value) || 0)); if (r && isHost && G && G.phase === 'lobby') { G.rounds = r; hostPush(true, false); } });
   document.getElementById('settingsBtn').addEventListener('click', () => {   // オンライン中は、チュートリアルとプレイヤー設定を隠す
     $('tutStart').parentElement.style.display = ONLINE ? 'none' : '';
@@ -2314,11 +2440,13 @@ const ONL = (() => {
     const r = orig.apply(null, a);
     const tag = $('onlineTag');
     if (onPlay()) {
-      tag.style.display = ''; tag.textContent = netMsg ? '⚠' : '🌐'; tag.title = `オンライン対戦（ルーム ${ONLINE.code}）`;
+      tag.style.display = ''; tag.textContent = netMsg ? '⚠' : ONLINE.spec ? '👁' : '🌐'; tag.title = `オンライン対戦（ルーム ${ONLINE.code}）`;
       const seats = (gameDoc && gameDoc.seats) || {};
       for (const p of PL()) { const pe = $('pl' + p); if (pe) { pe.classList.toggle('me', p === ONLINE.seat); pe.classList.toggle('off', !!seats[p] && !onlineSet.has(seats[p])); } }
       const st = $('status');
-      if (!over && !myTurn()) {
+      document.body.classList.toggle('spec', !!ONLINE.spec);
+      if (!over && ONLINE.spec) st.textContent = `👁 観戦中 ／ ${name(turn)}の${selecting ? '拠点選び' : 'ターン'}`;
+      else if (!over && !myTurn()) {
         const prev = st.textContent; const skip = !prev || prev.includes(name(turn) + 'のターン') || prev.includes('拠点を選んでください');
         const off = seats[turn] && !onlineSet.has(seats[turn]) ? '（接続が切れています。戻るのを待っています）' : '';
         st.textContent = `${name(turn)}の${selecting ? '拠点選び' : 'ターン'}を待っています${off}` + (skip ? '' : ' ／ ' + prev);
@@ -2334,6 +2462,198 @@ const ONL = (() => {
   return { open, leave, again, leaveMsg, resync, active: () => !!code };
 })();
 
+// AI（コンピューター）プレイヤー: オフライン対戦で、CPU[席] が設定された席を自動で操作する
+// 人間と同じ関数（pickBase / act / battle / learnSkill / buildVillage / pray）を使い、同じルールで遊ぶ。見えていないマスの資源は使わない
+const anyCPU = () => PL().some(isCPU);
+const AI = (() => {
+  const $ = id => document.getElementById(id);
+  let stepT = null, waitAt = 0, turnKey = '', steps = 0, locked = false, aggro = true;
+  const active = () => !!cells && !over && isCPU(turn) && alive[turn];
+  const NOISE = {1: 7, 2: 1.5, 3: 0.3};
+  const rnd = L => Math.random() * NOISE[L];
+  // 画面に出ているダイアログ・設定画面があるあいだは待つ（人間が結果を読めるように）
+  const paused = () => !$('title').classList.contains('hide') || ['notice', 'confirmReset', 'setup', 'online', 'settings', 'gmModal', 'help', 'cycle'].some(id => { const e = $(id); return e && e.classList.contains('open'); }) || (typeof document !== 'undefined' && document.hidden);
+  const vision = V => visionOf(V);
+  const open = (n, p) => n.t !== 's' && (n.o === 0 || isEnemy(n.o, p));   // 進めるかもしれないマス
+  function frontDist(p) {   // 自領の中を歩いて、外に出られるマスまでの距離（自領の各マス → 歩数）
+    const d = new Map(), q = [];
+    for (const c of cells.values()) if (c.o === p && nbrs(c).some(n => open(n, p))) { d.set(c, 0); q.push(c); }
+    for (let i = 0; i < q.length; i++) for (const n of nbrs(q[i])) if (n.o === p && !d.has(n)) { d.set(n, d.get(q[i]) + 1); q.push(n); }
+    return d;
+  }
+  // ===== 拠点選び =====
+  function chooseBase(L) {
+    const free = BASES.map(([q, r]) => cells.get(key(q, r))).filter(c => c && c.o === 0), taken = BASES.map(([q, r]) => cells.get(key(q, r))).filter(c => c && c.o !== 0);
+    let best = null, bs = -1e9;
+    for (const b of free) {
+      let s = 0;
+      for (const c of cells.values()) { const d = hexDist(c, b); if (d < 1 || d > 2) continue; const w = d === 1 ? 1.3 : 1; s += w * (c.t === 's' ? -0.8 : c.t === 'm' ? -0.3 : c.forest ? -0.2 : c.res ? 2.5 : 0.6); }
+      if (taken.length) s += 0.15 * Math.min(...taken.map(t => hexDist(t, b)));
+      s += Math.random() * (L === 1 ? 6 : L === 2 ? 1.5 : 0.3);
+      if (s > bs) { bs = s; best = b; }
+    }
+    return best;
+  }
+  // ===== スキル・村・土器（成長の計画） =====
+  const PLAN = ['fire', 'lang', 'stone', 'herd', 'pottery', 'polish', 'farm', 'V', 'cook', 'settle', 'P', 'faith', 'V', 'P', 'P', 'V'];
+  const vMax = (p, L) => skills[p].settle ? (L === 1 ? 1 : 3) : (L === 1 ? 1 : 1 + (skills[p].farm && skills[p].herd ? 1 : 0));   // 定住の暮らしがないうちは、村で食料が減るので控えめに
+  const villageSpot = p => { const c = last[p]; return c && c.o === p && !c.village && c !== baseCell[p] && baseDist(p, c) >= 3 ? c : null; };
+  function grow(p, L) {   // 計画の順に、払えるものを1つ実行する（強いAIほど、先の目標のために資源を取っておく）
+    if (L === 1 && Math.random() < 0.5) return false;
+    let reserve = 0, nv = 0, np2 = 0;
+    for (const it of PLAN) {
+      if (it === 'V') {
+        nv++; if (villageCount(p) >= nv || nv > vMax(p, L)) continue;
+        if (VILLAGE_MAX <= villageCount(p)) continue;
+        if (rp[p] - reserve >= VILLAGE_RES && sp[p] >= VILLAGE_FOOD + 1) { const c = villageSpot(p); if (c) { buildVillage(c); return true; } }
+        if (L >= 2) reserve += VILLAGE_RES; continue;
+      }
+      if (it === 'P') {
+        np2++; if (!skills[p].pottery || pot[p] >= np2) continue;
+        if (rp[p] - reserve >= 2) { rp[p] -= 2; pot[p] += 1; msg = `${name(p)} が土器を作製！食料の貯蔵上限 ${spCap(p)}`; render(); return true; }
+        if (L >= 2) reserve += 2; continue;
+      }
+      const k = SKILLS.find(x => x.id === it);
+      if (!k || skills[p][it] || !isOpen(k, p)) continue;
+      if (rp[p] - reserve >= k.cost && actions >= k.spCost && sp[p] >= (k.foodCost || 0) && !(L === 1 && Math.random() < 0.4)) return learnSkill(it);
+      if (L === 3) reserve += k.cost;
+    }
+    return false;
+  }
+  // ===== 行動の候補と評価 =====
+  function useTool(id, p) { if (fixed[id][p] || tool[id][p] < 1) return; tool[id][p]--; boost[id][p]++; if (tool[id][p] === 0) lock[id][p] = 1; }
+  function boostsFor(p, c, wild, L) {   // 戦闘の前に使える強化（命の糧・石器）
+    if (L === 1) return {n: 0};
+    const pray = bless[p] === 0 && sp[p] >= cost(c, p) + 1 ? 1 : 0, id = wild ? 'stone' : 'polish', t = skills[p][id] && !fixed[id][p] ? tool[id][p] : 0;
+    return {n: pray + t, pray, t, id};
+  }
+  function options(p, L) {
+    const V = vision(p), fd = frontDist(p), dCur = last[p] && fd.has(last[p]) ? fd.get(last[p]) : 99;
+    const seenRes = [...cells.values()].filter(c => c.res && !c.harv && V.full.has(key(c.q, c.r)) && (c.o === 0 || c.o === p) && !c.forest);
+    const out = [];
+    for (const c of cells.values()) {
+      const k = key(c.q, c.r);
+      if (isHarvest(c, p) && sp[p] >= 1 && actions > 0) {
+        let s = c === last[p] ? 15 : 11;
+        if (!fireOpen[p] && nbrs(c).some(n => n.t === 'm')) s += 5;   // 火の発見の解放
+        out.push({kind: 'harvest', c, s: s + rnd(L)});
+      }
+      if (!isTarget(c, p) || sp[p] < moveCost(c, p) || actions < 1) continue;
+      if (isBattle(c, p)) {
+        const wild = c.forest && c.o === 0, me = battlePower(p, wild, c), foe = wild ? forestSize(c) : battlePower(c.o, false, c), b = boostsFor(p, c, wild, L);
+        const need = foe + 1 - me; if (need > b.n) continue;   // 勝てる戦いだけ挑む
+        const use = Math.max(0, need);
+        let s;
+        if (wild) s = 12 + (xOpen.herd[p] || forestSize(c) < 2 ? 0 : 5) + nbrs(c).filter(n => n.t !== 's' && n.o === 0 && !n.forest).length * 0.6;
+        else {
+          if (!aggro) continue;
+          const o = c.o, safe = battlePower(o, false, c) + 1 <= me - use;   // 奪ったあと、取り返されにくいか
+          s = 10 + (rp[o] > 0 ? 2 : 0) + (c.village ? 6 : 0) + (c === baseCell[o] ? 4 : 0) + (safe ? 1 : 0);
+          if (enemyLeft(o) === 1) s += 40;   // 最後の1マスを奪えば脱落させられる
+          if (c === baseCell[o]) s += 45;   // 拠点潰し
+          if (L === 3 && !isCPU(o)) s += 1;
+        }
+        s -= use * (L === 3 ? 2 : 3) + (cost(c, p) - 1) * 2;
+        out.push({kind: 'battle', c, use, b, wild, s: s + rnd(L)});
+        continue;
+      }
+      if (c.o === 0) {   // 空きマスへ広がる
+        let s = 10;
+        const mob = nbrs(c).filter(n => n !== last[p] && n.t !== 's' && n.o === 0).length;
+        s += mob * 0.8 - (mob === 0 ? 3 : 0);
+        if (c.t === 'm') { s -= cost(c, p) > 1 ? 3 : 0; if (skills[p].stone && !xOpen.polish[p]) s += 6; if (skills[p].fire && !xOpen.pottery[p]) s += 5; }
+        if (skills[p].polish && !xOpen.farm[p] && c.t === 'p' && nbrs(c).some(n => n.t === 's')) s += 6;
+        if (c.res && !c.harv && V.full.has(k)) s += 5;
+        else if (seenRes.length) { const d = Math.min(...seenRes.map(r => hexDist(r, c))); if (d >= 1) s += 4 / d; }
+        if (!langOpen[p] && nbrs(c).some(n => isEnemy(n.o, p))) s += 2;   // 未知の存在との出会い
+        if (L >= 2 && baseDist(p, c) <= 1) s += 0.5;
+        out.push({kind: 'move', c, s: s + rnd(L)});
+      } else if (c.o === p) {   // 自領の中を歩く（外へ出る道を探す）
+        const d = fd.has(c) ? fd.get(c) : 99;
+        let s = d < dCur ? 6 - 0.4 * d : -1;
+        if (c.res && !c.harv) s += 4;
+        out.push({kind: 'move', c, s: s + rnd(L) * 0.3});
+      }
+    }
+    // 静寂の儀式（神秘の探究の解放）を狙って、命の糧を捧げる
+    if (L >= 2 && skills[p].lang && !xOpen.faith[p] && bless[p] === 0 && sp[p] >= 2 && last[p] && specialAround(last[p]) >= 3) out.push({kind: 'pray', s: 9});
+    return out;
+  }
+  function exec(o, p) {
+    if (o.kind === 'pray') { pray(); return; }
+    if (o.kind === 'battle') {
+      let left = o.use;
+      if (left > 0 && o.b.pray) { pray(); left--; }
+      while (left > 0 && o.b.t > 0) { useTool(o.b.id, p); o.b.t--; left--; }
+      if (!isLegal(o.c, p)) { render(); return; }
+      battle(o.c); return;
+    }
+    skipVillage = true; pickMode = o.kind === 'harvest' ? 'harvest' : 'move';
+    try { act(o.c); } finally { skipVillage = false; pickMode = null; }
+  }
+  // ===== 1手ずつ進める =====
+  function step() {
+    stepT = null;
+    if (!active()) { if (locked && !isCPU(turn)) { locked = false; busy = false; } return; }
+    if (paused()) return schedule(400);
+    const p = turn, L = CPU[p] || 2, tk = round + ':' + p + ':' + selecting;
+    if (tk !== turnKey) { turnKey = tk; steps = 0; aggro = L === 1 ? Math.random() < 0.35 : L === 2 ? Math.random() < 0.85 : true; }
+    try {
+      if (selecting) { busy = false; const b = chooseBase(L); if (b) pickBase(b); return; }
+      if (actions <= 0 || !anyLegal(p)) {   // 行動できない → ターン終了（finishAct の自動終了を待ち、来なければ自分で終える）
+        if (!waitAt) waitAt = Date.now();
+        if (Date.now() - waitAt > 2500) { waitAt = 0; busy = false; endTurn(); }
+        else schedule(300);
+        return;
+      }
+      waitAt = 0;
+      if (++steps > 16) { busy = false; endTurn(); return; }   // GMモードなどで行動回数が多すぎるとき
+      busy = false;
+      if (grow(p, L)) return;
+      if (L === 1 && steps > 1 && Math.random() < 0.2) { endTurn(); return; }   // やさしいAIは、ときどき早めにターンを終える
+      const opts = options(p, L).sort((a, b) => b.s - a.s);
+      if (!opts.length || opts[0].s <= 0) { endTurn(); return; }
+      exec(opts[0], p);
+    } catch (e) {
+      console.error(e); busy = false; try { endTurn(); } catch (e2) {}
+    } finally { if (active()) { busy = true; locked = true; } }
+  }
+  function delay() {   // 人間に見えている動きは、ゆっくり見せる
+    if (humansAlive() === 0) return 120;
+    if (selecting) return 700;
+    const V = viewP(), vs = vision(V), lp = last[turn];
+    const seen = humansAlive() < 2 && lp && (vs.full.has(key(lp.q, lp.r)) || vs.part.has(key(lp.q, lp.r)));
+    return seen ? 650 : 250;
+  }
+  function schedule(ms) { if (!stepT) stepT = setTimeout(step, ms == null ? delay() : ms); }
+  // render のたびに、AIの番なら人間の操作を止めて、次の一手を予約する
+  const wrap = (nm, f) => { const orig = window[nm]; window[nm] = function (...a) { return f(orig, a); }; };
+  wrap('render', (orig, a) => {
+    const ai = active();
+    if (ai) { busy = true; locked = true; } else if (locked) { locked = false; busy = false; }
+    const r = orig.apply(null, a);
+    if (ai) {
+      const st = $('status'); st.textContent = `🤖 ${name(turn)}の${selecting ? '拠点選び' : 'ターン'}… ／ ` + st.textContent;
+      schedule();
+    } else if (!onPlay() && !over && cells && anyCPU() && turn === viewer && pending[turn] && pending[turn].length) {   // AIの番のあいだに届いたお知らせを、自分の番の最初に表示
+      popupQ.push(...pending[turn].splice(0)); showPopup();
+    }
+    return r;
+  });
+  wrap('init', (orig, a) => { clearTimeout(stepT); stepT = null; waitAt = 0; turnKey = ''; if (locked) { locked = false; busy = false; } return orig.apply(null, a); });
+  setInterval(() => { if (active() && !stepT) schedule(300); }, 1000);   // 念のため: 止まっていたら動かし直す
+  return { get thinking() { return active(); } };
+})();
+
+{   // 設定: 昼はマップ全体が見える
+  const $ = id => document.getElementById(id);
+  $('settingsBtn').addEventListener('click', () => {
+    $('sDayVis').checked = dayVision; $('sDayVis').disabled = !!ONLINE;
+    $('setDayNote').textContent = ONLINE ? 'オンライン対戦では、ホストが決めた部屋の設定が使われます（待合室で変更できます）。' : '夜（夕・夜）は、通常どおり視界が狭まります。';
+  });
+  $('sDayVis').addEventListener('change', () => { if (ONLINE) return; dayVision = $('sDayVis').checked; try { localStorage.setItem('hexDayVision', dayVision ? '1' : '0'); } catch (e) {} render(); });
+}
+
 // 想定外のエラーが起きても、ゲームが止まったままにならないようにする
 (() => {
   let lastAt = 0;
@@ -2341,7 +2661,7 @@ const ONL = (() => {
     try {
       console.error(err);
       const now = Date.now(); if (now - lastAt < 1500) return; lastAt = now;
-      if (typeof busy !== 'undefined' && !(ONLINE && ONLINE.playing && !myTurn())) busy = false;   // 操作できない状態のまま固まるのを防ぐ
+      if (typeof busy !== 'undefined' && !(ONLINE && ONLINE.playing && !myTurn()) && !isCPU(turn)) busy = false;   // 操作できない状態のまま固まるのを防ぐ
       const st = document.getElementById('status');
       if (st) st.textContent = '⚠ エラーが起きました。' + (ONL.active() ? '盤面を取り直しています' : '続けて操作できます（直らないときはリセットしてください）');
       if (ONL.active()) ONL.resync();
