@@ -1049,9 +1049,9 @@ function draw() {
 function buildHeader() {   // 人数に合わせて、上のプレイヤー欄を作り直す
   const h = document.getElementById('hdr'), cmp = NP > 2;
   h.classList.toggle('compact', cmp); h.style.setProperty('--cols', NP === 4 ? 2 : Math.min(NP, 3));   // 4人は2×2
-  h.innerHTML = PL().map(p => `<div class="pl" id="pl${p}">` + (cmp ? `<div class="n"><span class="nm" style="color:${COLORS[p]}">${isCPU(p) ? '🤖' : ''}${esc(name(p))}</span><span class="v">⚡<span id="sp${p}"></span><small> 行動</small></span></div>` : `<div class="n nm" style="color:${COLORS[p]}">${isCPU(p) ? '🤖' : ''}${esc(name(p))}</div><div class="v">⚡<span id="sp${p}"></span> 行動</div>`) + `<div class="s">` +
-    (cmp ? `🚩<b id="cn${p}"></b> 💎<b id="rp${p}"></b> ⚔️<b id="pw${p}"></b><br>🍖+<b id="in${p}"></b> 📦<b id="cap${p}"></b> 🎯<b id="ac${p}"></b>`
-         : `🚩領地 <span id="cn${p}"></span> ／ 🍖食料 +<span id="in${p}"></span> ／ 📦貯蔵 <span id="cap${p}"></span> ／ 💎資源 <span id="rp${p}"></span> ／ ⚔️戦力 <span id="pw${p}"></span> ／ 🎯回数 <span id="ac${p}"></span>`) + `</div></div>`).join('');
+  h.innerHTML = PL().map(p => `<div class="pl" id="pl${p}">` + (cmp ? `<div class="n"><span class="nm" style="color:${COLORS[p]}">${isCPU(p) ? '[AI]' : ''}${esc(name(p))}</span><span class="v"><span id="sp${p}"></span><small> 行動</small></span></div>` : `<div class="n nm" style="color:${COLORS[p]}">${isCPU(p) ? '[AI]' : ''}${esc(name(p))}</div><div class="v"><span id="sp${p}"></span> 行動</div>`) + `<div class="s">` +
+    (cmp ? `領地<b id="cn${p}"></b> 資源<b id="rp${p}"></b> 戦力<b id="pw${p}"></b><br>食料+<b id="in${p}"></b> 貯蔵<b id="cap${p}"></b> 回数<b id="ac${p}"></b>`
+         : `領地 <span id="cn${p}"></span> ／ 食料 +<span id="in${p}"></span> ／ 貯蔵 <span id="cap${p}"></span> ／ 資源 <span id="rp${p}"></span> ／ 戦力 <span id="pw${p}"></span> ／ 回数 <span id="ac${p}"></span>`) + `</div></div>`).join('');
   document.querySelectorAll('#tiNP .np').forEach(b => b.classList.toggle('on', +b.dataset.np === NP));
   requestAnimationFrame(() => { if (cells) resize(); });
 }
@@ -1068,7 +1068,7 @@ function render() {
   }
   for (const p of PL()) {
     document.getElementById('sp'+p).textContent = gm ? '∞' : sp[p];
-    document.getElementById('cap'+p).textContent = gm ? '∞' : spCap(p);
+    document.getElementById('cap'+p).textContent = gm ? '∞' : sp[p] + '/' + spCap(p);   // 貯蔵: 現在の食料／上限
     document.getElementById('ac'+p).textContent = gm ? '∞' : selecting ? '-' : (!over && turn === p) ? actions : (isDay() || skills[p].fire ? 2 : 1);   // 貯蔵（食料の上限）: 3、土器の作製で5
     document.getElementById('cn'+p).textContent = count(p);
     document.getElementById('in'+p).textContent = income(p);
