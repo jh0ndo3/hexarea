@@ -1,0 +1,2358 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- セキュリティ設定: 読み込める外部ファイルと通信先を、PeerJS とその接続サーバーだけに絞る -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdn.jsdelivr.net/npm/peerjs@1.5.4/; style-src 'unsafe-inline'; img-src data: blob:; connect-src https://0.peerjs.com wss://0.peerjs.com https://*.metered.live https://*.workers.dev; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>HEXAREA</title>
+<style>
+  :root { --bg:#f4f5f7; --fg:#1f2430; --bar:#ffffff; --border:#d8dbe2; --muted:#6b7280; --p1:#2f7de1; --p2:#e5484d; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg:#171a21; --fg:#e8eaf0; --bar:#222733; --border:#343a49; --muted:#9aa3b2; }
+  }
+  :root[data-theme="dark"] { --bg:#171a21; --fg:#e8eaf0; --bar:#222733; --border:#343a49; --muted:#9aa3b2; }
+  :root { box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px); }
+  html, body { height:100%; margin:0; }
+  body { background:var(--bg); color:var(--fg); font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif; display:flex; flex-direction:column; }
+  header { display:grid; grid-template-columns:repeat(var(--cols,2),minmax(0,1fr)); gap:8px; padding:8px; background:var(--bar); border-bottom:1px solid var(--border); }
+  .pl { min-width:0; border:2px solid var(--border); border-radius:10px; padding:6px 10px; opacity:.6; transition:.15s; }
+  .pl.active { opacity:1; }
+  .pl.out { opacity:.25; }
+  .pl .n { font-size:13px; font-weight:700; }
+  header.compact { gap:5px; padding:6px; }
+  header.compact .pl { padding:4px 6px; border-radius:8px; }
+  header.compact .pl .n { display:flex; justify-content:space-between; align-items:baseline; gap:4px; font-size:11px; white-space:nowrap; }
+  header.compact .pl .v { font-size:14px; }
+  header.compact .pl .v small { font-size:10px; font-weight:600; }
+  header.compact .pl .s { font-size:10px; line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; letter-spacing:-.02em; }
+  header.compact .pl .s b { margin:0 3px 0 1px; font-variant-numeric:tabular-nums; }
+  #tiNP { display:flex; align-items:center; gap:6px; margin:-4px 0 4px; font-size:14px; color:#d9c39a; }
+  #tiNP .np { width:40px; height:40px; padding:0; font-size:16px; font-weight:700; border-radius:10px; border:2px solid #d9c39a; background:rgba(0,0,0,.25); color:#f6ead2; }
+  #tiNP .np.on { background:#f6ead2; color:#2a1a08; border-color:#f6ead2; }
+  .pl .n .nm { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .pl > .n.nm { display:block; }
+  #setup { position:fixed; inset:0; z-index:19; display:none; align-items:center; justify-content:center; padding:16px; background:var(--bg); }
+  #setup.open { display:flex; }
+  #setupBox { max-width:360px; width:100%; box-sizing:border-box; padding:18px; color:var(--fg); background:var(--bar); border:1px solid var(--border); border-radius:16px; }
+  #suStep { font-size:12px; color:var(--muted); margin-bottom:2px; }
+  #suTitle { margin:0 0 14px; font-size:20px; font-weight:800; }
+  #setupBox .lbl { display:block; font-size:13px; font-weight:700; margin:12px 0 6px; }
+  #suName { width:100%; box-sizing:border-box; font:inherit; font-size:17px; padding:9px 10px; border-radius:10px; border:2px solid var(--border); background:var(--bg); color:var(--fg); }
+  #suErr { min-height:16px; margin-top:4px; font-size:12px; font-weight:600; color:#e5484d; }
+  #suNext:disabled { opacity:.4; cursor:default; }
+  #suColors { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+  #suColors button { display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 0 5px; border-radius:10px; font-size:11px; font-weight:700; }
+  #suColors .sw { width:30px; height:30px; clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); }
+  #suColors button.on { border:2px solid var(--fg); background:var(--bar); }
+  #suColors button:disabled { opacity:.3; cursor:default; }
+  #setupBox .btns { display:flex; gap:8px; justify-content:space-between; margin-top:18px; }
+  #suNext { font-weight:700; color:#fff; border:none; padding:8px 20px; }
+  #suDots { display:flex; gap:5px; justify-content:center; margin-top:14px; }
+  #suDots span { width:8px; height:8px; border-radius:50%; background:var(--border); }
+  #settingsBox .srow select { width:100px; font:inherit; padding:5px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--fg); }
+  .pl .v { font-size:18px; font-weight:700; font-variant-numeric:tabular-nums; }
+  .pl .s { font-size:12px; color:var(--muted); }
+  #bar { display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:8px 12px; background:var(--bar); border-bottom:1px solid var(--border); }
+  #msg { flex:1; font-size:14px; font-weight:600; min-width:0; }
+  button { font:inherit; font-size:14px; padding:6px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--fg); cursor:pointer; }
+  #status { padding:6px 70px 6px 12px; min-height:20px; font-size:13px; font-weight:600; background:var(--bar); border-top:1px solid var(--border); }
+  #wrap { flex:1; min-height:0; position:relative; }
+  #wrap.ph0 { background:linear-gradient(180deg,#9fd3f3 0%,#c9e6f5 40%,#ffd9a8 80%,#ffc080 100%); }   /* 朝: 薄い青とオレンジ */
+  #wrap.ph1 { background:linear-gradient(180deg,#ffffff 0%,#fff6b0 40%,#ffe14d 100%); }   /* 昼: 鮮やかな黄色と白 */
+  #wrap.ph2 { background:linear-gradient(180deg,#5a3a8f 0%,#b5426e 45%,#e8683a 80%,#ff9d4d 100%); }   /* 夕: 赤や紫がかったオレンジ */
+  #wrap.ph3 { background:   /* 夜: 紺と黒に星と月 */
+    radial-gradient(circle at 88% 12%, #fffbe3 0 12px, rgba(255,251,227,.30) 13px 22px, transparent 46px),
+    radial-gradient(1.6px 1.6px at 10% 14%, #fff 60%, transparent),
+    radial-gradient(1.2px 1.2px at 24% 36%, #fff 60%, transparent),
+    radial-gradient(1.8px 1.8px at 36% 8%, #fff 60%, transparent),
+    radial-gradient(1.2px 1.2px at 52% 22%, #fff 60%, transparent),
+    radial-gradient(1.6px 1.6px at 66% 10%, #fff 60%, transparent),
+    radial-gradient(1.2px 1.2px at 74% 40%, #fff 60%, transparent),
+    radial-gradient(1.6px 1.6px at 6% 62%, #fff 60%, transparent),
+    radial-gradient(1.2px 1.2px at 18% 84%, #fff 60%, transparent),
+    radial-gradient(1.8px 1.8px at 44% 70%, #fff 60%, transparent),
+    radial-gradient(1.2px 1.2px at 58% 92%, #fff 60%, transparent),
+    radial-gradient(1.6px 1.6px at 82% 68%, #fff 60%, transparent),
+    radial-gradient(1.2px 1.2px at 94% 88%, #fff 60%, transparent),
+    linear-gradient(180deg,#05060f 0%,#0c1440 55%,#1a2260 100%); }
+  canvas { width:100%; height:100%; display:block; touch-action:manipulation; }
+  #help, #tree, #tools { position:fixed; inset:0; z-index:20; display:none; align-items:center; justify-content:center; padding:16px; background:rgba(0,0,0,.5); }
+  #help.open, #tree.open, #tools.open { display:flex; }
+  #cycleBox { max-width:320px; width:100%; box-sizing:border-box; padding:16px; font-size:14px; color:var(--fg); background:var(--bar); border:1px solid var(--border); border-radius:14px; }
+  #cycleBox .row { display:flex; align-items:center; gap:10px; padding:8px 10px; margin-bottom:6px; border:2px solid var(--border); border-radius:10px; }
+  #cycleBox .row.now { border-color:#ffd23f; }
+  #cycleBox .sw { width:28px; height:28px; border-radius:8px; flex:none; border:1px solid rgba(0,0,0,.2); }
+  #cycleBox .nm { font-weight:700; width:2em; }
+  #cycleBox .ds { font-size:12px; color:var(--muted); line-height:1.4; }
+  #cycle { position:fixed; inset:0; z-index:25; display:none; align-items:center; justify-content:center; padding:16px; background:rgba(0,0,0,.5); }
+  #cycle.open { display:flex; }
+  #notice { position:fixed; inset:0; z-index:60; display:none; align-items:center; justify-content:center; padding:16px; background:rgba(0,0,0,.6); }
+  #notice.open { display:flex; }
+  #noticeBox { max-width:320px; width:100%; box-sizing:border-box; padding:24px 18px; text-align:center; color:var(--fg); background:var(--bar); border:1px solid var(--border); border-radius:14px; }
+  #noticeT { font-size:22px; font-weight:800; margin-bottom:8px; }
+  #noticeS { font-size:15px; margin-bottom:16px; color:var(--muted); }
+  #settings { position:fixed; inset:0; z-index:42; display:none; align-items:center; justify-content:center; padding:16px; background:rgba(0,0,0,.5); }
+  #settings.open { display:flex; }
+  #settingsBox { max-width:340px; width:100%; box-sizing:border-box; padding:16px 18px; font-size:14px; color:var(--fg); background:var(--bar); border:1px solid var(--border); border-radius:14px; }
+  #settingsBox .srow { display:flex; flex-direction:column; gap:4px; margin:12px 0; font-weight:600; }
+  #settingsBox .srow input[type=range] { width:100%; }
+  #settingsBox .srow input[type=number] { width:100px; font:inherit; padding:5px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--fg); }
+  #settingsBox .note { font-size:12px; color:var(--muted); line-height:1.5; }
+  #settingsBox .btns { display:flex; gap:8px; justify-content:flex-end; margin-top:14px; }
+  #gmBtn { position:absolute; bottom:8px; left:8px; z-index:5; padding:4px 10px; font-size:12px; font-weight:700; border-radius:8px; background:var(--bar); }
+  #gmBtn.on { background:#ffd23f; color:#000; border-color:#ffd23f; }
+  #gmModal { position:fixed; inset:0; z-index:45; display:none; align-items:center; justify-content:center; padding:16px; background:rgba(0,0,0,.5); }
+  #gmModal.open { display:flex; }
+  #gmBox { max-width:300px; width:100%; box-sizing:border-box; padding:18px; text-align:center; font-size:15px; color:var(--fg); background:var(--bar); border:1px solid var(--border); border-radius:14px; }
+  #gmBox input { width:100%; box-sizing:border-box; margin-top:10px; padding:8px; font-size:18px; text-align:center; letter-spacing:6px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--fg); }
+  #gmBox .btns { display:flex; gap:10px; justify-content:center; margin-top:12px; }
+  #confirmReset { position:fixed; inset:0; z-index:40; display:none; align-items:center; justify-content:center; padding:16px; background:rgba(0,0,0,.5); }
+  #confirmReset.open { display:flex; }
+  #confirmBox { max-width:320px; box-sizing:border-box; padding:18px; text-align:center; font-size:15px; line-height:1.6; color:var(--fg); background:var(--bar); border:1px solid var(--border); border-radius:14px; }
+  #confirmBox .btns { display:flex; gap:10px; justify-content:center; margin-top:14px; }
+  #rules, #treeBox, #toolBox { position:relative; max-width:480px; max-height:80%; overflow-y:auto; box-sizing:border-box; padding:16px 18px; font-size:14px; color:var(--fg); background:var(--bar); border:1px solid var(--border); border-radius:14px; line-height:1.7; }
+  #rules h2, #treeBox h2, #toolBox h2 { margin:0 0 8px; font-size:16px; }
+  #gate { position:fixed; inset:0; z-index:30; display:none; align-items:center; justify-content:center; text-align:center; padding:24px; background:var(--bg); }
+  #gate.open { display:flex; }
+  #gateTitle { font-size:26px; font-weight:800; margin-bottom:8px; }
+  #gateSub { font-size:14px; color:var(--muted); margin-bottom:24px; }
+  #gateBtn { font-size:18px; font-weight:700; padding:12px 28px; border-radius:12px; color:#fff; border:none; }
+  #dayBox { cursor:pointer; pointer-events:auto; z-index:5; position:absolute; top:8px; left:8px; display:flex; flex-direction:column; align-items:center; gap:2px; min-width:44px; padding:4px 8px; border:1px solid var(--border); border-radius:10px; background:var(--bar); font-size:12px; font-weight:700; line-height:1.1; }
+  #treeBtn { position:absolute; top:8px; right:8px; z-index:5; background:var(--bar); width:48px; height:48px; padding:0; border-radius:50%; line-height:1; }
+  #treeBtn, #prayBtn, #toolBtn { display:flex; align-items:center; justify-content:center; color:var(--fg); }
+  #treeBtn svg, #prayBtn svg, #toolBtn svg { width:36px; height:36px; display:block; }
+  #prayBtn { position:absolute; top:8px; right:62px; z-index:5; background:var(--bar); width:48px; height:48px; padding:0; border-radius:50%; line-height:1; }
+  #toolBtn { position:absolute; top:8px; right:116px; z-index:5; background:var(--bar); width:48px; height:48px; padding:0; border-radius:50%; line-height:1; }
+  .mono { filter:grayscale(1) contrast(1.15); display:inline-block; }
+  #helpBtn { position:fixed; right:14px; bottom:calc(14px + env(safe-area-inset-bottom,0px)); z-index:10; width:44px; height:44px; padding:0; border-radius:50%; font-size:22px; line-height:1; box-shadow:0 2px 8px rgba(0,0,0,.25); }
+  #tut { position:absolute; left:8px; right:8px; z-index:6; box-sizing:border-box; padding:10px 12px; border-radius:12px; background:var(--bar); color:var(--fg); border:2px solid #ffd23f; box-shadow:0 4px 16px rgba(0,0,0,.35); font-size:13px; line-height:1.55; display:none; }
+  #tutHead { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; font-size:12px; color:var(--muted); }
+  #tutHead button, #tutBtns button { font-size:12px; padding:4px 10px; }
+  #tutBtns { display:flex; gap:8px; justify-content:flex-end; margin-top:8px; }
+  #tutBtns .main { background:#ffd23f; color:#222; border-color:#ffd23f; font-weight:700; }
+  #tut.flash { animation:tutflash .5s; }
+  @keyframes tutflash { 0%,100% { transform:none; } 25% { transform:translateX(-5px); } 75% { transform:translateX(5px); } }
+  #title { position:fixed; inset:0; z-index:18; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:24px calc(24px + env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) 24px; box-sizing:border-box; text-align:center; color:#f6ead2; background:radial-gradient(circle at 50% 30%,#6b4a2b 0%,#3b2a1a 55%,#1d150d 100%); transition:opacity .35s; }
+  #title.hide { opacity:0; pointer-events:none; }
+  #title svg { width:min(60vw,240px); height:auto; margin-bottom:6px; filter:drop-shadow(0 6px 14px rgba(0,0,0,.45)); }
+  #title h1 { margin:0; font-size:clamp(28px,8vw,40px); font-weight:800; letter-spacing:.06em; text-shadow:0 3px 10px rgba(0,0,0,.5); }
+  #title .sub { font-size:14px; color:#d9c39a; margin-bottom:18px; }
+  #title .tbtn { width:min(78vw,280px); font-size:17px; font-weight:700; padding:13px 0; border-radius:14px; border:2px solid #d9c39a; background:rgba(0,0,0,.25); color:#f6ead2; }
+  #title .tbtn.main { background:#f0b429; border-color:#f0b429; color:#2a1a08; font-size:20px; padding:15px 0; }
+  #title .small { display:flex; gap:10px; }
+  #title .small .tbtn { width:min(37vw,135px); font-size:15px; padding:11px 0; }
+  #title .tip { margin-top:14px; font-size:12px; color:#bda57a; line-height:1.6; }
+  #rules .lead { font-size:12px; color:var(--muted); margin:-4px 0 10px; }
+  #rules details { border:1px solid var(--border); border-radius:10px; margin-bottom:8px; background:var(--bg); }
+  #rules summary { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; font-weight:700; cursor:pointer; list-style:none; }
+  #rules summary::-webkit-details-marker { display:none; }
+  #rules summary::after { content:'＋'; color:var(--muted); font-weight:400; }
+  #rules details[open] summary::after { content:'－'; }
+  #rules .sec { padding:0 12px 10px; font-size:13px; line-height:1.6; }
+  #rules h3 { margin:10px 0 4px; font-size:13px; }
+  #rules ul { margin:0 0 4px; padding-left:1.2em; }
+  #rules li { margin:3px 0; }
+  #rules dl { margin:0; }
+  #rules dt { font-weight:700; margin-top:8px; }
+  #rules dt small { font-weight:600; font-size:11px; color:var(--muted); margin-left:4px; }
+  #rules dd { margin:2px 0 0; }
+  #rules .tbl { overflow-x:auto; margin:6px 0 8px; }
+  #rules table { border-collapse:collapse; font-size:12px; white-space:nowrap; }
+  #rules th, #rules td { border:1px solid var(--border); padding:3px 8px; text-align:center; }
+  #rules th { text-align:left; background:var(--bar); }
+  /* 対戦結果の画面 */
+  #result { position:fixed; inset:0; z-index:55; display:none; align-items:center; justify-content:center; padding:16px; background:rgba(0,0,0,.6); }
+  #result.open { display:flex; }
+  #resultBox { max-width:440px; width:100%; max-height:88%; overflow-y:auto; box-sizing:border-box; color:var(--fg); background:var(--bar); border:1px solid var(--border); border-radius:16px; font-size:14px; }
+  #rsHead { padding:20px 18px 16px; text-align:center; color:#f6ead2; background:radial-gradient(circle at 50% 0%,#6b4a2b 0%,#3b2a1a 70%,#1d150d 100%); border-radius:15px 15px 0 0; }
+  #rsHead .lbl { font-size:12px; color:#d9c39a; }
+  #rsHead .big { margin:4px 0 6px; font-size:24px; font-weight:800; text-shadow:0 2px 8px rgba(0,0,0,.5); }
+  #rsHead .big .nm { display:inline-block; padding:0 10px; border-radius:8px; color:#fff; }
+  #rsHead .why { font-size:12px; color:#d9c39a; line-height:1.6; }
+  #rsBody { padding:12px 16px 16px; }
+  #rsBody h3 { margin:16px 0 6px; font-size:14px; }
+  #rsBody h3:first-child { margin-top:4px; }
+  .rsRow { display:flex; align-items:center; gap:10px; padding:7px 10px; margin-bottom:6px; border:2px solid var(--border); border-radius:10px; }
+  .rsRow.top { border-width:3px; }
+  .rsRow.out { opacity:.55; }
+  .rsRow .rk { flex:none; width:2em; text-align:center; font-size:18px; font-weight:800; }
+  .rsRow .sw { flex:none; width:16px; height:16px; clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); }
+  .rsRow .nm { flex:1; min-width:0; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .rsRow .val { flex:none; font-size:18px; font-weight:800; font-variant-numeric:tabular-nums; }
+  .rsRow .val small { font-size:11px; font-weight:600; color:var(--muted); }
+  #rsChart svg { width:100%; height:auto; display:block; }
+  #rsLegend { display:flex; flex-wrap:wrap; gap:4px 12px; margin-top:4px; font-size:12px; }
+  #rsLegend span { display:inline-flex; align-items:center; gap:4px; }
+  #rsLegend i { display:inline-block; width:14px; height:3px; border-radius:2px; }
+  #rsStats { overflow-x:auto; }
+  #rsStats table { width:100%; border-collapse:collapse; font-size:12px; white-space:nowrap; }
+  #rsStats th, #rsStats td { border:1px solid var(--border); padding:4px 6px; text-align:center; font-variant-numeric:tabular-nums; }
+  #rsStats th { background:var(--bg); font-weight:700; }
+  #rsStats td:first-child { text-align:left; font-weight:700; max-width:7em; overflow:hidden; text-overflow:ellipsis; }
+  #rsNote { margin-top:4px; font-size:11px; color:var(--muted); line-height:1.5; }
+  #rsBtns { display:flex; gap:8px; margin-top:16px; }
+  #rsBtns button { flex:1; padding:9px 0; }
+  #rsAgain { font-weight:700; color:#2a1a08; background:#f0b429; border-color:#f0b429; }
+  #resultBtn { font-weight:700; color:#2a1a08; background:#f0b429; border-color:#f0b429; }
+  /* オンライン対戦 */
+  #onlineTag { font-size:13px; padding:2px 5px; border-radius:8px; border:1px solid var(--border); color:var(--muted); }
+  .pl.me { outline:2px dashed var(--muted); outline-offset:1px; }
+  .pl.off .nm::after { content:' 📵'; font-size:11px; }
+  .onIdRow { display:flex; gap:8px; justify-content:center; margin:2px 0 6px; }
+  .onIdRow button { font-size:13px; padding:6px 12px; }
+  #online { position:fixed; inset:0; z-index:50; display:none; align-items:center; justify-content:center; padding:16px; background:var(--bg); }
+  #online.open { display:flex; }
+  #onBox { max-width:380px; width:100%; max-height:100%; overflow-y:auto; box-sizing:border-box; padding:18px; color:var(--fg); background:var(--bar); border:1px solid var(--border); border-radius:16px; font-size:14px; }
+  #onBox h2 { margin:0 0 6px; font-size:20px; font-weight:800; }
+  #onBox .lbl { display:block; font-size:13px; font-weight:700; margin:14px 0 6px; }
+  #onBox .onNote { font-size:12px; color:var(--muted); line-height:1.6; }
+  #onBox .onRow { display:flex; gap:8px; }
+  #onBox input, #onBox select { font:inherit; font-size:16px; padding:8px 10px; border-radius:10px; border:2px solid var(--border); background:var(--bg); color:var(--fg); min-width:0; }
+  #onCode { flex:1; text-transform:uppercase; letter-spacing:.3em; font-weight:700; }
+  #onName { width:100%; box-sizing:border-box; }
+  #onBox .onMain { font-weight:700; color:#2a1a08; background:#f0b429; border-color:#f0b429; padding:8px 16px; }
+  #onBox .onMain:disabled { opacity:.4; cursor:default; }
+  #onErr, #onErr2 { min-height:16px; margin-top:8px; font-size:12px; font-weight:600; color:#e5484d; }
+  #onCodeBig { font-size:40px; font-weight:800; letter-spacing:.25em; text-align:center; padding:6px 0 4px; color:#f6ead2; background:radial-gradient(circle at 50% 0%,#6b4a2b 0%,#3b2a1a 70%,#1d150d 100%); border-radius:12px; margin:4px 0 6px; user-select:all; }
+  .onCodeLbl { font-size:12px; color:var(--muted); text-align:center; }
+  .onP { display:flex; align-items:center; gap:8px; padding:6px 10px; margin-bottom:5px; border:1px solid var(--border); border-radius:10px; }
+  .onP.wait { opacity:.5; }
+  .onP .sw, #onColors .sw { flex:none; width:18px; height:18px; clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); }
+  .onP .nm { flex:1; min-width:0; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .onP .tag { flex:none; font-size:11px; color:var(--muted); }
+  #onColors { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
+  #onColors button { display:flex; flex-direction:column; align-items:center; gap:2px; padding:5px 0 4px; border-radius:10px; font-size:11px; font-weight:700; }
+  #onColors .sw { width:24px; height:24px; }
+  #onColors button.on { border:2px solid var(--fg); background:var(--bar); }
+  #onColors button:disabled { opacity:.25; cursor:default; }
+  #onHostOpts .onRow { align-items:center; }
+  #onHostOpts select, #onHostOpts input { width:90px; }
+  #onBox .btns { display:flex; gap:8px; justify-content:space-between; margin-top:16px; }
+</style>
+</head>
+<body>
+<header id="hdr"></header>
+<div id="bar"><div id="msg"></div><button id="settingsBtn">設定</button><button id="end">ターン終了</button><span id="onlineTag" style="display:none"></span><button id="resultBtn" style="display:none">結果</button><button id="reset">リセット</button></div>
+<div id="wrap"><canvas id="c"></canvas><div id="dayBox"></div><button id="gmBtn">GM</button><button id="treeBtn" aria-label="スキル一覧"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 28V21C22 19.5 25.5 16.5 25.5 11.5C25.5 6.5 21.5 3 16 3C10.5 3 6.5 7 6.5 12C6.5 13.5 7 14.5 7.8 15.5L5.5 19.5L7.8 20.5V24.5C7.8 26 9 27 10.5 27H13.5C15 27 16.2 26 16.2 24.5"/><path d="M11.5 12C10 10.5 11 8 13 8C13.5 6.5 16 6 17 7.5C18.5 6.8 20.5 8 20 9.8C21.5 10.5 21.5 13 19.8 13.5C19.5 15 17.5 15.8 16.2 15C15 16 12.8 15.7 12.5 14.2C11.3 14.2 10.6 13 11.5 12z"/><path d="M16 15.5C16 17.5 15 18 15 20.5"/><path d="M13.8 10.4C14.8 9.8 15.9 10.2 16.4 11.2"/><path d="M17.6 9.6C18.6 10 18.9 11.1 18.5 12"/></svg></button><button id="prayBtn" aria-label="命の糧"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10.8C15.2 10 14 10.3 13.4 11.3L10.6 17.2C10 18.4 9.9 19.4 10.1 20.6"/><path d="M13.6 23.4L14.6 22.6C15.6 22 16 21.2 16 20V12.5"/><path d="M8.2 23L10.6 20.6L13.6 23.6L11.2 26z"/><path d="M12.6 19.2L13.6 14.3C13.8 13.3 15.2 13 15.6 14"/><path d="M 16 10.8 C 16.8 10 18 10.3 18.6 11.3 L 21.4 17.2 C 22 18.4 22.1 19.4 21.9 20.6"/><path d="M 18.4 23.4 L 17.4 22.6 C 16.4 22 16 21.2 16 20 V12.5"/><path d="M 23.8 23 L 21.4 20.6 L 18.4 23.6 L 20.8 26 z"/><path d="M 19.4 19.2 L 18.4 14.3 C 18.2 13.3 16.8 13 16.4 14"/><path d="M16.0 9.0L16.0 6.5"/><path d="M12.4 8.8L11.2 6.6"/><path d="M8.8 10.8L6.6 9.6"/><path d="M6.5 15.0L4.0 15.0"/><path d="M19.6 8.8L20.8 6.6"/><path d="M23.2 10.8L25.4 9.6"/><path d="M25.5 15.0L28.0 15.0"/></svg></button><button id="toolBtn" aria-label="ツール"><svg viewBox="60 60 900 900" overflow="visible" fill="none" stroke="currentColor" stroke-width="44" stroke-linejoin="round" stroke-linecap="round"><g style="fill:var(--bar)"><path d="M207 790L650 347L705 392L257 840A35 35 0 0 1 207 790Z"/><path d="M487 183C590 180 680 215 730 258L668 310C620 270 560 225 487 183Z"/><path d="M792 325C845 395 870 470 862 563C840 505 790 430 745 382Z"/><path d="M757 242L807 293L712 400L645 335Z"/><path d="M170 218C265 198 335 208 370 237L440 311L400 403L350 447L262 488L185 410C150 330 155 260 170 218Z"/><path d="M287 335L355 358L712 716L655 754L316 413Z"/><path d="M712 716L775 732L800 757L707 848L682 822L668 765L655 754Z"/></g><path d="M383 455L407 432M642 725L668 700"/></svg></button></div>
+<div id="status"></div>
+<div id="gate"><div><div id="gateTitle"></div><div id="gateSub"></div><button id="gateBtn">ターンを開始</button></div></div>
+<div id="tree"><div id="treeBox"><h2>スキル一覧</h2><div id="treeBody"></div><div style="text-align:right;margin-top:12px"><button id="treeClose">閉じる</button></div></div></div>
+<div id="tools"><div id="toolBox"><h2>ツール</h2><div id="toolBody"></div><div style="text-align:right;margin-top:12px"><button id="toolClose">閉じる</button></div></div></div>
+<div id="cycle"><div id="cycleBox"></div></div>
+<div id="notice"><div id="noticeBox"><div id="noticeT"></div><div id="noticeS"></div><button id="noticeOk">OK</button></div></div>
+<div id="result"><div id="resultBox">
+  <div id="rsHead"></div>
+  <div id="rsBody">
+    <h3>順位</h3><div id="rsRank"></div>
+    <h3>領地の推移</h3><div id="rsChart"></div><div id="rsLegend"></div>
+    <h3>記録</h3><div id="rsStats"></div>
+    <div id="rsNote">獣：獣に勝った回数（戦闘の勝ちに含みます） ／ 回収：資源を回収した回数 ／ 村：建設した回数 ／ 最大：領地が最も多かったときのマス数</div>
+    <div id="rsBtns"><button id="rsBoard">盤面を見る</button><button id="rsTitle">タイトルへ</button><button id="rsAgain">もう一度</button></div>
+  </div>
+</div></div>
+<div id="settings"><div id="settingsBox">
+  <h2 style="margin:0 0 4px;font-size:16px">設定</h2>
+  <div class="note" id="setNote"></div>
+  <div class="srow"><button id="tutStart">🎓 チュートリアルを始める</button></div>
+  <div class="srow"><button id="setPlayers">👥 プレイヤーの名前と色</button></div>
+  <div class="srow" id="setSound"><span>BGM <b id="vBgm"></b></span><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sBgmOn"> BGMを流す</label><input type="range" id="sBgmVol" min="0" max="100" step="5"></div>
+  <div class="srow" id="setSfx"><span>効果音 <b id="vSfx"></b></span><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sSfxOn"> 効果音を鳴らす</label><input type="range" id="sSfxVol" min="0" max="100" step="5"></div>
+  <div id="setRates">
+  <div class="note" style="color:var(--fg)">🛠 出現率（GMモードのみ変更できます）</div>
+  <label class="srow"><span>山の出現率 <b id="vMount"></b></span><input type="range" id="sMount" min="0" max="30" step="1"></label>
+  <label class="srow"><span>水域の出現率 <b id="vWater"></b></span><input type="range" id="sWater" min="0" max="30" step="1"></label>
+  <label class="srow"><span>資源の出現率 <b id="vRes"></b></span><input type="range" id="sRes" min="0" max="50" step="1"></label>
+  <label class="srow"><span>森の出現率 <b id="vForest"></b></span><input type="range" id="sForest" min="0" max="30" step="1"></label>
+  </div>
+  <label class="srow"><span>プレイ人数</span><select id="sNP"><option value="2">2人</option><option value="3">3人</option><option value="4">4人</option><option value="5">5人</option><option value="6">6人</option></select></label>
+  <label class="srow"><span>ラウンド数</span><input type="number" id="sRounds" min="1" max="999"></label>
+  <div class="note">人数を変えると、マップの大きさとラウンド数が人数に合った値になります（ラウンド数はそのあと変更できます）。</div>
+  <div class="note" id="setRatesNote">山・水域は目安の値です（山は2〜3マスのかたまりでも出るため、実際のマス数は多めになります。水域は拠点候補の周囲1マスには出ません）。資源は平地のうちの割合です。適用すると地形を作り直します。</div>
+  <div class="btns"><button id="setDefault">初期値</button><button id="setCancel">閉じる</button><button id="setApply">適用</button></div>
+</div></div>
+<div id="gmModal"><div id="gmBox">ゲームマスター<br><input id="gmPin" type="password" inputmode="numeric" maxlength="8" placeholder="暗証番号" autocomplete="off"><div id="gmErr" style="color:#e5484d;font-size:12px;min-height:16px;margin-top:6px"></div><div class="btns"><button id="gmCancel">キャンセル</button><button id="gmOk">OK</button></div></div></div>
+<div id="confirmReset"><div id="confirmBox"><div id="confirmText">ゲームをリセットしますか？<br>これまでの進行はすべて失われます。</div><div class="btns"><button id="resetNo">キャンセル</button><button id="resetAlt" style="display:none"></button><button id="resetYes" style="background:var(--p2);color:#fff;border-color:var(--p2)">リセット</button></div></div></div>
+<div id="setup"><div id="setupBox">
+  <div id="suStep"></div><h2 id="suTitle"></h2>
+  <label class="lbl" for="suName">名前（8文字まで）</label><input id="suName" maxlength="8" autocomplete="off"><div id="suErr" aria-live="polite"></div>
+  <span class="lbl">色</span><div id="suColors"></div>
+  <div class="btns"><button id="suBack"></button><button id="suNext"></button></div>
+  <div id="suDots"></div>
+</div></div>
+<button id="helpBtn" aria-label="ルール確認">❔</button>
+<div id="help"><div id="rules"><h2>ルール</h2><div class="lead">見出しをタップすると開閉します。</div>
+<details open><summary>目的と勝利条件</summary><div class="sec"><ul>
+<li>六角形のマップで、自分の色のマス（領地）を広げます。</li>
+<li>設定したラウンド数が終わった時、または盤面が埋まった時に、領地が最も多いプレイヤーの勝ちです。最多が複数なら引き分けです。</li>
+<li>相手の領地を現在地（白枠）以外すべて奪うと、そのプレイヤーは脱落し、残りの領地は空きマスに戻ります。最後の1人になったプレイヤーは、その場で勝利です。</li>
+<li>ゲームが終わると、対戦結果（順位・領地の推移・戦闘などの記録）が表示されます。「盤面を見る」で閉じたあとも、上の「結果」ボタンで開き直せます。</li>
+</ul></div></details>
+<details><summary>ゲームの準備</summary><div class="sec"><ul>
+<li>プレイ人数は2〜6人です。タイトル画面か「設定」で、ゲーム開始前だけ選べます。</li>
+<li>マップの大きさとラウンド数の初期値は、人数で変わります。</li>
+</ul>
+<div class="tbl"><table><tr><th>人数</th><td>2人</td><td>3人</td><td>4人</td><td>5人</td><td>6人</td></tr><tr><th>マップ半径</th><td>7</td><td>7</td><td>8</td><td>8</td><td>9</td></tr><tr><th>ラウンド数</th><td>100</td><td>68</td><td>64</td><td>52</td><td>56</td></tr></table></div>
+<ul>
+<li>「オフライン対戦」を押すと、P1から順に名前（8文字まで）と色を決めます。色は10色から選び、先に決めた人の色は選べません。名前も、先に決めた人と同じものは使えません（空欄は「P番号」として扱います）。</li>
+<li>拠点は、最外周の1マス内側にある六角形の頂点6か所から、1人1つ選びます。</li>
+</ul>
+<h3>2人対戦</h3><ul>
+<li>先手→後手の順に拠点を選びます。決定した拠点は、お互いに見えません。</li>
+<li>先手だけは、1ターン目に限り後手の拠点の半径2マスが見えます。</li>
+<li>初期の食料は先手1・後手0、初期の資源は0です。</li>
+</ul>
+<h3>3人以上</h3><ul>
+<li>手番の逆順（最後の手番の人から、P1が最後）に拠点を選びます。</li>
+<li>1ターン目に限り、自分より先にターンを行ったプレイヤーの拠点のマス（色）だけが見えます。</li>
+<li>手番の前半組（人数の半分、端数切り捨て。6人ならP1〜P3）は、初期資源が1、初期食料が+1されます。初期食料はもともとP1が1、ほかは0です。</li>
+<li>6人対戦では、最後に拠点を選ぶP1は、初期資源がさらに+1（合計2）されます。</li>
+</ul></div></details>
+<details><summary>ターンと時間帯</summary><div class="sec"><ul>
+<li>時間帯は1ラウンドごとに朝→昼→夕→夜と進み、4ラウンドで1周します。左上のマークをタップすると確認できます。</li>
+<li>朝・昼は昼間、夕・夜は夜間です。</li>
+<li>1ターンの行動回数は、昼間が2、夜間が1です（村1つにつき+1）。</li>
+<li>ターン開始時に食料を2獲得します。食料の貯蔵上限は3です。</li>
+<li>行動できなくなると、ターン終了の確認が出ます。「ターン終了」ボタンでいつでも終えられます。</li>
+</ul></div></details>
+<details><summary>移動と食料</summary><div class="sec"><ul>
+<li>最初の移動は、拠点に隣接するマスへ進みます。以降は、直近にいたマス（白枠）に隣接するマスにだけ進めます。</li>
+<li>移動には行動1と食料が必要です。平地は食料1、山は食料2で、水域は通れません。移動先のマスに、必要な食料が表示されます。</li>
+<li>空きマスへ移動すると、そのマスが自分の色（領地）になります。</li>
+<li>自分の色のマス（道）への移動も、同じ食料がかかり、隣のマスにだけ進めます。</li>
+<li>自分の村へは、どこからでも行動1・食料1で戻れます。</li>
+<li>行き場が無い時だけ、自領に隣接する空きマスへ進めます。</li>
+</ul></div></details>
+<details><summary>視界</summary><div class="sec"><ul>
+<li>拠点・村と現在地（白枠）は、周囲まで広く見えます。</li>
+<li>それ以外の自領は、そのマスだけが見えます。</li>
+<li>見えないマスは、輪郭だけが表示されます。</li>
+<li>夜間は視界が狭まります（火の発見で無効）。神秘の探究を習得すると、視界が広がります。</li>
+<li>ゲーム終了後は、盤面全体が見えます。</li>
+</ul></div></details>
+<details><summary>地形</summary><div class="sec">
+<dl>
+<dt>平地</dt><dd>移動に食料1。</dd>
+<dt>山 ▲</dt><dd>移動に食料2（牧畜の開始で1）。単独、2マスの直線、3マスのかたまり（直線に限らない）で出現し、最外周にも出ます。山同士は離れていて、拠点候補に隣接する山は1マスまでです。</dd>
+<dt>水域 ≈</dt><dd>通行できません。最大3マスまでつながり、3マスのときは直線になりません。拠点候補の周囲1マスには出ません。</dd>
+<dt>森（緑）</dt><dd>獣の縄張りです。獣の戦力は、つながった森のマス数（1〜3）です。2マスの森はマップの半径の3分の2以内、3マスの森は3分の1以内にだけ出ます。拠点候補の周囲1マスには出ません。</dd>
+</dl>
+<ul><li>地形は毎回ランダムで、同じ種類同士がなるべく離れるよう、マップ全体に分散して置かれます。</li></ul>
+</div></details>
+<details><summary>資源 ✨</summary><div class="sec"><ul>
+<li>資源マスは、初期設定では平地の約20%です。</li>
+<li>まず通常どおり移動して自領にし、そのマスにいる状態でもう一度タップすると、行動1・食料1で資源+1になります。回収できるのは1マスにつき1回です。</li>
+<li>言語の獲得を習得すると、道でつながった半径2マス以内の資源も回収できます。</li>
+<li>村1つにつき、毎ターンの開始時に資源+1を得ます。</li>
+<li>資源は、スキルの習得、ツールの作製・修繕、村の建設に使います。</li>
+</ul></div></details>
+<details><summary>戦闘</summary><div class="sec"><ul>
+<li>現在地に隣接する相手の色のマスや森のマス（赤い枠）をタップすると、確認のうえ戦闘を挑めます。</li>
+<li>戦闘には、行動1と、そのマスへの移動と同じ食料を使います（勝敗にかかわらず消費）。</li>
+<li>戦力が大きい方が勝ちです。勝つとそのマスを自分の色にし、相手のマスなら資源1、森なら食料1を奪います。</li>
+<li>同じ戦力のときは、そのマスを通行できるだけです。負けると何も起きません。</li>
+<li>相手の現在地（白枠）のマスは奪えません。</li>
+</ul>
+<h3>戦力</h3><ul>
+<li>初期値は1で、夜間は-1されます（火の発見で無効。0未満にはなりません）。</li>
+<li>自分の拠点・村のマスで+2、その周囲1マスで+1されます。</li>
+<li>命の糧・石器・神秘の探究で、さらに上げられます（下の項目を参照）。</li>
+</ul></div></details>
+<details><summary>村 🏠</summary><div class="sec"><ul>
+<li>自分の領地のマス（現在地や道）をタップすると、資源5・食料2で村を建設できます。1人最大3つです。</li>
+<li>移動できるマスをタップしたときは、移動か建設かを選べます。</li>
+<li>村は拠点として扱われます（広い視界、戦力+2、周囲1マスで+1）。</li>
+<li>村1つにつき、行動回数+1、毎ターン資源+1、食料収入-1です（定住の暮らしで食料収入の減りがなくなります。収入は0未満になりません）。</li>
+<li>自分の村を長押しすると、行動1を使って壊し、資源3を回収できます（食料は戻りません）。別の場所に建て直せます。</li>
+<li>相手に奪われると、村は失われます。</li>
+</ul></div></details>
+<details><summary>スキル</summary><div class="sec"><ul>
+<li>条件を満たすとスキルが解放され、お知らせが出ます。</li>
+<li>右上のスキル一覧から、資源と行動1を使って習得します。食料1も必要なスキルがあります。</li>
+</ul>
+<h3>旧石器</h3><dl>
+<dt>火の発見 <small>資源1</small></dt><dd><b>解放：</b>山に隣接する資源マスを初めて回収する<br><b>効果：</b>夜間の行動回数+1。夜間の視界の低下と戦力-1がなくなる</dd>
+<dt>言語の獲得 <small>資源0</small></dt><dd><b>解放：</b>次のいずれか。①火の発見後に夜を終える ②他のプレイヤーと領地が隣り合う ③自領が10マスに到達する<br><b>効果：</b>道でつながった半径2マス以内の未回収の資源を回収できる。移動もできるマスでは、回収か移動かを選べる</dd>
+<dt>打製石器の加工 <small>資源1</small></dt><dd><b>解放：</b>資源が2以上になる<br><b>効果：</b>打製石器が手に入る（獣との戦闘の戦力+1）</dd>
+</dl>
+<h3>新石器</h3><dl>
+<dt>農耕の確立 <small>資源2・食料1</small></dt><dd><b>解放：</b>磨製石器の加工を習得し、水域に面した平地を領地にする<br><b>効果：</b>昼間の食料収入+1</dd>
+<dt>牧畜の開始 <small>資源1・食料1</small></dt><dd><b>解放：</b>獣に勝つ<br><b>効果：</b>夜間の食料収入+1。山の移動の食料が1になる</dd>
+<dt>磨製石器の加工 <small>資源2</small></dt><dd><b>解放：</b>打製石器の加工を習得したあと、山を領地にする<br><b>効果：</b>磨製石器が手に入る（対人戦の戦力+1）</dd>
+<dt>土器の作製 <small>資源2</small></dt><dd><b>解放：</b>火の発見を習得し、山を領地にする<br><b>効果：</b>ツールで土器を作製でき、資源2につき食料の貯蔵上限+1（最大3個）</dd>
+<dt>煮炊きの技術 <small>資源2・食料1</small></dt><dd><b>解放：</b>土器の作製を習得する<br><b>効果：</b>道でつながった半径2マス以内の自領へ、行動1・食料1で移動できる</dd>
+<dt>定住の暮らし <small>資源2</small></dt><dd><b>解放：</b>農耕の確立と牧畜の開始を習得し、村を建設する<br><b>効果：</b>村による食料収入の減りがなくなる</dd>
+<dt>神秘の探究 <small>資源3</small></dt><dd><b>解放：</b>言語の獲得を習得したあと、周囲6マスに山・水域・森の3種類がある場所で命の糧を捧げる<br><b>効果：</b>視界が広がる。拠点の周囲1マスでの戦闘で戦力+1</dd>
+</dl></div></details>
+<details><summary>ツールと命の糧</summary><div class="sec">
+<h3>石器（⛏）</h3><ul>
+<li>「使用」するたびに、そのターンの戦力+1です。打製石器は獣との戦闘、磨製石器は対人戦に効きます。</li>
+<li>使うとゲージが半分減り、2回使うと壊れます。</li>
+<li>壊れた石器は次のターンから、習得と同じ資源・行動回数で作製できます。作製したターンは使えません。</li>
+<li>1回だけ使った石器は、資源1で修繕できます。修繕したターンは使えません。</li>
+</ul>
+<h3>土器（⛏）</h3><ul>
+<li>土器の作製を習得すると、資源2で食料の貯蔵上限を+1できます（最大3回）。</li>
+</ul>
+<h3>命の糧（祈りの手）</h3><ul>
+<li>食料1を捧げると、そのターンの間だけ戦力+1です。行動回数は使わず、1ターンに1回までです。</li>
+<li>神秘の探究の解放にも使います。</li>
+</ul></div></details>
+<details><summary>オンライン対戦 🌐</summary><div class="sec"><ul>
+<li>タイトル画面の「オンライン対戦」で、離れた場所の人ともインターネット経由で遊べます。ログインは不要です。</li>
+<li>ホストが「ルームを作成」すると、4文字のルームIDが出ます。ほかの人は、同じページを開いてIDを入力するか、招待リンクを開きます。</li>
+<li>通信は中継サーバー（TURN）を経由するため、対戦相手にあなたのIPアドレスは見えません。ホストの端末が部屋の進行役なので、ホストは対戦が終わるまでページを開いたままにしてください。</li>
+<li>参加者は自分の名前と色を決めます。人数がそろうと、ホストが対戦を始められます。参加した順にP1、P2…になります。</li>
+<li>盤面は自分の視界だけが表示され、確認画面はありません。自分の番以外は操作できません。</li>
+<li>通信が切れても自動でつなぎ直します。ページを閉じた場合は、同じ端末・同じブラウザで同じIDを入力すると、自分の席に戻れます（ホストも同じIDで入り直すと対戦を再開できます）。</li>
+<li>終了後の「もう一度」は、ホストだけが押せます（同じメンバーで新しいマップになります）。</li>
+<li>オンライン対戦中は、GMモードとチュートリアルは使えません。</li>
+</ul></div></details>
+<details><summary>操作と設定</summary><div class="sec"><ul>
+<li>1台の端末を交代で使います。手番が替わると確認画面で盤面を隠します。</li>
+<li>拠点選び・戦闘・村の建設などでは、確認画面が出ます。</li>
+<li>リセットボタンは長押しで操作します。</li>
+<li>BGMと効果音のON/OFF・音量は、「設定」からいつでも変えられます。</li>
+<li>プレイ人数・ラウンド数・名前と色は、ゲーム開始前（最初のプレイヤーが拠点を選ぶ前）だけ変更できます。出現率の変更はGMモードのみです。</li>
+<li>「設定」の「チュートリアル」で、本物の盤面を使った基本の案内を体験できます。</li>
+</ul></div></details><div style="text-align:right;margin-top:12px"><button id="helpClose">閉じる</button></div></div></div>
+
+<div id="title"><div id="titleLogo"></div><h1>HEXAREA</h1><div class="sub">新石器時代の、2〜6人対戦</div>
+  <div id="tiNP"></div>
+  <button class="tbtn main" id="tiStart">オフライン対戦</button>
+  <button class="tbtn" id="tiOnline">🌐 オンライン対戦</button>
+  <button class="tbtn" id="tiTut">🎓 チュートリアル</button>
+  <div class="small"><button class="tbtn" id="tiSet">設定</button><button class="tbtn" id="tiRule">ルール</button></div>
+  <div class="tip">「オフライン対戦」は1台の端末を交代で使います。<br>「オンライン対戦」は、それぞれの端末からルームIDで参加します。</div></div>
+<div id="online"><div id="onBox">
+  <div id="onMenu">
+    <h2>オンライン対戦</h2>
+    <div class="onNote" id="onAvail" style="white-space:pre-line">それぞれの端末から同じ部屋に入って対戦します。</div>
+    <span class="lbl">ルームを作成（ID発行）</span>
+    <div class="onRow"><select id="onNP"><option value="2">2人</option><option value="3">3人</option><option value="4">4人</option><option value="5">5人</option><option value="6">6人</option></select><button id="onCreate" class="onMain" style="flex:1">ルームを作成</button></div>
+    <span class="lbl">IDを入力して参加</span>
+    <div class="onRow"><input id="onCode" maxlength="4" placeholder="ルームID" autocomplete="off" autocapitalize="characters"><button id="onJoin" class="onMain">参加</button></div>
+    <div id="onErr" aria-live="polite"></div>
+    <div class="btns"><button id="onClose">タイトルへ</button></div>
+  </div>
+  <div id="onLobby" style="display:none">
+    <div class="onCodeLbl">ルームID</div><div id="onCodeBig"></div>
+    <div class="onIdRow"><button id="onCopyId">IDをコピー</button><button id="onShareLink">招待リンクを送る</button></div>
+    <div class="onNote">一緒に遊ぶ人に、このページとルームIDを伝えてください。</div>
+    <div class="onNote" id="onHostNote">あなたがホストです。対戦が終わるまで、このページを閉じないでください。</div>
+    <span class="lbl">参加者 <span id="onCount"></span></span><div id="onList"></div>
+    <label class="lbl" for="onName">あなたの名前（8文字まで）</label><input id="onName" maxlength="8" autocomplete="off">
+    <span class="lbl">あなたの色</span><div id="onColors"></div>
+    <div id="onHostOpts"><span class="lbl">対戦の設定（ホストのみ）</span><div class="onRow"><select id="onSetNP"><option value="2">2人</option><option value="3">3人</option><option value="4">4人</option><option value="5">5人</option><option value="6">6人</option></select><span>ラウンド</span><input type="number" id="onSetRounds" min="1" max="999"></div></div>
+    <div id="onWait" class="onNote" style="margin-top:12px"></div>
+    <div id="onErr2" aria-live="polite"></div>
+    <div class="btns"><button id="onLeave">退出</button><button id="onStart" class="onMain">対戦を始める</button></div>
+  </div>
+</div></div>
+<!-- P2P通信ライブラリ（PeerJS）。端末どうしをつなぐための無料の公開サーバーも、このライブラリが用意しています -->
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+// ===== オンライン対戦の中継（TURN）サーバー設定 ===========================================
+// 対戦相手に自分のIPアドレスが見えないよう、通信はすべて TURN サーバーを経由させる。
+// 次の A・B のどちらか一方を設定する（両方あれば A を優先）。どちらも空だと、オンライン対戦は使えない。
+const TURN_CONFIG = {
+  // A. TURN の接続情報（iceServers）を返すURL
+  //    ・Metered（Open Relay）: ダッシュボードの「TURN Credential」の API Key を使ったURL
+  //      例 'https://あなたのアプリ名.metered.live/api/v1/turn/credentials?apiKey=XXXXXXXX'
+  //    ・Cloudflare などで自作した、短時間だけ有効な接続情報を返すURL
+  credentialUrl: '',
+  // B. 接続情報を直接書く場合（例）[{urls: 'turn:global.relay.metered.ca:443', username: '...', credential: '...'}]
+  iceServers: [   // Metered（アプリ名 hexarea2026・日本の中継サーバー）の接続情報
+    {urls: ['turn:jp.relay.metered.ca:80', 'turn:jp.relay.metered.ca:80?transport=tcp', 'turn:jp.relay.metered.ca:443', 'turns:jp.relay.metered.ca:443?transport=tcp'],
+     username: '98ad301042aeae59d4f74d98', credential: 'XYx3IUMtCqL0qCv2'}
+  ],
+  // true: TURN 経由の通信だけを使う（IPアドレスを相手に見せない）。false にすると直接通信も使う（非推奨）
+  relayOnly: true
+};
+// ======================================================================================
+const RADIUS_BY_NP = {2:7, 3:7, 4:8, 5:8, 6:9};   // 人数ごとのマップ半径（1人あたり約45〜85マス）
+const ROUNDS_BY_NP = {2:100, 3:68, 4:64, 5:52, 6:56};   // 人数ごとのラウンド数の初期値（1人あたりのマス数×約1.2を、4の倍数に）
+let NP = 2, RADIUS = RADIUS_BY_NP[NP], MAX_ROUNDS = ROUNDS_BY_NP[NP];   // NP: プレイ人数（2〜6）。RADIUSは init() で人数に合わせる
+// プレイヤーの色: 地形（山の茶・水域の青緑・森の緑・移動先の緑・空きマスの灰・資源の黄）と被らない10色
+const PALETTE = [{n:'青', c:'#2f7de1'}, {n:'赤', c:'#e5484d'}, {n:'紫', c:'#8e5bd6'}, {n:'橙', c:'#f08c00'}, {n:'桃', c:'#e05aa8'},
+                 {n:'水色', c:'#17b3d3'}, {n:'紺', c:'#2b3d9e'}, {n:'臙脂', c:'#9b1f3f'}, {n:'赤紫', c:'#c026d3'}, {n:'珊瑚', c:'#ff7a5c'}];
+const COLORS = {0:'#8b919c'}, PNAMES = {};
+let PNAME = {}, PCOL = {1:0, 2:1, 3:2, 4:3, 5:4, 6:5};   // プレイヤーの名前と、PALETTEの番号
+try { const sv = JSON.parse(localStorage.getItem('hexPlayers') || 'null'); if (sv) { if (sv.names) for (const k in sv.names) { const v = String(sv.names[k]).replace(/[<>&"'`]/g, '').slice(0, 8); if (v) PNAME[k] = v; } if (sv.cols) PCOL = {...PCOL, ...sv.cols}; } } catch (e) {}
+function applyColors() {   // 色が重ならないように整えて、COLORS・色名に反映する
+  const used = new Set();
+  for (let p = 1; p <= 6; p++) {
+    let i = PCOL[p]; if (!(i >= 0 && i < PALETTE.length) || used.has(i)) i = PALETTE.findIndex((_, k) => !used.has(k));
+    PCOL[p] = i; used.add(i); COLORS[p] = PALETTE[i].c; PNAMES[p] = PALETTE[i].n;
+  }
+}
+applyColors();
+const savePlayers = () => { try { localStorage.setItem('hexPlayers', JSON.stringify({names: PNAME, cols: PCOL})); } catch (e) {} };
+const esc = t => String(t).replace(/[&<>"']/g, ch => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[ch]));
+const PL = () => Array.from({length: NP}, (_, i) => i + 1);   // 参加プレイヤー番号
+const per = v => Object.fromEntries(PL().map(p => [p, typeof v === 'function' ? v(p) : v]));   // プレイヤーごとの値
+const isPlayer = o => o >= 1 && o <= NP;
+const isEnemy = (o, p) => isPlayer(o) && o !== p;
+let alive = per(true);   // 脱落していないプレイヤー
+const multi = () => NP > 2;   // 3人以上のときの特別ルール
+const firstPicker = () => multi() ? NP : 1;   // 3人以上は手番の逆順（P6→P1）で拠点を選ぶ
+const lastPicker = () => multi() ? 1 : NP;
+const nextPicker = t => multi() ? t - 1 : t + 1;
+const firstHalf = p => multi() && p <= Math.floor(NP / 2);   // 3人以上: 手番の前半組（P1〜P[人数÷2の切り捨て]）
+const startRp = p => (firstHalf(p) ? 1 : 0) + (NP === 6 && p === lastPicker() ? 1 : 0);   // 前半組は初期資源+1。6人戦では最後の選択者（P1）がさらに+1
+const startSp = p => (p === 1 ? 1 : 0) + (firstHalf(p) ? 1 : 0);   // 初期食料: P1が1。3人以上では前半組がさらに+1
+const DIRS = [[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1]];
+const key = (q,r) => q + ',' + r;
+const calcBases = () => DIRS.map(([a,b]) => [a*(RADIUS-1), b*(RADIUS-1)]);   // 拠点候補: 最外周から1マス内側の六角形の頂点6か所
+let BASES = calcBases();
+const isBase = c => BASES.some(([q,r]) => c.q === q && c.r === r);
+
+const canvas = document.getElementById('c'), ctx = canvas.getContext('2d');
+let cells, sp, rp, skills, last, viewer, started, turn, round, actions, over, winner, msg, hover = null, selecting = true, gm = false, pw = per(1), bless = per(0), pot = per(0), boost = {stone:per(0), polish:per(0)}, tool = {stone:per(0), polish:per(0)}, lock = {stone:per(0), polish:per(0)}, fixed = {stone:per(0), polish:per(0)};   // boost: 石器の使用回数ぶんの戦力（そのターンの間だけ）。 tool: 石器の残り使用回数（0〜2）。 lock: そのターンに壊れた石器（次のターンまで作製できない）。 pot: 土器の作製で増やした貯蔵上限。 bless: 命の糧による戦力（そのターンの間だけ）
+let size = 36, cx = 0, cy = 0;
+let busy = false, timer = null;
+let ONLINE = null;   // オンライン対戦中: {code, seat, uid, playing}
+const onPlay = () => !!(ONLINE && ONLINE.playing);
+const viewP = () => onPlay() ? ONLINE.seat : turn;   // 盤面を見るプレイヤー（オンラインでは自分の席）
+const myTurn = () => !onPlay() || ONLINE.seat === turn;
+let langOpen = per(false), fireOpen = per(false), stoneOpen = per(false), pending = per(() => []), popupQ = [], gmBackup = null, xOpen = {};   // xOpen: 新石器スキルの解放状態
+const XIDS = ['farm','herd','polish','pottery','faith','cook','settle']; const resetX = () => { for (const k of XIDS) xOpen[k] = per(false); }; resetX(); let baseCell = {};   // 「言語の獲得」の解放状態と、表示待ちのお知らせ   // 手番交代の1秒待ち中は操作を受け付けない
+
+function init() {
+  clearTimeout(timer); busy = false;
+  RADIUS = RADIUS_BY_NP[NP] || 8; BASES = calcBases();   // マップの大きさは人数で決まる
+  cells = new Map();
+  for (let q=-RADIUS;q<=RADIUS;q++) for (let r=-RADIUS;r<=RADIUS;r++)
+    if (Math.abs(q+r) <= RADIUS) cells.set(key(q,r), {q,r,o:0,t:'p'});
+  genTerrain(); genResources();
+  sp = per(startSp); started = per(false); rp = per(startRp); pw = per(1); bless = per(0); pot = per(0); boost = {stone:per(0), polish:per(0)}; tool = {stone:per(0), polish:per(0)}; lock = {stone:per(0), polish:per(0)}; fixed = {stone:per(0), polish:per(0)}; skills = per(() => ({})); last = per(null); alive = per(true); turn = firstPicker(); viewer = turn; round = 1; actions = 0; over = false; winner = 0; selecting = true;
+  langOpen = per(false); fireOpen = per(false); stoneOpen = per(false); resetX(); baseCell = {}; pending = per(() => []); popupQ = []; buildHeader(); document.getElementById('notice').classList.remove('open'); if (gm) gmGrant();
+  msg = `R1/${MAX_ROUNDS}（朝） ${name(turn)}は拠点を選んでください`; hover = null;
+  render();
+}
+// 地形: p=平地(1pt) / m=山(2pt) / s=水域(通行不可)。毎回ランダムに生成
+function seaSize(c0) {   // c0を含む海マスのつながりの大きさ
+  const seen = new Set([key(c0.q,c0.r)]), st = [c0];
+  while (st.length) { const c = st.pop(); for (const n of nbrs(c)) if (n.t === 's' && !seen.has(key(n.q,n.r))) { seen.add(key(n.q,n.r)); st.push(n); } }
+  return seen.size;
+}
+function badSea(c0) {   // 水域のかたまりが4マス以上、または3マスが直線ならNG
+  const seen = new Map([[key(c0.q,c0.r), c0]]), st = [c0];
+  while (st.length) { const c = st.pop(); for (const n of nbrs(c)) if (n.t === 's' && !seen.has(key(n.q,n.r))) { seen.set(key(n.q,n.r), n); st.push(n); } }
+  if (seen.size > 3) return true;
+  if (seen.size === 3) { const v = [...seen.values()]; return v.every(m => m.q === v[0].q) || v.every(m => m.r === v[0].r) || v.every(m => m.q + m.r === v[0].q + v[0].r); }
+  return false;
+}
+// 資源: 平地（第2リング以降）に約20%（全体比）の確率で配置
+function genResources() {
+  for (const c of cells.values()) { c.res = c.t === 'p' && !c.forest && !isBase(c) && Math.random() < SET.res / 100; c.harv = false; }
+}
+function placeMountain(c, len) {   // cを含む山のかたまりを置く（1・2マスは直線、3マスは直線に限らない）。他の山とは隣接させない
+  let shapes = [];
+  if (len === 1) shapes = [[c]];
+  else if (len === 2) shapes = nbrs(c).map(n => [c, n]);
+  else for (const n1 of nbrs(c)) for (const n2 of [...nbrs(c), ...nbrs(n1)]) if (n2 !== c && n2 !== n1) shapes.push([c, n1, n2]);
+  shapes.sort(() => Math.random() - 0.5);
+  for (const line of shapes) {
+    if (line.some(m => isBase(m) || m.t !== 'p')) continue;
+    if (line.some(m => nbrs(m).some(n => n.t === 'm' && !line.includes(n)))) continue;
+    // 拠点候補に隣接する山は、拠点ごとに最大1マス
+    if (BASES.some(([bq,br]) => nbrs(cells.get(key(bq,br))).filter(n => n.t === 'm' || line.includes(n)).length >= 2)) continue;
+    for (const m of line) m.t = 'm';
+    return true;
+  }
+  return false;
+}
+const hexDist = (a,b) => (Math.abs(a.q-b.q) + Math.abs(a.r-b.r) + Math.abs(a.q+a.r-b.q-b.r)) / 2;
+const isStraight = v => v.every(m => m.q === v[0].q) || v.every(m => m.r === v[0].r) || v.every(m => m.q + m.r === v[0].q + v[0].r);
+function placeWater(c, len) {   // cを含む水域のかたまり（1〜3マス、3マスは直線にしない）。他の水域・拠点候補の周囲1マスには置かない
+  let shapes = [];
+  if (len === 1) shapes = [[c]];
+  else if (len === 2) shapes = nbrs(c).map(n => [c, n]);
+  else for (const n1 of nbrs(c)) for (const n2 of [...nbrs(c), ...nbrs(n1)]) if (n2 !== c && n2 !== n1) shapes.push([c, n1, n2]);
+  if (len === 3) shapes = shapes.filter(s => !isStraight(s));
+  shapes.sort(() => Math.random() - 0.5);
+  for (const line of shapes) {
+    if (line.some(m => m.t !== 'p' || isBase(m) || nbrs(m).some(isBase))) continue;
+    if (line.some(m => nbrs(m).some(n => n.t === 's' && !line.includes(n)))) continue;
+    for (const m of line) m.t = 's';
+    return true;
+  }
+  return false;
+}
+function shapesAt(c, len) {   // cを含む、つながった len マスの形（3マスは直線に限らない）
+  if (len === 1) return [[c]];
+  if (len === 2) return nbrs(c).map(n => [c, n]);
+  const out = [];
+  for (const n1 of nbrs(c)) for (const n2 of [...nbrs(c), ...nbrs(n1)]) if (n2 !== c && n2 !== n1) out.push([c, n1, n2]);
+  return out;
+}
+function placeForests(all) {   // 森: 山と同様と1〜3マスのかたまりを分散させて置く。2マスは中心から全体の半径の3分の2以内、3マスは3分の1以内だけ
+  const tF = all.length * SET.forest / 100;
+  let cF = 0, fails = 0;
+  for (let guard = 0; guard < 300 && cF < tF && fails < 15; guard++) {
+    const len = Math.max(1, Math.min([1,1,2,2,3][Math.floor(Math.random()*5)], Math.ceil(tF - cF)));
+    const okCell = m => m.t === 'p' && !m.forest && !isBase(m) && !nbrs(m).some(isBase) && (len === 1 || ring(m) <= RADIUS * (len === 3 ? 1/3 : 2/3));   // 3マス: マップの半径の3分の1以内 ／ 2マス: 3分の2以内   // 拠点候補の周囲1マスには森を置かない
+    const pool = all.filter(okCell);
+    if (!pool.length) break;
+    const forests = all.filter(c => c.forest);
+    const memo = new Map(), others = all.filter(c => c.t !== 'p'); const score = c => { if (!memo.has(c)) memo.set(c, (forests.length ? Math.min(...forests.map(q => hexDist(c, q))) : 6) + 0.3 * Math.min(others.length ? Math.min(...others.map(q => hexDist(c, q))) : 4, 4) + Math.random() * 0.4); return memo.get(c); };   // 森同士をなるべく離し、山・水域とも少し離す
+    const cand = []; for (let i = 0; i < 40; i++) cand.push(pool[Math.floor(Math.random() * pool.length)]);
+    cand.sort((x, y) => score(y) - score(x));
+    let ok = false;
+    for (const c of cand) {
+      const shapes = shapesAt(c, len).sort(() => Math.random() - 0.5);
+      const line = shapes.find(s => s.every(okCell) && !s.some(m => nbrs(m).some(n => n.forest && !s.includes(n))));
+      if (line) { for (const m of line) { m.forest = true; m.f0 = true; } cF += len; ok = true; break; }
+    }
+    if (ok) fails = 0; else fails++;
+  }
+}
+function genTerrain() {   // 山と水域は「いちばん他から離れた場所」を選んで置くので、マップ全体に分散する
+  const all = [...cells.values()];
+  const N = all.length, tM = N * SET.mount / 100, tW = N * SET.water / 100;
+  for (let tries = 0; tries < 200; tries++) {
+    for (const c of all) c.t = 'p';
+    let cM = 0, cW = 0;
+    const fails = {m: 0, s: 0};
+    for (let guard = 0; guard < 600; guard++) {
+      const needM = cM < tM && fails.m < 10, needW = cW < tW && fails.s < 10;
+      if (!needM && !needW) break;
+      const type = needM && needW ? (cM / tM <= cW / tW ? 'm' : 's') : (needM ? 'm' : 's');
+      const remain = Math.ceil(type === 'm' ? tM - cM : tW - cW);
+      const len = Math.max(1, Math.min([1,1,2,2,3][Math.floor(Math.random()*5)], remain));
+      // 候補をランダムに集め、すでにある山・水域から最も離れたものを優先する
+      const pool = all.filter(c => c.t === 'p' && !isBase(c) && (type === 'm' || !nbrs(c).some(isBase)));
+      const same = all.filter(c => c.t === type), other = all.filter(c => c.t !== 'p' && c.t !== type);   // 同じ種類の地形からなるべく離す（種類ごとに全体へ均一に）
+      const dmin = (c, arr, d0) => arr.length ? Math.min(...arr.map(q => hexDist(c, q))) : d0;
+      const memo = new Map(); const score = c => { if (!memo.has(c)) memo.set(c, dmin(c, same, 6) + 0.3 * Math.min(dmin(c, other, 4), 4) + Math.random() * 0.4); return memo.get(c); };   // 同種との距離を主に、他の地形との距離を少し考慮（少しランダム）
+      const cand = []; for (let i = 0; i < 40 && pool.length; i++) cand.push(pool[Math.floor(Math.random() * pool.length)]);
+      cand.sort((x, y) => score(y) - score(x));
+      let ok = false;
+      for (const c of cand) if (type === 'm' ? placeMountain(c, len) : placeWater(c, len)) { ok = true; break; }
+      if (ok) { if (type === 'm') cM += len; else cW += len; fails[type] = 0; } else fails[type]++;
+    }
+    // 水域以外が全て拠点候補から到達可能か確認
+    const b0 = cells.get(key(BASES[0][0], BASES[0][1]));
+    const seen = new Set([key(b0.q,b0.r)]), st = [b0];
+    while (st.length) { const c = st.pop(); for (const n of nbrs(c)) if (n.t !== 's' && !seen.has(key(n.q,n.r))) { seen.add(key(n.q,n.r)); st.push(n); } }
+    if (seen.size === all.filter(c => c.t !== 's').length) { placeForests(all); return; }
+  }
+  for (const c of all) c.t = 'p';   // 失敗時は全て平地
+}
+const nbrs = c => DIRS.map(([a,b]) => cells.get(key(c.q+a,c.r+b))).filter(Boolean);
+const ring = c => (Math.abs(c.q) + Math.abs(c.r) + Math.abs(c.q + c.r)) / 2;   // 中央からの距離
+const cost = (c,p=turn) => c.t === 'm' ? ((skills && skills[p] && skills[p].herd) ? 1 : 2) : 1;   // 山は2行動（牧畜の開始で1）
+const roadRange = p => skills[p].cook ? 2 : 1;   // 道での移動半径: 煮炊きの技術で2
+const isJump = (c,p) => c.o === p && !!last[p] && !nbrs(c).includes(last[p]);   // 隣でない道への移動（1行動・食料1）
+const moveCost = (c,p) => isBattle(c,p) ? cost(c,p) : ((c.o === p && c.village) || isJump(c,p)) ? 1 : cost(c,p);   // 自分の村へは常に食料1で戻れる   // 戦闘も、そのマスへ移動する食料を使う（勝敗にかかわらず）   // 自分の色のマス（道）への移動はpt不要
+const onRoad = (c,p) => {   // 現在位置から自分の色のマスでつながっているか
+  if (!last[p] || c.o !== p) return false;
+  const seen = new Set([key(last[p].q, last[p].r)]), st = [last[p]];
+  while (st.length) { const x = st.pop(); if (x === c) return true; for (const n of nbrs(x)) if (n.o === p && !seen.has(key(n.q,n.r))) { seen.add(key(n.q,n.r)); st.push(n); } }
+  return false;
+};
+const visLevel = (c, p) => Math.max(1, ((isMyBase(c, p) || c === last[p]) ? 3 : 1) + (skills[p].faith ? 1 : 0) - ((isDay() || skills[p].fire) ? 0 : 1));   // 拠点と現在地はレベル3、他の自領はレベル1。夜は-1（火の発見で無効）、神秘の探究で+1
+const specialAround = c => new Set(nbrs(c).map(n => n.t === 'm' ? 'm' : n.t === 's' ? 's' : n.forest ? 'f' : '').filter(Boolean)).size;   // 周囲6マスにある地形の種類数（現在は山・水域・森。資源は含まない。新しい地形マスを追加したら、ここに種類を足す）
+const VILLAGE_RES = 5, VILLAGE_FOOD = 2, VILLAGE_MAX = 3, VILLAGE_REFUND = 3;   // 村の建設: 資源5・食料2、1人最大3つ
+const canBuildVillage = p => gm || (rp[p] >= VILLAGE_RES && sp[p] >= VILLAGE_FOOD && villageCount(p) < VILLAGE_MAX);
+const villageWhy = p => villageCount(p) >= VILLAGE_MAX ? `村は最大${VILLAGE_MAX}つまでです（長押しで壊して建て直せます）` : `村の建設には、資源${VILLAGE_RES}と食料${VILLAGE_FOOD}が必要です`;
+function demolishVillage(c) {   // 村を壊して資源3を回収（行動回数1を使う）。食料は戻らない
+  const p = turn; if (busy || over || c.o !== p || !c.village || (!gm && actions < 1)) return;
+  c.village = false; if (!gm) { rp[p] += VILLAGE_REFUND; actions--; }
+  msg = `${name(p)} 🏚 村を壊した（資源+${gm ? 0 : VILLAGE_REFUND}） 残り行動回数 ${gm ? '∞' : actions}`; finishAct();
+}
+function buildVillage(c) {   // 村の建設: 資源5・食料2。拠点扱い
+  const p = turn; if (c.o !== p || c.village || !canBuildVillage(p)) return;
+  if (!gm) { rp[p] -= VILLAGE_RES; sp[p] -= VILLAGE_FOOD; } c.village = true;
+  msg = `${name(p)} 🏠 村を建設した（村は長押しで壊せます。行動回数1を使い、資源3が戻ります）`; checkUnlocks(p, c); finishAct();
+}
+function pray() {   // 命の糧（🙏ボタン）: 食料1を消費して、そのターンの間だけ戦力+1（行動回数は使わない）（神秘の探究の解放条件にもなる）
+  const p = turn, c = last[p]; if (bless[p] >= 1) return; if (!gm) sp[p] -= 1; bless[p] += 1;
+  msg = `${name(p)} 🙏 命の糧を捧げた… このターンの戦力+${bless[p]} 残り行動回数 ${gm ? '∞' : actions}`;
+  if (skills[p].lang && specialAround(c) >= 3) unlock(p, '静寂の儀式', 'faith');
+  finishAct();
+}
+const enemyLeft = o => [...cells.values()].filter(c => c.o === o && c !== last[o]).length;   // 勝利条件: 相手の領地（現在地を除く）がなくなる
+const reach = p => Math.max(0, ...[...cells.values()].filter(c => c.o === p).map(ring));   // 今いる半径
+const phase = () => ['朝','昼','夕','夜'][(round - 1) % 4];   // 朝・昼=昼間 / 夕・夜=夜間
+const isDay = () => ((round - 1) % 4) < 2;   // 1,2ラウンド=昼 / 3,4ラウンド=夜 を繰り返す
+const villageCount = p => [...cells.values()].filter(c => c.o === p && c.village).length;   // 村の数
+const actionsFor = () => (isDay() ? 2 : (skills[turn].fire ? 2 : 1)) + villageCount(turn);   // 村1つにつき+1   // 昼は2、夜は1（火の発見で夜も2）
+const baseForest = p => basesOf(p).some(b => nbrs(b).some(n => n.f0));   // 拠点の周囲1マス以内に、もともと森があったか
+const spCap = p => 3 + (skills[p].pottery ? pot[p] : 0);   // 食料の上限: 3（土器の作製の「作製」で資源2につき+1）
+const addSp = (p, n) => { sp[p] = Math.max(sp[p], Math.min(spCap(p), sp[p] + n)); };
+const income = p => Math.max(0, 2 - (skills[p].settle ? 0 : villageCount(p)) + (skills[p].farm && isDay() ? 1 : 0) + (skills[p].herd && !isDay() ? 1 : 0));   // 農耕で昼間+1、牧畜で夜間+1
+// 空きマスが自領に隣接しているか（盤面が埋まったかの判定用）
+const isFrontier = (c,p) => c.o === 0 && c.t !== 's' && !!started[p] && nbrs(c).some(n => n.o === p);
+const canStep = p => last[p] && nbrs(last[p]).some(n => n.t !== 's' && (n.o === 0 || n.o === p));
+// 移動先: 最初は★の隣。以降は直近のマスの隣（空きマス、または自分が染めたマス）。行き場が無い時だけ自領の隣の空きマスへ
+const isTarget = (c,p) => {
+  if (c.t === 's') return false;
+  if (c.o !== 0 && c.o !== p) return c !== last[c.o] && !!started[p] && !!last[p] && nbrs(c).includes(last[p]);   // 相手の現在地（白枠）は奪えない   // 相手の色のマス: 現在位置に隣接していれば戦闘を挑める
+  if (c.o === p) return started[p] && c !== last[p] && (!!c.village || nbrs(c).includes(last[p]) || (roadRange(p) > 1 && hexDist(c, last[p]) <= roadRange(p) && onRoad(c,p)));   // 自領: 通常は隣のマスだけ。煮炊きの技術で、道でつながった半径2マス以内も移動できる
+  if (!started[p]) return isFrontier(c,p);
+  if (!canStep(p)) return isFrontier(c,p);
+  return nbrs(c).includes(last[p]);
+};
+const isHarvest = (c,p) => c.res && !c.harv && c.o === p && !!last[p] && (c === last[p] || (!!skills[p].lang && hexDist(c, last[p]) <= 2 && onRoad(c,p)));   // 今いる（直近の）自領の資源マスを再タップで採取、1pt
+const isLegal = (c,p) => !over && actions > 0 && ((isTarget(c,p) && sp[p] >= moveCost(c,p)) || (isHarvest(c,p) && sp[p] >= 1));
+const anyTarget = p => [...cells.values()].some(c => isFrontier(c,p));
+const anyHarvest = p => [...cells.values()].some(c => isHarvest(c,p));
+const anyLegal = p => [...cells.values()].some(c => isLegal(c,p));
+const count = p => [...cells.values()].filter(c => c.o === p).length;
+const name = p => `${PNAME[p] || 'P' + p}（${PNAMES[p] || ''}）`;
+
+function finish(w, why) {
+  over = true; winner = w;
+  msg = w ? `🏆 ${name(w)}の勝利！（${why}）` : `引き分け（${why}）`;
+}
+function territoryEnd() {   // 領地が最も多いプレイヤーの勝ち（最多が複数なら引き分け）
+  const live = PL().filter(q => alive[q]), n = Object.fromEntries(PL().map(q => [q, count(q)]));
+  const mx = Math.max(...live.map(q => n[q])), top = live.filter(q => n[q] === mx);
+  finish(top.length === 1 ? top[0] : 0, `領地 ${PL().map(q => alive[q] ? n[q] : '脱落').join(' 対 ')}`);
+}
+const allStuck = () => PL().filter(q => alive[q]).every(q => !anyTarget(q));   // 盤面が埋まった
+function eliminate(o) {   // 脱落: 残りの領地（現在地・村）は空きマスに戻る
+  alive[o] = false;
+  for (const c of cells.values()) if (c.o === o) { c.o = 0; c.village = false; }
+  last[o] = null; pending[o] = [];
+}
+function switchTurn(note) {
+  if (!selecting && !over && skills[turn].fire && phase() === '夜') unlock(turn, '火を囲む夜');   // 火の発見後に夜を終える
+  bless = per(0); boost = {stone:per(0), polish:per(0)}; lock = {stone:per(0), polish:per(0)}; fixed = {stone:per(0), polish:per(0)};   // 命の糧・石器の使用の効果はターン終了で消える。作製ロック・修繕後の使用不可も解ける
+  let t = turn, g = 0;   // 次の（脱落していない）プレイヤーへ。P1に戻ったらラウンドが進む
+  do { t = t % NP + 1; if (t === 1) round++; } while (!alive[t] && g++ < NP);
+  turn = t;
+  if (round > MAX_ROUNDS) { territoryEnd(); return; }
+  actions = gm ? 1e9 : actionsFor(); addSp(turn, income(turn));
+  const vn = villageCount(turn); if (vn > 0) { rp[turn] += vn; if (rp[turn] >= 2) unlock(turn, '打撃の共鳴', 'stone'); }   // 村1つにつき毎ターン資源+1
+  msg = (note ? note + ' ' : '') + `R${round}/${MAX_ROUNDS}（${phase()}） ${name(turn)}のターン`;
+}
+function advance() {
+  let guard = 0, note = '';
+  while (!over && (actions === 0 || !anyLegal(turn)) && guard++ < 4 * NP + 4) {
+    if (allStuck()) { territoryEnd(); return; }
+    if (actions > 0 && (anyTarget(turn) || anyHarvest(turn))) note = '';
+    else if (actions > 0) note = `${name(turn)}は動けないためパス。`;
+    switchTurn(note);
+  }
+}
+
+function pickBase(c) {   // 拠点選び: 2人は先手→後手、3人以上は逆順。選んだ拠点は決定後お互いに見えない
+  if (busy || over || !isBase(c) || c.o !== 0) return;
+  c.o = turn; started[turn] = true; last[turn] = c; baseCell[turn] = c;
+  if (turn !== lastPicker()) { turn = nextPicker(turn); msg = `R1/${MAX_ROUNDS}（朝） ${name(turn)}は拠点を選んでください`; }
+  else { selecting = false; turn = 1; round = 1; actions = gm ? 1e9 : actionsFor(); msg = `R1/${MAX_ROUNDS}（朝） ${name(1)}のターン`; }
+  render();
+}
+function act(c) {
+  if (selecting) {   // 拠点選び: 確認ダイアログで決定
+    if (busy || over || !isBase(c) || c.o !== 0) return;
+    ask(`${name(turn)}の拠点をここに決定しますか？`, '決定', () => pickBase(c));
+    return;
+  }
+  if (!busy && !skipVillage && started[turn] && c.o === turn && !c.village && (c === last[turn] || isLegal(c, turn)) && !isHarvest(c, turn)) {   // 自領のマス: 村の建設
+    const can = canBuildVillage(turn);
+    if (c === last[turn]) { if (can) ask('ここに村を建設しますか？<br>（資源5・食料2。最大3つ。村は拠点扱いです）<br>※建てた村は長押しで壊せます（行動回数1・資源3が戻り、別の場所に建て直せます）', '建設', () => buildVillage(c)); else { msg = villageWhy(turn); render(); } return; }
+    if (can) { ask('このマスに村を建設しますか？<br>（資源5・食料2。最大3つ。村は拠点扱いです）<br>※建てた村は長押しで壊せます（行動回数1・資源3が戻り、別の場所に建て直せます）', '建設', () => buildVillage(c), '移動', () => { skipVillage = true; act(c); skipVillage = false; }); return; }
+  }
+  if (!busy && !over && actions > 0 && isTarget(c, turn) && !isHarvest(c, turn) && sp[turn] < moveCost(c, turn)) { msg = `食料が足りません（このマスには食料${moveCost(c, turn)}が必要です）`; render(); return; }
+  if (busy || !isLegal(c, turn)) return;
+  if (isBattle(c, turn)) {   // 相手の色のマス・森のマス: 確認のうえ戦闘
+    const wild = c.forest && c.o === 0;
+    ask(wild ? `獣（戦力 ${forestSize(c)}）の縄張りです。<br>戦闘しますか？（自分の戦力 ${battlePower(turn, true, c)} ／ 食料${cost(c, turn)}消費）` : `${name(c.o)}と戦闘しますか？<br>（自分の戦力 ${battlePower(turn, false, c)} ／ 相手の戦力 ${battlePower(c.o, false, c)} ／ 食料${cost(c, turn)}消費）`, '戦闘', () => battle(c));
+    return;
+  }
+  if (isHarvest(c, turn) && !pickMode && c !== last[turn] && isTarget(c, turn) && sp[turn] >= 1 && sp[turn] >= moveCost(c, turn)) {   // 回収と移動の両方できるマス（言語の獲得）: 選べる
+    ask(`このマスは、回収と移動を選べます。<br>（回収: 行動回数1・食料1で資源+1 ／ 移動: 行動回数1・食料${moveCost(c, turn)}）`, '回収', () => { pickMode = 'harvest'; act(c); pickMode = null; }, '移動', () => { pickMode = 'move'; act(c); pickMode = null; });
+    return;
+  }
+  if (isHarvest(c, turn) && pickMode !== 'move') {                          // 自領の資源マスを再タップ → 資源獲得
+    if (!gm) sp[turn] -= 1; const gain = 1; c.harv = true; rp[turn] += gain; actions--;
+    msg = `${name(turn)} 💎資源+${gain} 残り行動回数 ${gm ? '∞' : actions}`;
+    if (nbrs(c).some(n => n.t === 'm')) unlock(turn, '山火事の痕跡', 'fire'); if (rp[turn] >= 2) unlock(turn, '打撃の共鳴', 'stone');   // 山に隣接する資源を初めて回収
+  } else {
+    if (!gm) sp[turn] -= moveCost(c,turn); if (c.o === 0) c.o = turn; started[turn] = true; last[turn] = c; actions--;
+    msg = `${name(turn)} 残り行動回数 ${gm ? '∞' : actions}`;
+    meetCheck(turn, c);   // 他のプレイヤーと領地が隣り合った
+    if (count(turn) >= 10) unlock(turn, '部族社会の発展'); checkUnlocks(turn, c);
+  }
+  finishAct();
+}
+const effPower = p => (gm && p === turn) ? 999 : Math.max(0, pw[p] + bless[p] - ((isDay() || skills[p].fire) ? 0 : 1));   // 戦力: 夜間-1（火の発見で打ち消し）
+const isMyBase = (c, p) => c.o === p && (c === baseCell[p] || !!c.village);   // 拠点または村（村は拠点扱い）
+const basesOf = p => [...cells.values()].filter(c => isMyBase(c, p));
+const baseDist = (p, c) => Math.min(99, ...basesOf(p).map(b => hexDist(c, b)));
+const baseNear = (p, c) => { if (!c) return 0; const d = baseDist(p, c); return d === 0 ? 2 : d === 1 ? 1 : 0; };   // 自分の拠点のマスで+2、周囲1マスで+1
+const battlePower = (p, wild, c) => effPower(p) + ((gm && p === turn) ? 0 : baseNear(p, c) + (wild ? boost.stone[p] : boost.polish[p]) + ((skills[p].faith && c && baseDist(p, c) <= 1) ? 1 : 0));   // 神秘の探究: 拠点の周囲1マスでの戦闘で+1   // 打製石器の加工: 獣との戦闘のみ+1 ／ 磨製石器の加工: 対人戦のみ+1
+function forestSize(c) {   // 獣の戦力 = つながった森のマス数
+  const seen = new Set([key(c.q,c.r)]), st = [c];
+  while (st.length) { const x = st.pop(); for (const n of nbrs(x)) if (n.forest && !seen.has(key(n.q,n.r))) { seen.add(key(n.q,n.r)); st.push(n); } }
+  return seen.size;
+}
+const isBattle = (c, p) => (c.forest && c.o === 0) || isEnemy(c.o, p);
+function meetCheck(p, c) {   // 「未知の存在との出会い」: 隣り合ったプレイヤー全員に解放
+  const adj = [...new Set(nbrs(c).map(n => n.o).filter(o => isEnemy(o, p)))];
+  if (adj.length) { unlock(p, '未知の存在との出会い'); for (const o of adj) unlock(o, '未知の存在との出会い'); }
+}
+function battle(c) {   // 戦闘に挑む（確認済み）。勝利でマスを奪う／同数は通行のみ／敗北は何も起きない。行動回数は必ず1回使う
+  const p = turn, o = c.o, wild = c.forest && c.o === 0;
+  if (!gm) sp[p] -= cost(c, p);   // 戦闘の食料（そのマスへ移動するのと同じ）
+  const me = battlePower(p, wild, c), foe = wild ? forestSize(c) : battlePower(o, false, c);
+  const title = wild ? '縄張りの主張' : '戦闘';
+  let sub;
+  if (me > foe) {
+    if (!wild && last[o] === c) last[o] = nbrs(c).find(n => n.o === o) || [...cells.values()].find(x => x.o === o) || last[o];
+    c.o = p; c.forest = false; c.village = false; started[p] = true; last[p] = c;
+    if (wild) { addSp(p, 1); sub = `勝利！（戦力 ${me} 対 ${foe}）食料を1奪った`; }
+    else if (rp[o] > 0) { rp[o]--; rp[p]++; sub = `勝利！（戦力 ${me} 対 ${foe}）資源を1奪った`; }
+    else sub = `勝利！（戦力 ${me} 対 ${foe}）マスを奪った`;
+  } else if (me === foe) {
+    last[p] = c;
+    sub = `引き分け（戦力 ${me} 対 ${foe}）このマスを通行できる`;
+  } else sub = `敗北…（戦力 ${me} 対 ${foe}）何も起こらなかった`;
+  actions--;
+  msg = `${name(p)} ${title}：${sub}`;
+  if (me > foe) {
+    meetCheck(p, c);
+    if (count(p) >= 10) unlock(p, '部族社会の発展'); checkUnlocks(p, c); if (wild) unlock(p, '獣の馴化', 'herd');
+  }
+  popupQ.push({t: title, s: sub});
+  if (me > foe && !wild && enemyLeft(o) === 0) {   // 相手の領地を現在地以外すべて奪った → 脱落
+    eliminate(o);
+    const rest = PL().filter(q => alive[q]);
+    if (rest.length === 1) { showPopup(); finish(p, NP === 2 ? '相手の領地を現在地以外すべて奪った' : '他のプレイヤーをすべて脱落させた'); render(); return; }
+    popupQ.push({t: '脱落', s: `${name(o)}は領地を失い、脱落した`}); msg += ` ／ ${name(o)}が脱落！`;
+  }
+  showPopup();
+  finishAct();
+}
+function finishAct() {
+  if (actions === 0 || !anyLegal(turn)) {            // 行動できなくなる → ターン終了の確認を出す（盤面が埋まった時は終了処理へ）
+    if (allStuck()) { advance(); render(); return; }
+    busy = true; render();   // 結果を見せて1秒後に確認を出す
+    timer = setTimeout(() => {
+      busy = false; if (over || selecting) return;
+      ask(`${name(turn)}は行動できなくなりました。<br>ターンを終了しますか？`, 'ターン終了', endTurn);
+    }, 1000);
+  } else { advance(); render(); }
+}
+
+const SET_DEFAULT = {mount:10, water:10, res:20, forest:10};   // 出現率(%)の初期値。変更できるのはGMモードのみ（ラウンド数の初期値は ROUNDS_BY_NP）
+let SET = {mount: SET_DEFAULT.mount, water: SET_DEFAULT.water, res: SET_DEFAULT.res, forest: SET_DEFAULT.forest};   // 出現率(%)。設定画面から、ゲーム開始前のみ変更できる
+const canEdit = () => !ONLINE && selecting && PL().every(q => !started[q]) && !over;   // 最初のプレイヤーが拠点を選ぶ前だけ
+let confirmFn = null, confirmAlt = null, skipVillage = false, pickMode = null;   // 確認ダイアログで「はい」を押したときに実行する処理
+function ask(text, yes, fn, altLabel, altFn) {
+  const ab = document.getElementById('resetAlt'); ab.style.display = altLabel ? '' : 'none'; ab.textContent = altLabel || ''; confirmAlt = altFn || null;
+  document.getElementById('confirmText').innerHTML = text; document.getElementById('resetYes').textContent = yes;
+  confirmFn = fn; document.getElementById('confirmReset').classList.add('open');
+}
+function endTurn() {
+  if (over || busy || selecting) return;
+  switchTurn(''); advance(); render();
+}
+
+// layout
+const toPixel = (q,r) => ({x: cx + size*Math.sqrt(3)*(q + r/2), y: cy + size*1.5*r});
+function fromPixel(x,y) {
+  const px = x-cx, py = y-cy;
+  const q = (Math.sqrt(3)/3*px - py/3)/size, r = (2/3*py)/size, s = -q-r;
+  let rq = Math.round(q), rr = Math.round(r), rs = Math.round(s);
+  const dq = Math.abs(rq-q), dr = Math.abs(rr-r), ds = Math.abs(rs-s);
+  if (dq > dr && dq > ds) rq = -rr-rs; else if (dr > ds) rr = -rq-rs;
+  return {q:rq, r:rr};
+}
+function drawHouse(x, y, r) {   // 村: 白い家
+  ctx.fillStyle = '#fff'; ctx.strokeStyle = 'rgba(0,0,0,0.6)'; ctx.lineWidth = 1.2; ctx.beginPath();
+  ctx.moveTo(x - r, y); ctx.lineTo(x, y - r*0.9); ctx.lineTo(x + r, y); ctx.lineTo(x + r*0.7, y); ctx.lineTo(x + r*0.7, y + r*0.8); ctx.lineTo(x - r*0.7, y + r*0.8); ctx.lineTo(x - r*0.7, y); ctx.closePath(); ctx.fill(); ctx.stroke();
+}
+function drawTree(x, y, r) {   // 森: 重なった三角の木
+  ctx.fillStyle = '#d7f5c9';
+  for (const [dy, w] of [[-0.45, 0.5], [0.05, 0.7]]) {
+    ctx.beginPath(); ctx.moveTo(x, y + r*dy - r*0.6); ctx.lineTo(x + r*w, y + r*dy + r*0.3); ctx.lineTo(x - r*w, y + r*dy + r*0.3); ctx.closePath(); ctx.fill();
+  }
+  ctx.fillRect(x - r*0.1, y + r*0.3, r*0.2, r*0.3);
+}
+function sparkle(x, y, r, filled) {   // 辺が内側に弧を描く4つ角の星（✨風）
+  const k = r * 0.2;
+  ctx.beginPath(); ctx.moveTo(x, y - r);
+  ctx.quadraticCurveTo(x + k, y - k, x + r, y);
+  ctx.quadraticCurveTo(x + k, y + k, x, y + r);
+  ctx.quadraticCurveTo(x - k, y + k, x - r, y);
+  ctx.quadraticCurveTo(x - k, y - k, x, y - r);
+  ctx.closePath();
+  if (filled) { ctx.fillStyle = '#ffd23f'; ctx.fill(); ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(120,80,0,0.55)'; ctx.stroke(); }
+  else { ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.stroke(); }
+}
+function resize() {
+  const dpr = window.devicePixelRatio || 1, rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width*dpr; canvas.height = rect.height*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  cx = rect.width/2; cy = rect.height/2;
+  size = Math.max(10, Math.min((rect.width-12)/(Math.sqrt(3)*(2*RADIUS+1)), (rect.height-12)/(3*RADIUS+2)));
+  draw();
+}
+function hexPath(x,y,s) {
+  ctx.beginPath();
+  for (let i=0;i<6;i++) {
+    const a = Math.PI/180*(60*i-30), px = x+s*Math.cos(a), py = y+s*Math.sin(a);
+    i ? ctx.lineTo(px,py) : ctx.moveTo(px,py);
+  }
+  ctx.closePath();
+}
+function draw() {
+  const rect = canvas.getBoundingClientRect();
+  ctx.clearRect(0,0,rect.width,rect.height);
+  // 盤面（大きな六角形）の背後は黒
+  ctx.fillStyle = '#000';
+  for (const c of cells.values()) { const p = toPixel(c.q,c.r); hexPath(p.x,p.y,size+0.5); ctx.fill(); }
+  // 視界（今のターンのプレイヤー視点）。ゲーム終了後は全体が見える
+  const full = new Set(), terr = new Set(), nores = new Set();   // nores: 見えるが資源だけ見えないマス（視界レベル2）
+  //   // 視界レベル: 1=そのマスのみ ／ 2=周囲1マスの地形も ／ 3=周囲1マスすべて ／ 4以降は半径が1ずつ増える
+  const disk = (set, sc, n) => { for (let dq = -n; dq <= n; dq++) for (let dr = Math.max(-n, -dq - n); dr <= Math.min(n, -dq + n); dr++) set.add(key(sc.q + dq, sc.r + dr)); };
+  const sel = selecting && !over, V = viewP(), MT = myTurn();   // V: 視点のプレイヤー ／ MT: 自分が操作できるか
+  if (over || gm || (onPlay() && !alive[V])) for (const kk of cells.keys()) full.add(kk);
+  else if (sel) { for (const sc of cells.values()) if (isBase(sc)) disk(full, sc, 2); }   // 拠点選び中は候補6か所の半径2マスが見える
+  else for (const sc of cells.values()) {
+    if (sc.o === V || sc === last[V]) { full.add(key(sc.q, sc.r)); const lv = visLevel(sc, V); if (lv === 2) disk(nores, sc, 1); else if (lv >= 3) disk(full, sc, lv - 2); }
+  }
+  if (!over && !selecting && round === 1) for (const q of PL()) {   // 1ターン目だけ: 2人は先手が後手の拠点の半径2マスを見られる ／ 3人以上は、先にターンを行ったプレイヤーの拠点のマス（色）だけ見える
+    const b = baseCell[q]; if (q === V || !alive[q] || !b || b.o !== q) continue;
+    if (multi()) { if (q < V) full.add(key(b.q, b.r)); }
+    else if (q > V) disk(full, b, 2);
+  }
+  for (const c of cells.values()) {
+    const {x,y} = toPixel(c.q,c.r);
+    const kk = key(c.q,c.r), isFull = full.has(kk) || nores.has(kk), isTerr = !isFull && terr.has(kk);
+    if (!isFull && !(isTerr && !over && isTarget(c,turn) && c.o === 0 && !c.forest)) {   // 全表示でない（夜の移動先だけは表示する）
+      hexPath(x,y,size-2);
+      if (isTerr && (c.t === 'm' || c.t === 's')) {            // 夜: 山と海だけ見える
+        ctx.fillStyle = c.t === 'm' ? '#6e5a49' : '#3b8ea5'; ctx.fill();
+        ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.stroke();
+        ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.font = `bold ${size*0.55}px system-ui,sans-serif`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(c.t === 'm' ? '▲' : '≈', x, y);
+      } else {                                                 // 視界外: 輪郭だけ
+        ctx.fillStyle = '#2f3441'; ctx.fill();
+        ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.stroke();
+      }
+      continue;
+    }
+    const showRes = full.has(kk);   // 視界レベル2のマスでは資源は見えない
+    const legal = MT && isLegal(c,turn), target = MT && !over && isTarget(c,turn);
+    const hov = hover && hover.q === c.q && hover.r === c.r;
+    hexPath(x,y,size-2);
+    ctx.fillStyle = COLORS[c.o]; ctx.fill();
+    if (c.o === 0 && c.t === 's') { ctx.fillStyle = '#3b8ea5'; ctx.fill(); }
+    else if (c.o === 0 && c.t === 'm') { ctx.fillStyle = '#6e5a49'; ctx.fill(); if (!target) { ctx.fillStyle = 'rgba(128,128,128,0.35)'; ctx.fill(); } }
+    else if (c.o === 0 && c.forest) { ctx.fillStyle = '#2e7d32'; ctx.fill(); }
+    else if (c.o === 0 && target) { ctx.fillStyle = legal ? '#3fb950' : '#7fb98a'; ctx.fill(); }
+    else if (c.o === 0) { ctx.fillStyle = 'rgba(128,128,128,0.25)'; ctx.fill(); }
+    if (sel && isBase(c) && c.o === 0) { ctx.fillStyle = hov ? '#58d36b' : '#3fb950'; ctx.fill(); }
+    if (hov && legal) { ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.fill(); }
+    ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.stroke();
+    if (c.o === turn && target) { hexPath(x,y,size-2); ctx.lineWidth = 3; ctx.strokeStyle = legal ? '#3fb950' : '#9ccfa6'; ctx.stroke(); }
+    if (PL().some(q => last[q] === c)) { hexPath(x,y,size-5); ctx.lineWidth = 2.5; ctx.strokeStyle = 'rgba(255,255,255,0.95)'; ctx.stroke(); }
+    if (MT && !over && isHarvest(c,turn)) { hexPath(x,y,size-2); ctx.lineWidth = 3; ctx.strokeStyle = legal ? '#ffd23f' : 'rgba(255,210,63,0.5)'; ctx.stroke(); }
+    if (target && ((c.forest && c.o === 0) || isEnemy(c.o, turn))) { hexPath(x,y,size-2); ctx.lineWidth = 3; ctx.strokeStyle = legal ? '#e5484d' : '#d9a0a2'; ctx.stroke(); }   // 戦闘できるマスは赤い枠
+    if (c.t === 'm' && target) { hexPath(x,y,size-2); ctx.lineWidth = 3; ctx.strokeStyle = legal ? '#3fb950' : '#9ccfa6'; ctx.stroke(); }
+    if (target && c.o !== turn && !c.forest && !(c.res && showRes)) {
+      ctx.fillStyle = '#fff'; ctx.font = `bold ${size*0.45}px system-ui,sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(cost(c), x, y);
+    }
+    if (c.forest && c.o === 0) {
+      drawTree(x, y - size*0.1, size*0.5);
+      ctx.fillStyle = '#fff'; ctx.font = `bold ${size*0.45}px system-ui,sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      if (target) ctx.fillText(cost(c), x, y);   // 戦闘に必要な食料（他のマスと同じ中央・同じ色・同じ大きさ）。獣の戦力は戦闘の確認ダイアログで表示
+    }
+    if (c.res && showRes) {
+      sparkle(x - size*0.06, y + size*0.06, size*0.46, !c.harv);          // ✨ 辺が弧を描く4つ角の星
+      sparkle(x + size*0.3, y - size*0.3, size*0.2, !c.harv);
+    }
+    if (c.village || (c.o && c === baseCell[c.o])) drawHouse(x, y - size*0.05, size*0.38);   // 村と最初の拠点: 家のマーク
+    if (c.t === 'm' && !(target && c.o === 0)) {
+      ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.font = `bold ${size*0.6}px system-ui,sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('▲', x, y);
+    } else if (c.t === 's') {
+      ctx.fillStyle = 'rgba(255,255,255,0.7)'; ctx.font = `bold ${size*0.55}px system-ui,sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('≈', x, y);
+    }
+    if (sel && isBase(c)) drawHouse(x, y - size*0.05, size*0.38);   // 拠点候補・選んだ拠点: 家のマーク
+  }
+}
+function buildHeader() {   // 人数に合わせて、上のプレイヤー欄を作り直す
+  const h = document.getElementById('hdr'), cmp = NP > 2;
+  h.classList.toggle('compact', cmp); h.style.setProperty('--cols', NP === 4 ? 2 : Math.min(NP, 3));   // 4人は2×2
+  h.innerHTML = PL().map(p => `<div class="pl" id="pl${p}">` + (cmp ? `<div class="n"><span class="nm" style="color:${COLORS[p]}">${esc(name(p))}</span><span class="v"><span id="sp${p}"></span><small> 行動</small></span></div>` : `<div class="n nm" style="color:${COLORS[p]}">${esc(name(p))}</div><div class="v"><span id="sp${p}"></span> 行動</div>`) + `<div class="s">` +
+    (cmp ? `領地<b id="cn${p}"></b> 資源<b id="rp${p}"></b> 戦力<b id="pw${p}"></b><br>食料+<b id="in${p}"></b> 貯蔵<b id="cap${p}"></b> 回数<b id="ac${p}"></b>`
+         : `領地 <span id="cn${p}"></span> ／ 食料 +<span id="in${p}"></span> ／ 貯蔵 <span id="cap${p}"></span> ／ 資源 <span id="rp${p}"></span> ／ 戦力 <span id="pw${p}"></span> ／ 回数 <span id="ac${p}"></span>`) + `</div></div>`).join('');
+  document.querySelectorAll('#tiNP .np').forEach(b => b.classList.toggle('on', +b.dataset.np === NP));
+  requestAnimationFrame(() => { if (cells) resize(); });
+}
+function render() {
+  const gate = document.getElementById('gate'), needGate = !onPlay() && !over && turn !== viewer;   // 手番が替わったら確認画面で盤面を隠す
+  gate.classList.toggle('open', needGate);
+  if (needGate) {
+    const t = document.getElementById('gateTitle');
+    t.textContent = `${name(turn)}のターン`; t.style.color = COLORS[turn];
+    document.getElementById('gateSub').textContent = selecting ? '拠点を選びます　準備ができたら押してください' : `R${Math.min(round, MAX_ROUNDS)}/${MAX_ROUNDS}（${phase()}）　行動回数 ${gm ? '∞' : actions}　準備ができたら押してください`;
+    document.getElementById('gateBtn').style.background = COLORS[turn];
+  }
+  for (const p of PL()) {
+    document.getElementById('sp'+p).textContent = gm ? '∞' : sp[p];
+    document.getElementById('cap'+p).textContent = gm ? '∞' : spCap(p);
+    document.getElementById('ac'+p).textContent = gm ? '∞' : selecting ? '-' : (!over && turn === p) ? actions : (isDay() || skills[p].fire ? 2 : 1);   // 貯蔵（食料の上限）: 3、土器の作製で5
+    document.getElementById('cn'+p).textContent = count(p);
+    document.getElementById('in'+p).textContent = income(p);
+    document.getElementById('rp'+p).textContent = gm ? '∞' : rp[p];
+    document.getElementById('pw'+p).textContent = gm ? '∞' : effPower(p);
+    const pe = document.getElementById('pl'+p), on = !over && turn === p;
+    pe.classList.toggle('active', on); pe.classList.toggle('out', !alive[p]); pe.style.borderColor = on ? COLORS[p] : '';
+  }
+  document.getElementById('wrap').className = 'ph' + ((round - 1) % 4);   // 時間帯ごとの背景
+  document.getElementById('dayBox').innerHTML = (isDay() ? '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#e6a100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>' : '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#7a86d6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>') + '<span>' + phase() + '</span>';
+  const msgEl = document.getElementById('msg');
+  msgEl.textContent = '';
+  const badge = document.createElement('span');   // ラウンド数バッジ：背景は今のターンの陣営の色
+  badge.textContent = `R${Math.min(round, MAX_ROUNDS)}/${MAX_ROUNDS}`;
+  badge.style.cssText = `display:inline-block;margin-right:8px;padding:2px 8px;border-radius:8px;color:#fff;background:${over ? (COLORS[winner] || '#6b7280') : COLORS[turn]}`;
+  msgEl.appendChild(badge);
+  const st = document.getElementById('status');   // バッジ以外の文は下のステータス欄に表示
+  st.textContent = msg.replace(/R\d+\/\d+（[朝昼夕夜]）\s*/, '');
+  st.style.color = over && winner ? COLORS[winner] : '';
+  document.getElementById('end').disabled = over || selecting;
+  draw();
+}
+
+function pos(e) { const r = canvas.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top}; }
+function cellAt(e) { const p = pos(e), h = fromPixel(p.x,p.y); return cells.get(key(h.q,h.r)) || null; }
+canvas.addEventListener('mousemove', e => {
+  hover = cellAt(e);
+  canvas.style.cursor = hover && myTurn() && !busy && (isLegal(hover,turn) || (selecting && isBase(hover) && hover.o === 0)) ? 'pointer' : 'default';
+  draw();
+});
+canvas.addEventListener('mouseleave', () => { hover = null; draw(); });
+let lpFired = false;
+canvas.addEventListener('click', e => { if (lpFired) { lpFired = false; return; } const c = cellAt(e); if (c) act(c); });
+{   // 自分の村を長押し（約0.6秒）で、壊して資源を回収
+  let lpT = null, lpStart = null;
+  const lpCancel = () => { clearTimeout(lpT); lpT = null; };
+  canvas.style.userSelect = 'none'; canvas.style.webkitUserSelect = 'none'; canvas.style.webkitTouchCallout = 'none';
+  canvas.addEventListener('pointerdown', e => {
+    lpCancel(); lpFired = false;
+    if (selecting || over || busy || !started[turn]) return;
+    const c = cellAt(e); if (!c || c.o !== turn || !c.village) return;
+    lpStart = {x: e.clientX, y: e.clientY};
+    lpT = setTimeout(() => {
+      lpT = null; lpFired = true;
+      if (!gm && actions < 1) { msg = '村を壊すには、行動回数1が必要です'; render(); return; }
+      ask(`この村を壊しますか？<br>（行動回数1を使い、資源${VILLAGE_REFUND}を回収します。食料は戻りません。あとで別の場所に建て直せます）`, '壊す', () => demolishVillage(c));
+    }, 600);
+  });
+  canvas.addEventListener('pointermove', e => { if (lpT && lpStart && Math.hypot(e.clientX - lpStart.x, e.clientY - lpStart.y) > 10) lpCancel(); });
+  for (const ev of ['pointerup', 'pointerleave', 'pointercancel']) canvas.addEventListener(ev, lpCancel);
+  canvas.addEventListener('contextmenu', e => e.preventDefault());
+}
+document.getElementById('end').addEventListener('click', () => { if (!over && !busy && !selecting) ask('ターンを終了しますか？', 'ターン終了', endTurn); });
+document.getElementById('gateBtn').addEventListener('click', () => { viewer = turn; render(); popupQ.push(...pending[turn].splice(0)); showPopup(); });
+document.getElementById('dayBox').addEventListener('click', () => {
+  const names = ['朝','昼','夕','夜'], bgs = ['linear-gradient(180deg,#9fd3f3,#ffc080)','linear-gradient(180deg,#fff,#ffe14d)','linear-gradient(180deg,#5a3a8f,#ff9d4d)','linear-gradient(180deg,#05060f,#1a2260)'];
+  const cur = (round - 1) % 4;
+  const fire = skills[turn] && skills[turn].fire;
+  const rows = names.map((n,i) => { const day = i < 2; const act = day ? 2 : (fire ? 2 : 1);
+    return `<div class="row${i === cur ? ' now' : ''}"><div class="sw" style="background:${bgs[i]}"></div><div class="nm">${n}</div><div class="ds">${day ? '昼間' : '夜間'}・行動回数${act}${day ? '・視界は通常' : (fire ? '・視界は通常（火の発見）' : '・視界が狭まる')}${i === cur ? '　← 現在' : ''}</div></div>`; }).join('');
+  document.getElementById('cycleBox').innerHTML = '<h2 style="margin:0 0 4px;font-size:16px">時間帯のサイクル</h2><div class="ds" style="margin-bottom:10px">1ラウンドごとに 朝→昼→夕→夜 と進み、4ラウンドで繰り返します。</div>' + rows + '<div style="text-align:right;margin-top:8px"><button id="cycleClose">閉じる</button></div>';
+  document.getElementById('cycleClose').addEventListener('click', () => document.getElementById('cycle').classList.remove('open'));
+  document.getElementById('cycle').classList.add('open');
+});
+document.getElementById('cycle').addEventListener('click', e => { if (e.target.id === 'cycle') e.target.classList.remove('open'); });
+// ゲームマスター（暗証番号で有効化）: アクション・ポイント無制限、全マスが見える
+// スキルの解放（一人一回）。手番のプレイヤーは即表示、他のプレイヤーは次の自分のターン開始時に表示
+function unlock(p, title, kind = 'lang') {
+  const st = kind === 'fire' ? fireOpen : kind === 'stone' ? stoneOpen : kind === 'lang' ? langOpen : xOpen[kind];
+  if (st[p]) return;
+  st[p] = true;
+  (p === turn ? popupQ : pending[p]).push({t: title, s: `「${(SKILLS.find(k => k.id === kind) || {name: '言語の獲得'}).name}」を解放`});
+  showPopup();
+}
+function checkUnlocks(p, c) {   // 新石器スキルの解放条件
+  if (skills[p].polish && [...cells.values()].some(x => x.o === p && x.t === 'p' && nbrs(x).some(n => n.t === 's'))) unlock(p, '大地の開墾', 'farm');   // 磨製石器の加工後、水域に面した平地を領地にする
+  if (c && c.t === 'm' && skills[p].stone) unlock(p, '研磨の技術', 'polish');   // 打製石器の後に山を占領
+  if (skills[p].farm && skills[p].herd && villageCount(p) >= 1) unlock(p, '集落の礎', 'settle');   // 農耕・牧畜を習得し、村を建設
+  if (skills[p].pottery) unlock(p, '炎が生む滋養', 'cook');   // 土器の作製を習得
+  if (skills[p].fire && [...cells.values()].some(x => x.o === p && x.t === 'm')) unlock(p, '形を成す粘土', 'pottery');   // 火の発見を習得し、山を領地にする
+}
+function showPopup() {
+  const el = document.getElementById('notice');
+  if (el.classList.contains('open') || !popupQ.length) return;
+  const it = popupQ.shift();
+  document.getElementById('noticeT').textContent = it.t; document.getElementById('noticeS').textContent = it.s;
+  el.classList.add('open');
+}
+document.getElementById('noticeOk').addEventListener('click', () => { document.getElementById('notice').classList.remove('open'); showPopup(); });
+const GM_PIN_HASH = 'a50da2f2674762d6fc8b380a45fd82706b48366b7d3d715d0a1dfa82c73113ee', gmBtn = document.getElementById('gmBtn'), gmModal = document.getElementById('gmModal'), gmPin = document.getElementById('gmPin'), gmErr = document.getElementById('gmErr');
+function gmGrant() {   // GM: 全プレイヤーのスキルを全解放・全習得（解除時に元へ戻すため保存）
+  gmBackup = JSON.parse(JSON.stringify({skills, fireOpen, stoneOpen, langOpen, xOpen}));
+  for (const p of PL()) { fireOpen[p] = true; stoneOpen[p] = true; langOpen[p] = true; for (const k of XIDS) xOpen[k][p] = true; for (const k of SKILLS) skills[p][k.id] = true; }
+}
+function setGM(on) {
+  gm = on; gmBtn.classList.toggle('on', on); gmBtn.textContent = on ? 'GM ON' : 'GM';
+  if (on) gmGrant();
+  else if (gmBackup) { skills = gmBackup.skills; fireOpen = gmBackup.fireOpen; stoneOpen = gmBackup.stoneOpen; langOpen = gmBackup.langOpen; xOpen = gmBackup.xOpen; gmBackup = null; }
+  if (!selecting && !over) actions = on ? 1e9 : actionsFor();
+  render();
+}
+// 暗証番号は、そのまま書かずにハッシュ値（SHA-256）で照合する。※ブラウザ上の仕組みなので、本格的な防御ではない
+async function tryGM() {
+  const v = gmPin.value.slice(0, 8);
+  let ok = false;
+  try {
+    if (!(window.crypto && crypto.subtle)) { gmErr.textContent = 'この環境ではGMモードを使えません（https で開いてください）'; return; }
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('hexjintori:' + v));
+    ok = [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('') === GM_PIN_HASH;
+  } catch (e) { gmErr.textContent = '照合に失敗しました'; return; }
+  if (ok && !ONLINE) { gmModal.classList.remove('open'); setGM(true); } else { gmErr.textContent = '暗証番号が違います'; gmPin.value = ''; }
+}
+gmBtn.addEventListener('click', () => { if (ONLINE) return; if (gm) { setGM(false); return; } gmPin.value = ''; gmErr.textContent = ''; gmModal.classList.add('open'); setTimeout(() => gmPin.focus(), 50); });
+document.getElementById('gmOk').addEventListener('click', tryGM);
+gmPin.addEventListener('keydown', e => { if (e.key === 'Enter') tryGM(); });
+document.getElementById('gmCancel').addEventListener('click', () => gmModal.classList.remove('open'));
+{   // リセットボタンは長押し（約0.8秒）したときだけ反応する
+  const rb = document.getElementById('reset'), label = rb.textContent;
+  let rt = null;
+  rb.style.userSelect = 'none'; rb.style.webkitUserSelect = 'none'; rb.style.webkitTouchCallout = 'none';
+  rb.addEventListener('pointerdown', () => { clearTimeout(rt); rt = setTimeout(() => { rt = null; if (ONLINE) ask(ONL.leaveMsg(), '退出', () => ONL.leave(true)); else ask('ゲームをリセットしますか？<br>これまでの進行はすべて失われます。', 'リセット', init); }, 800); });
+  rb.addEventListener('pointerup', () => { if (rt) { clearTimeout(rt); rt = null; rb.textContent = '長押し'; setTimeout(() => { rb.textContent = label; }, 1200); } });
+  for (const ev of ['pointerleave', 'pointercancel']) rb.addEventListener(ev, () => { clearTimeout(rt); rt = null; });
+  rb.addEventListener('contextmenu', e => e.preventDefault());
+}
+document.getElementById('resetNo').addEventListener('click', () => document.getElementById('confirmReset').classList.remove('open'));
+document.getElementById('resetAlt').addEventListener('click', () => { document.getElementById('confirmReset').classList.remove('open'); const f = confirmAlt; confirmAlt = null; if (f) f(); });
+document.getElementById('resetYes').addEventListener('click', () => { document.getElementById('confirmReset').classList.remove('open'); const f = confirmFn; confirmFn = null; if (f) f(); });
+const sEl = {mount: document.getElementById('sMount'), water: document.getElementById('sWater'), res: document.getElementById('sRes'), forest: document.getElementById('sForest'), rounds: document.getElementById('sRounds'), np: document.getElementById('sNP')};
+function showSetLabels() { document.getElementById('vMount').textContent = sEl.mount.value + '%'; document.getElementById('vWater').textContent = sEl.water.value + '%'; document.getElementById('vRes').textContent = sEl.res.value + '%'; document.getElementById('vForest').textContent = sEl.forest.value + '%'; }
+function fillSettings(v) { sEl.mount.value = v.mount; sEl.water.value = v.water; sEl.res.value = v.res; sEl.forest.value = v.forest; sEl.rounds.value = v.rounds; if (v.np) sEl.np.value = v.np; showSetLabels(); }
+for (const k of ['mount','water','res','forest']) sEl[k].addEventListener('input', showSetLabels);
+sEl.np.addEventListener('change', () => { sEl.rounds.value = ROUNDS_BY_NP[+sEl.np.value] || 100; });   // 人数を変えたら、ラウンド数をその人数の初期値にする
+document.getElementById('settingsBtn').addEventListener('click', () => {
+  fillSettings({...SET, rounds: MAX_ROUNDS, np: NP});
+  const ok = canEdit(), rateOk = ok && gm;   // 出現率はGMモードかつゲーム開始前のみ変更できる
+  for (const k in sEl) sEl[k].disabled = (k === 'rounds' || k === 'np') ? !ok : !rateOk;
+  document.getElementById('setRates').style.display = gm ? '' : 'none';
+  document.getElementById('setRatesNote').style.display = gm ? '' : 'none';
+  document.getElementById('setDefault').style.display = gm ? '' : 'none'; document.getElementById('setDefault').disabled = !rateOk;
+  document.getElementById('setApply').disabled = !ok;
+  document.getElementById('setNote').textContent = !ok ? 'ゲームが始まったため変更できません。' : gm ? 'ゲーム開始前（最初のプレイヤーが拠点を選ぶ前）だけ変更できます。' : 'プレイ人数・ラウンド数・プレイヤーの名前と色はゲーム開始前（最初のプレイヤーが拠点を選ぶ前）だけ変更できます。出現率の変更はGMモードのみです。';
+  document.getElementById('settings').classList.add('open');
+});
+document.getElementById('setDefault').addEventListener('click', () => fillSettings({...SET_DEFAULT, rounds: ROUNDS_BY_NP[+sEl.np.value] || 100, np: sEl.np.value}));
+document.getElementById('setCancel').addEventListener('click', () => document.getElementById('settings').classList.remove('open'));
+document.getElementById('setApply').addEventListener('click', () => {
+  if (!canEdit()) return;
+  if (gm) { const pc = (el, d) => { const v = parseInt(el.value); return Number.isFinite(v) ? Math.max(0, Math.min(100, v)) : d; }; SET = {mount: pc(sEl.mount, SET_DEFAULT.mount), water: pc(sEl.water, SET_DEFAULT.water), res: pc(sEl.res, SET_DEFAULT.res), forest: pc(sEl.forest, SET_DEFAULT.forest)}; }
+  NP = Math.max(2, Math.min(6, parseInt(sEl.np.value) || 2)); MAX_ROUNDS = Math.max(1, Math.min(999, parseInt(sEl.rounds.value) || ROUNDS_BY_NP[NP]));
+  document.getElementById('settings').classList.remove('open');
+  init();   // 設定を反映して地形を作り直す（マップの大きさも人数に合わせる）
+});
+
+// BGM（Web Audioで合成。外部ファイルなし）: 昼=明るい五音音階・やや速い / 夜=短調の五音音階・低く遅い
+const BGM = (() => {
+  let ac = null, master = null, bus = null, wet = null, noiseBuf = null, timer = null, nextT = 0, step = 0, mIdx = 4, mEnd = 0, on = true, vol = 0.5;
+  try { const sv = JSON.parse(localStorage.getItem('hexBgm') || 'null'); if (sv) { if (typeof sv.on === 'boolean') on = sv.on; if (Number.isFinite(sv.vol)) vol = Math.min(1, Math.max(0, sv.vol)); } } catch (e) {}
+  const save = () => { try { localStorage.setItem('hexBgm', JSON.stringify({on, vol})); } catch (e) {} };
+  const hz = m => 440 * Math.pow(2, (m - 69) / 12);
+  const SCALE = {day: [0,2,4,7,9], night: [0,3,5,7,10]}, ROOT = {day: 60, night: 55};
+  const stepDur = () => 60 / (isDay() ? 92 : 74) / 2;   // 8分音符
+  function build() {
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return false;
+    ac = new AC(); master = ac.createGain(); master.gain.value = vol * 0.4; master.connect(ac.destination);
+    bus = ac.createGain(); bus.connect(master);
+    wet = ac.createGain(); const dl = ac.createDelay(1); dl.delayTime.value = 0.36; const fb = ac.createGain(); fb.gain.value = 0.32; const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1800;
+    wet.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(dl); lp.connect(master);   // 残響（笛と低音だけ。太鼓には掛けない）
+    noiseBuf = ac.createBuffer(1, ac.sampleRate, ac.sampleRate); const d = noiseBuf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    return true;
+  }
+  function env(g, t, a, peak, dur, r) { g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(peak, t + a); g.gain.setValueAtTime(peak, t + Math.max(a, dur - r)); g.gain.exponentialRampToValueAtTime(0.0001, t + dur + r); }
+  function drone(t, day) {   // 2小節（8ステップ）ぶん響く低音
+    const dur = stepDur() * 8, notes = day ? [36, 43] : [33, 40];
+    notes.forEach((m, i) => { const o = ac.createOscillator(), g = ac.createGain(); o.type = i ? 'sine' : 'triangle'; o.frequency.value = hz(m); env(g, t, 0.8, i ? 0.05 : 0.08, dur, 1.2); o.connect(g); g.connect(bus); g.connect(wet); o.start(t); o.stop(t + dur + 1.4); });
+  }
+  function drum(t, acc) {   // 太鼓: 低い胴鳴り + 皮の擦れ
+    const o = ac.createOscillator(), g = ac.createGain(); o.type = 'sine'; o.frequency.setValueAtTime(acc ? 150 : 190, t); o.frequency.exponentialRampToValueAtTime(acc ? 55 : 80, t + 0.14);
+    g.gain.setValueAtTime(acc ? 0.9 : 0.35, t); g.gain.exponentialRampToValueAtTime(0.0001, t + (acc ? 0.28 : 0.15)); o.connect(g); g.connect(bus); o.start(t); o.stop(t + 0.32);
+    const n = ac.createBufferSource(), nf = ac.createBiquadFilter(), ng = ac.createGain(); n.buffer = noiseBuf; nf.type = 'bandpass'; nf.frequency.value = acc ? 700 : 1400; nf.Q.value = 0.8;
+    ng.gain.setValueAtTime(acc ? 0.22 : 0.1, t); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.06); n.connect(nf); nf.connect(ng); ng.connect(bus); n.start(t, Math.random() * 0.5); n.stop(t + 0.08);
+  }
+  function flute(t, m, dur) {   // 骨笛風: 息の混じったやわらかい音 + ゆるいビブラート
+    const o = ac.createOscillator(), o2 = ac.createOscillator(), g = ac.createGain(), f = ac.createBiquadFilter(), lfo = ac.createOscillator(), lg = ac.createGain();
+    o.type = 'sine'; o2.type = 'triangle'; o.frequency.value = hz(m); o2.frequency.value = hz(m); f.type = 'lowpass'; f.frequency.value = 2400;
+    lfo.frequency.value = 5; lg.gain.value = 3; lfo.connect(lg); lg.connect(o.detune); lg.connect(o2.detune);
+    env(g, t, 0.07, 0.16, dur, 0.18); const g2 = ac.createGain(); g2.gain.value = 0.35; o.connect(g); o2.connect(g2); g2.connect(g); g.connect(f); f.connect(bus); f.connect(wet);
+    const n = ac.createBufferSource(), nf = ac.createBiquadFilter(), ng = ac.createGain(); n.buffer = noiseBuf; nf.type = 'bandpass'; nf.frequency.value = hz(m) * 2; nf.Q.value = 3; env(ng, t, 0.05, 0.03, dur, 0.1); n.connect(nf); nf.connect(ng); ng.connect(bus);
+    for (const x of [o, o2, lfo]) { x.start(t); x.stop(t + dur + 0.3); } n.start(t, Math.random() * 0.5); n.stop(t + dur + 0.2);
+  }
+  function schedule(s, t) {
+    const day = isDay(), pos = s % 8, sd = stepDur();
+    if (pos === 0) drone(t, day);
+    if (day) { if (pos === 0 || pos === 3 || pos === 6) drum(t, pos === 0); else if (pos === 4 && Math.random() < 0.4) drum(t, false); }
+    else { if (pos === 0) drum(t, true); else if (pos === 5 && Math.random() < 0.6) drum(t, false); }
+    if (t >= mEnd && Math.random() < (day ? 0.42 : 0.3)) {
+      const sc = SCALE[day ? 'day' : 'night'];
+      mIdx = Math.min(9, Math.max(0, mIdx + [-2, -1, -1, 0, 1, 1, 2][Math.floor(Math.random() * 7)]));
+      const len = [1, 1, 2, 2, 3][Math.floor(Math.random() * 5)] * sd;
+      flute(t, ROOT[day ? 'day' : 'night'] + sc[mIdx % 5] + 12 * Math.floor(mIdx / 5), len * 0.95);
+      mEnd = t + len;
+    }
+  }
+  function tick() { while (nextT < ac.currentTime + 0.3) { schedule(step, nextT); nextT += stepDur(); step++; } }
+  function start() {
+    if (!on) return;
+    if (!ac && !build()) return;
+    if (ac.state !== 'running') ac.resume();
+    if (!timer) { nextT = ac.currentTime + 0.15; timer = setInterval(tick, 100); }
+    master.gain.setTargetAtTime(vol * 0.4, ac.currentTime, 0.05);
+  }
+  function stop() { if (timer) { clearInterval(timer); timer = null; } if (ac) master.gain.setTargetAtTime(0, ac.currentTime, 0.1); }
+  document.addEventListener('pointerdown', () => { if (on) start(); });   // iPhoneは最初のタップ後に鳴り始める
+  document.addEventListener('visibilitychange', () => { if (!ac) return; if (document.hidden) ac.suspend(); else if (on) ac.resume(); });
+  return {
+    get on() { return on; }, get vol() { return vol; },
+    setOn(v) { on = v; save(); v ? start() : stop(); },
+    setVol(v) { vol = v; save(); if (ac && on) master.gain.setTargetAtTime(vol * 0.4, ac.currentTime, 0.05); }
+  };
+})();
+{   // 設定画面のBGM項目
+  const cb = document.getElementById('sBgmOn'), rg = document.getElementById('sBgmVol'), lb = document.getElementById('vBgm');
+  const show = () => { lb.textContent = BGM.on ? Math.round(BGM.vol * 100) + '%' : 'OFF'; };
+  document.getElementById('settingsBtn').addEventListener('click', () => { cb.checked = BGM.on; rg.value = Math.round(BGM.vol * 100); show(); });
+  cb.addEventListener('change', () => { BGM.setOn(cb.checked); show(); });
+  rg.addEventListener('input', () => { BGM.setVol(+rg.value / 100); show(); });
+}
+
+// 効果音（Web Audioで合成。外部ファイルなし）
+const SFX = (() => {
+  let ac = null, out = null, nb = null, wet = null, fx = false, on = true, vol = 0.7;
+  try { const sv = JSON.parse(localStorage.getItem('hexSfx') || 'null'); if (sv) { if (typeof sv.on === 'boolean') on = sv.on; if (Number.isFinite(sv.vol)) vol = Math.min(1, Math.max(0, sv.vol)); } } catch (e) {}
+  const save = () => { try { localStorage.setItem('hexSfx', JSON.stringify({on, vol})); } catch (e) {} };
+  function ctx() {
+    if (!ac) {
+      const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
+      ac = new AC(); out = ac.createGain(); out.gain.value = vol * 0.6; out.connect(ac.destination);
+      nb = ac.createBuffer(1, ac.sampleRate, ac.sampleRate); const d = nb.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      wet = ac.createGain(); wet.gain.value = 0.7; const dl = ac.createDelay(1); dl.delayTime.value = 0.28; const fb = ac.createGain(); fb.gain.value = 0.38; const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1500;
+      wet.connect(dl); dl.connect(lp); lp.connect(fb); fb.connect(dl); lp.connect(out);   // 太鼓用のディレイ
+    }
+    if (ac.state !== 'running') ac.resume();
+    return ac;
+  }
+  const hz = m => 440 * Math.pow(2, (m - 69) / 12);
+  function tone(t, f, dur, type, peak, f2, att) {   // f→f2へ滑らせることもできる
+    const o = ac.createOscillator(), g = ac.createGain(); o.type = type || 'sine'; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
+    const a = att || 0.005; g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(out); if (fx) g.connect(wet); o.start(t); o.stop(t + dur + 0.05);
+  }
+  function noise(t, dur, freq, peak, type, q) {
+    const n = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain(); n.buffer = nb; f.type = type || 'bandpass'; f.frequency.value = freq; f.Q.value = q || 1;
+    g.gain.setValueAtTime(peak, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); n.connect(f); f.connect(g); g.connect(out); if (fx) g.connect(wet); n.start(t, Math.random() * 0.5); n.stop(t + dur + 0.05);
+  }
+  const dr = f => { fx = true; try { f(); } finally { fx = false; } };   // 太鼓の音: ディレイを通す
+  const arp = (t, notes, gap, dur, type, peak) => notes.forEach((m, i) => tone(t + i * gap, hz(m), dur, type, peak));
+  const S = {
+    step:     t => { tone(t, 280, 0.14, 'sine', 1.0, 120); noise(t, 0.07, 1000, 0.45); },                         // 移動: 土を踏む音
+    harvest:  t => arp(t, [81, 88], 0.09, 0.25, 'triangle', 0.28),                                                           // 資源回収: 明るい2音
+    win:      t => { dr(() => { tone(t, 150, 0.25, 'sine', 0.8, 55); noise(t, 0.08, 800, 0.2); }); arp(t + 0.12, [67, 71, 74], 0.09, 0.35, 'triangle', 0.3); },   // 戦闘勝利
+    lose:     t => { dr(() => tone(t, 150, 0.2, 'sine', 0.7, 55)); arp(t + 0.1, [62, 57], 0.18, 0.4, 'sine', 0.3); },                  // 戦闘敗北
+    draw:     t => { dr(() => tone(t, 150, 0.2, 'sine', 0.6, 60)); tone(t + 0.1, hz(64), 0.3, 'triangle', 0.22); },                   // 引き分け
+    build:    t => { noise(t, 0.07, 900, 0.5); noise(t + 0.15, 0.07, 900, 0.5); noise(t + 0.3, 0.07, 900, 0.5); tone(t + 0.4, hz(72), 0.4, 'triangle', 0.25); },   // 村建設: 槌打ち→完成
+    demolish: t => { noise(t, 0.45, 600, 0.5, 'lowpass'); tone(t, 120, 0.4, 'sawtooth', 0.15, 45); },                         // 村解体: 崩れる音
+    pray:     t => { for (const m of [72, 79, 84]) tone(t + (m - 72) * 0.01, hz(m), 1.3, 'sine', 0.18, 0, 0.04); },           // 命の糧: やわらかい鈴
+    learn:    t => arp(t, [72, 76, 79, 84], 0.08, 0.35, 'triangle', 0.25),                                                   // スキル習得: きらめく上昇音
+    unlock:   t => arp(t, [76, 83], 0.14, 0.45, 'sine', 0.25),                                                               // スキル解放
+    tool:     t => { noise(t, 0.09, 2500, 0.3); tone(t, 320, 0.08, 'square', 0.12, 200); },                                  // 石器の使用: 擦る音
+    craft:    t => { noise(t, 0.05, 1800, 0.45); noise(t + 0.12, 0.05, 1800, 0.45); tone(t + 0.22, hz(69), 0.25, 'triangle', 0.2); },   // 作製・修繕: コツコツ
+    turn:     t => { dr(() => tone(t, 170, 0.2, 'sine', 0.45, 80)); tone(t + 0.14, hz(67), 0.35, 'triangle', 0.15); },                // 手番交代
+    base:     t => dr(() => { tone(t, 140, 0.3, 'sine', 0.8, 50); noise(t, 0.08, 700, 0.2); }),                                        // 拠点決定: ドン
+    fanfare:  t => { arp(t, [60, 64, 67, 72], 0.14, 0.7, 'triangle', 0.3); dr(() => tone(t + 0.6, 90, 0.5, 'sine', 0.7, 45)); }        // ゲーム終了
+  };
+  return {
+    get on() { return on; }, get vol() { return vol; },
+    play(n) { if (!on || !S[n]) return; try { if (ctx()) S[n](ac.currentTime + 0.01); } catch (e) {} },
+    setOn(v) { on = v; save(); },
+    setVol(v) { vol = v; save(); if (out) out.gain.value = vol * 0.6; }
+  };
+})();
+{   // 設定画面の効果音項目
+  const cb = document.getElementById('sSfxOn'), rg = document.getElementById('sSfxVol'), lb = document.getElementById('vSfx');
+  const show = () => { lb.textContent = SFX.on ? Math.round(SFX.vol * 100) + '%' : 'OFF'; };
+  document.getElementById('settingsBtn').addEventListener('click', () => { cb.checked = SFX.on; rg.value = Math.round(SFX.vol * 100); show(); });
+  cb.addEventListener('change', () => { SFX.setOn(cb.checked); show(); if (cb.checked) SFX.play('harvest'); });
+  rg.addEventListener('input', () => { SFX.setVol(+rg.value / 100); show(); });
+  rg.addEventListener('change', () => SFX.play('harvest'));   // 音量を確かめる試し鳴らし
+}
+{   // ゲームの処理に効果音をつなぐ（既存の関数を包んで、結果から鳴らす音を決める）
+  const wrap = (name, f) => { const orig = window[name]; window[name] = function (...a) { return f(orig, a); }; };
+  let depth = 0;
+  wrap('act', (orig, a) => {   // 移動・資源回収
+    const p = turn, rp0 = rp[p], last0 = last[p]; depth++;
+    try { orig.apply(null, a); } finally { depth--; }
+    if (depth === 0) { if (rp[p] > rp0) SFX.play('harvest'); else if (last[p] !== last0) SFX.play('step'); }
+  });
+  wrap('battle', (orig, a) => {
+    const c = a[0], p = turn, o0 = c.o; orig.apply(null, a);
+    if (!over) SFX.play(c.o === p && o0 !== p ? 'win' : last[p] === c ? 'draw' : 'lose');
+  });
+  wrap('buildVillage', (orig, a) => { const had = a[0].village; orig.apply(null, a); if (!had && a[0].village) SFX.play('build'); });
+  wrap('demolishVillage', (orig, a) => { const had = a[0].village; orig.apply(null, a); if (had && !a[0].village) SFX.play('demolish'); });
+  wrap('pray', (orig, a) => { const b = bless[turn]; orig.apply(null, a); if (bless[turn] > b) SFX.play('pray'); });
+  wrap('pickBase', (orig, a) => { const o0 = a[0].o; orig.apply(null, a); if (o0 === 0 && a[0].o !== 0) SFX.play('base'); });
+  wrap('switchTurn', (orig, a) => { const t0 = turn; orig.apply(null, a); if (!over && turn !== t0) SFX.play('turn'); });
+  wrap('finish', (orig, a) => { orig.apply(null, a); SFX.play('fanfare'); });
+  wrap('unlock', (orig, a) => { const st = () => JSON.stringify([langOpen, fireOpen, stoneOpen, xOpen]), b = st(); orig.apply(null, a); if (a[0] === turn && b !== st()) SFX.play('unlock'); });
+  // スキルの習得・ツールの使用は、無名のクリック処理なので、前後の状態を比べて鳴らす
+  const tb = document.getElementById('treeBody'), tl = document.getElementById('toolBody');
+  const learned = () => JSON.stringify(skills), toolSt = () => JSON.stringify([tool, pot, boost, fixed]);
+  let before = null;
+  tb.addEventListener('click', () => { before = learned(); }, true);
+  tb.addEventListener('click', () => { if (before !== null && before !== learned()) SFX.play('learn'); before = null; });
+  tl.addEventListener('click', () => { before = toolSt(); }, true);
+  tl.addEventListener('click', e => {
+    const b = e.target.closest ? e.target.closest('button[data-tool]') : null;
+    if (before !== null && b && before !== toolSt()) SFX.play(b.dataset.tool.startsWith('use') ? 'tool' : 'craft'); before = null;
+  });
+}
+
+// チュートリアル（本物の盤面に重ねる吹き出しガイド）。拠点・移動・資源・戦闘・昼夜・食料の基本だけを案内する
+const TUT = (() => {
+  let on = false, i = 0, T = null, starting = false, prevNP = null;   // チュートリアルは2人対戦で行う
+  const el = document.createElement('div'); el.id = 'tut';
+  el.innerHTML = '<div id="tutHead"><b id="tutNo"></b><button id="tutQuit">やめる</button></div><div id="tutText"></div><div id="tutBtns"><button id="tutKeep">このまま続ける</button><button id="tutNext" class="main"></button></div>';
+  document.getElementById('wrap').appendChild(el);
+  const $ = id => document.getElementById(id);
+  const STEPS = [
+    {text: 'ようこそ！ここでは基本を、実際の盤面で体験します。このゲームは、六角形のマップで自分の色のマス（領地）を広げ、最後に領地が多いほうが勝ちです。'},
+    {text: 'まず「拠点」を選びます。光っている★のマスをタップして、確認で「決定」を押してください。', hl: () => [T.b], only: c => c === T.b, done: () => started[1]},
+    {text: '拠点が決まりました。相手（赤）の拠点は見えません。見えるのは、拠点や自分の色のマスのまわりだけです。このチュートリアルでは、相手は自動でパスします。'},
+    {text: '隣のマスへ移動しましょう。光っているマスをタップしてください。移動したマスは自分の色（領地）になります。平地の移動には食料1を使います（上のパネルで確認）。', hl: () => [T.m1], only: c => c === T.m1, done: () => T.m1.o === 1},
+    {text: '続けて、光っているマスへ。✨が付いたマスは資源マスです。', hl: () => [T.R], only: c => c === T.R, done: () => T.R.o === 1},
+    {text: '行動回数を使い切りました。1ターンの行動回数は、昼間は2回です。「ターン終了」を押してください（自動で確認も出ます）。', done: () => round >= 2},
+    {text: 'ターンが進みました。資源マスの上にいるときに、そのマスをもう一度タップすると、資源ポイントが+1されます（行動1・食料1）。資源は、スキルの習得などに使います。', hl: () => [T.R], only: c => c === T.R, done: () => T.R.harv},
+    {text: '光っている緑のマスは、獣の縄張りです。タップして戦闘しましょう。自分の戦力が獣より大きければ勝ちで、マスを奪って食料+1。拠点の近くでは戦力が上がります。負けても、行動回数と食料は消費します。', hl: () => [T.F], only: c => c === T.F, done: () => !T.F.forest},
+    {text: '時間帯は、朝→昼→夕→夜の順に進みます（左上の🌞🌙をタップで確認）。夜は行動回数が1に減り、視界が狭くなり、戦力も-1されます。'},
+    {text: '食料は毎ターン+2され、貯蔵は3までです。移動・戦闘・資源の回収に使います（平地は1、山▲は2、水域≈は通れません）。食料が足りないと動けないので、計画的に使いましょう。'},
+    {text: '勝利条件は、ラウンド終了時に領地が多いこと、または相手の領地を現在地以外すべて奪うことです。村・スキル・ツール・命の糧は、右上のボタンと❔のルール説明で確認できます。', last: true}
+  ];
+  const cur = () => STEPS[Math.min(i, STEPS.length - 1)];
+  function update() {
+    if (!on || !cells) { el.style.display = 'none'; return; }
+    let g = 0; while (i < STEPS.length - 1 && STEPS[i].done && STEPS[i].done() && g++ < 20) i++;
+    const s = cur(), hl = s.hl ? s.hl() : [];
+    el.style.display = 'block';
+    $('tutNo').textContent = `チュートリアル ${i + 1}/${STEPS.length}`;
+    $('tutText').textContent = s.text;
+    const nb = $('tutNext'); nb.textContent = s.last ? '新しいゲームを始める' : s.done ? 'スキップ' : '次へ'; nb.className = s.done ? '' : 'main';
+    $('tutKeep').style.display = s.last ? '' : 'none';
+    const top = hl.length && toPixel(hl[0].q, hl[0].r).y > canvas.getBoundingClientRect().height / 2;   // 光らせるマスが下半分なら、吹き出しは上に出す
+    el.style.top = top ? '62px' : 'auto'; el.style.bottom = top ? 'auto' : '62px';
+  }
+  function stop(restore = true) { on = false; el.style.display = 'none'; if (restore && prevNP) NP = prevNP; prevNP = null; }
+  function start() {
+    if (ONLINE) return;   // オンライン対戦中は使えない
+    if (gm) setGM(false);
+    if (!prevNP) prevNP = NP; NP = 2;
+    starting = true; init(); starting = false;
+    const b = cells.get(key(BASES[0][0], BASES[0][1]));
+    for (const c of cells.values()) if (hexDist(c, b) <= 3) { c.t = 'p'; c.forest = false; c.f0 = false; c.res = false; c.harv = false; }   // 拠点の近くを、練習しやすい平地にする
+    const ring = nbrs(b); let m1 = null, F = null, R = null;
+    for (let x = 0; x < ring.length && !R; x++) for (let y = x + 1; y < ring.length && !R; y++) {
+      if (hexDist(ring[x], ring[y]) !== 1) continue;
+      const r = nbrs(ring[x]).find(n => n !== b && hexDist(n, b) === 2 && nbrs(ring[y]).includes(n));
+      if (r) { R = r; m1 = ring[x]; F = ring[y]; }
+    }
+    if (!R) { init(); return; }   // 想定外の形のとき（通常は起こらない）
+    R.res = true; F.forest = true;
+    const p2 = BASES.map(([q, r]) => cells.get(key(q, r))).reduce((a, c) => hexDist(c, b) > hexDist(a, b) ? c : a);
+    T = {b, m1, R, F, p2}; sp[1] = 3;   // チュートリアルでは、食料を多めにしておく
+    on = true; i = 0; render();
+  }
+  $('tutNext').addEventListener('click', () => { if (cur().last) { stop(); init(); } else { i++; render(); } });
+  $('tutKeep').addEventListener('click', () => { stop(false); render(); });
+  $('tutQuit').addEventListener('click', () => ask('チュートリアルをやめて、新しいゲームを始めますか？', 'やめる', () => { stop(); init(); }));
+  return {
+    get on() { return on; }, get starting() { return starting; }, get p2() { return T && T.p2; },
+    hl() { return on && cells && T ? (cur().hl ? cur().hl() : []) : []; },
+    allow(c) { const s = cur(); return !s.only || s.only(c); },
+    nudge() { msg = '光っているマスをタップしてください'; render(); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); },
+    update, start, stop
+  };
+})();
+{
+  const wrap = (name, f) => { const orig = window[name]; window[name] = function (...a) { return f(orig, a); }; };
+  wrap('act', (orig, a) => { if (TUT.on && !TUT.allow(a[0])) { TUT.nudge(); return; } return orig.apply(null, a); });   // 指示されたマス以外は押せない
+  wrap('pickBase', (orig, a) => { orig.apply(null, a); if (TUT.on && selecting && turn === 2 && !started[2] && TUT.p2) orig.apply(null, [TUT.p2]); });   // 相手の拠点は自動で決める
+  wrap('switchTurn', (orig, a) => { orig.apply(null, a); if (TUT.on && !over && turn === 2) orig.apply(null, ['']); });   // 相手のターンは自動でパス
+  wrap('init', (orig, a) => { if (!TUT.starting) TUT.stop(); return orig.apply(null, a); });
+  wrap('render', (orig, a) => { orig.apply(null, a); TUT.update(); });
+  wrap('draw', (orig, a) => {   // 指示するマスを、点滅する黄色の枠で光らせる
+    orig.apply(null, a);
+    try {
+      const hl = TUT.hl(); if (!hl.length) return;
+      const k = 0.5 + 0.5 * Math.sin(Date.now() / 250);
+      ctx.save(); ctx.lineWidth = 4; ctx.strokeStyle = `rgba(255,210,63,${0.65 + 0.35 * k})`; ctx.fillStyle = `rgba(255,210,63,${0.12 + 0.18 * k})`;
+      for (const c of hl) { const p = toPixel(c.q, c.r); hexPath(p.x, p.y, size * 0.92); ctx.fill(); ctx.stroke(); }
+      ctx.restore();
+    } catch (e) {}
+  });
+  setInterval(() => { if (TUT.on && !document.hidden && TUT.hl().length) draw(); }, 80);
+  document.getElementById('tutStart').addEventListener('click', () => {
+    document.getElementById('settings').classList.remove('open');
+    if (canEdit()) TUT.start(); else ask('チュートリアルを始めます。<br>今のゲームは失われます。', '始める', () => TUT.start());
+  });
+}
+
+// プレイヤー設定: P1から順に名前と色を決める
+const SETUP = (() => {
+  const box = document.getElementById('setup'), $ = id => document.getElementById(id);
+  let idx = 1, fromTitle = false;
+  function show() {
+    const taken = new Set(); for (let q = 1; q < idx; q++) taken.add(PCOL[q]);   // 先に決めた人の色は選べない
+    if (taken.has(PCOL[idx])) PCOL[idx] = PALETTE.findIndex((_, k) => !taken.has(k));
+    const col = PALETTE[PCOL[idx]].c;
+    $('suStep').textContent = `プレイヤー設定 ${idx} / ${NP}`;
+    $('suTitle').textContent = `P${idx}の名前と色を決めてください`; $('suTitle').style.color = col;
+    $('suName').value = PNAME[idx] || ''; $('suName').placeholder = `P${idx}`; $('suName').style.borderColor = col;
+    $('suColors').innerHTML = PALETTE.map((c, k) => {
+      const owner = [...Array(idx - 1)].map((_, q) => q + 1).find(q => PCOL[q] === k);
+      return `<button data-k="${k}" class="${k === PCOL[idx] ? 'on' : ''}" ${owner ? 'disabled' : ''}><span class="sw" style="background:${c.c}"></span>${owner ? 'P' + owner : c.n}</button>`;
+    }).join('');
+    $('suBack').textContent = idx > 1 ? '戻る' : fromTitle ? 'タイトルへ' : 'キャンセル';
+    $('suNext').textContent = idx < NP ? '次へ' : '拠点選びへ';
+    $('suNext').style.background = col;
+    $('suDots').innerHTML = PL().map(q => `<span style="${q <= idx ? `background:${q === idx ? col : PALETTE[PCOL[q]].c}` : ''}"></span>`).join('');
+    checkName();
+  }
+  // 名前の重複チェック: 先に決めた人（P1〜P[idx-1]）と同じ名前は使えない。空欄は「P番号」として比べる。全角・半角、大文字・小文字、空白の違いは同じとみなす
+  const cleanName = () => $('suName').value.replace(/[<>&"'`]/g, '').trim().slice(0, 8);
+  const normName = v => v.normalize('NFKC').toLowerCase().replace(/\s+/g, '');
+  const dupOf = v => { const n = normName(v || 'P' + idx); for (let q = 1; q < idx; q++) if (normName(PNAME[q] || 'P' + q) === n) return q; return 0; };
+  function checkName() {
+    const v = cleanName(), q = dupOf(v);
+    $('suErr').textContent = q ? `「${v || 'P' + idx}」はP${q}と同じ名前です。別の名前にしてください` : '';
+    $('suName').style.borderColor = q ? '#e5484d' : PALETTE[PCOL[idx]].c;
+    $('suNext').disabled = !!q;
+    return !q;
+  }
+  const keepName = () => { const v = cleanName(); if (v) PNAME[idx] = v; else delete PNAME[idx]; };
+  function done() {
+    box.classList.remove('open'); applyColors(); savePlayers(); buildHeader();
+    if (selecting && PL().every(q => !started[q])) msg = `R1/${MAX_ROUNDS}（朝） ${name(turn)}は拠点を選んでください`;
+    render();
+  }
+  $('suColors').addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if (!b || b.disabled) return; keepName(); PCOL[idx] = +b.dataset.k; show(); });
+  $('suName').addEventListener('input', checkName);
+  $('suNext').addEventListener('click', () => { if (!checkName()) return; keepName(); if (idx < NP) { idx++; show(); } else done(); });
+  $('suName').addEventListener('keydown', e => { if (e.key === 'Enter') $('suNext').click(); });
+  $('suBack').addEventListener('click', () => {
+    keepName();
+    if (idx > 1) { idx--; show(); return; }
+    box.classList.remove('open'); applyColors(); buildHeader(); render();
+    if (fromTitle) document.getElementById('title').classList.remove('hide');
+  });
+  return { open(title) { fromTitle = !!title; idx = 1; show(); box.classList.add('open'); } };
+})();
+document.getElementById('setPlayers').addEventListener('click', () => { if (!canEdit()) return; document.getElementById('settings').classList.remove('open'); SETUP.open(false); });
+document.getElementById('settingsBtn').addEventListener('click', () => { document.getElementById('setPlayers').disabled = !canEdit(); });
+{   // 開始画面
+  const hexPts = (x, y, r) => [0,1,2,3,4,5].map(i => { const a = Math.PI / 180 * (60 * i - 30); return (x + r * Math.cos(a)).toFixed(1) + ',' + (y + r * Math.sin(a)).toFixed(1); }).join(' ');
+  const R = 27, W = Math.sqrt(3) * R, cells7 = [[0,0,'#d9c39a'], [-W,0,'#3b82f6'], [W,0,'#ef4444'], [-W/2,-1.5*R,'#6b8f4e'], [W/2,-1.5*R,'#d9c39a'], [-W/2,1.5*R,'#d9c39a'], [W/2,1.5*R,'#6b8f4e']];
+  document.getElementById('titleLogo').innerHTML = '<svg viewBox="-95 -95 190 190">' + cells7.map(([x, y, f]) => `<polygon points="${hexPts(x, y, R - 2)}" fill="${f}" stroke="#2a1a08" stroke-width="3" stroke-linejoin="round"/>`).join('') + '<polygon points="' + hexPts(0, 0, 9) + '" fill="#2a1a08"/></svg>';
+  const ti = document.getElementById('title'), close = () => ti.classList.add('hide');
+  const npBox = document.getElementById('tiNP');   // プレイ人数（2〜6人）
+  npBox.innerHTML = '<span>人数</span>' + [2,3,4,5,6].map(n => `<button class="np${n === NP ? ' on' : ''}" data-np="${n}">${n}</button>`).join('');
+  npBox.addEventListener('click', e => { const b = e.target.closest('.np'); if (!b || !canEdit()) return; NP = +b.dataset.np; MAX_ROUNDS = ROUNDS_BY_NP[NP]; init(); });   // 人数に合わせて、マップの大きさとラウンド数も変わる
+  document.getElementById('tiStart').addEventListener('click', () => { close(); SETUP.open(true); });   // 名前と色を決めてから拠点選びへ
+  document.getElementById('tiTut').addEventListener('click', () => { close(); TUT.start(); });
+  document.getElementById('tiSet').addEventListener('click', () => document.getElementById('settingsBtn').click());
+  document.getElementById('tiRule').addEventListener('click', () => document.getElementById('helpBtn').click());
+}
+const help = document.getElementById('help');
+document.getElementById('helpBtn').addEventListener('click', () => help.classList.add('open'));
+document.getElementById('helpClose').addEventListener('click', () => help.classList.remove('open'));
+help.addEventListener('click', e => { if (e.target === help) help.classList.remove('open'); });
+// スキルツリー（資源ポイントで習得。習得は自分のターン中にアクションを使わず行える）
+const isOpen = (k, p) => !k.lock || (k.lock === 'fire' ? fireOpen[p] : k.lock === 'stone' ? stoneOpen[p] : k.lock === 'lang' ? langOpen[p] : xOpen[k.lock][p]);
+const COND = {"fire": "山に隣接する資源マスを初めて回収する（山火事の痕跡）", "lang": "①火の発見後に夜を終える（火を囲む夜） ②他のプレイヤーと領地が隣り合う（未知の存在との出会い） ③自領が10マスに到達（部族社会の発展）", "stone": "資源ポイントが2以上になる（打撃の共鳴）", "farm": "磨製石器の加工を習得し、水域に面した平地を領地にする（大地の開墾）", "herd": "獣に勝つ（獣の馴化）", "polish": "打製石器の加工を習得したあと、山を領地にする（研磨の技術）", "pottery": "火の発見を習得し、山を領地にする（形を成す粘土）", "cook": "土器の作製を習得する（炎が生む滋養）", "settle": "農耕の確立と牧畜の開始を習得し、村を1つ建設する（集落の礎）", "faith": "言語の獲得を習得したあと、周囲6マスに山・水域・森の3種類以上の地形がある場所で命の糧を捧げる（静寂の儀式）"};   // GM用: 解放条件
+const SKILLS = [{id:'fire', name:'火の発見', cost:1, spCost:1, lock:'fire', desc:'夜間（夕・夜）の行動回数+1。夜間の視界の低下と戦力-1がなくなる。'},
+  {id:'lang', name:'言語の獲得', cost:0, spCost:1, lock:'lang', desc:'道でつながった半径2マス以内の、未回収の資源マスをタップして、1回の行動と食料1で回収できる（通常は今いるマスだけ）。移動できるマスは、タップで回収か移動かを選べる。'},
+  {id:'stone', name:'打製石器の加工', cost:1, spCost:1, lock:'stone', desc:'習得すると打製石器が手に入る。ツール（⛏）で「使用」するたびに、そのターンの獣との戦闘の戦力+1。使うとゲージが半分減り、2回使うと壊れる。'},
+  {id:'farm', name:'農耕の確立', cost:2, spCost:1, foodCost:1, lock:'farm', desc:'昼間（朝・昼）の食料+1。'},
+  {id:'herd', name:'牧畜の開始', cost:1, spCost:1, foodCost:1, lock:'herd', desc:'夜間（夕・夜）の食料+1。山を開放する行動が2→1になる。'},
+  {id:'polish', name:'磨製石器の加工', cost:2, spCost:1, lock:'polish', desc:'習得すると磨製石器が手に入る。ツール（⛏）で「使用」するたびに、そのターンの対人戦（相手のマスへの戦闘）の戦力+1。使うとゲージが半分減り、2回使うと壊れる。'},
+  {id:'pottery', name:'土器の作製', cost:2, spCost:1, lock:'pottery', desc:'習得後、ツール（⛏）の「作製」で、資源ポイント2を使うごとに食料の貯蔵上限が+1される（基本は3、最大3個作製で上限6）。'},
+  {id:'cook', name:'煮炊きの技術', cost:2, spCost:1, foodCost:1, lock:'cook', desc:'道でつながった半径2マス以内の自分のマスへ、1回の行動と食料1で移動できる。'},
+  {id:'settle', name:'定住の暮らし', cost:2, spCost:1, lock:'settle', desc:'村による食料収入の減り（村1つにつき-1）がなくなる。'},
+  {id:'faith', name:'神秘の探究', cost:3, spCost:1, lock:'faith', desc:'視界が向上する。拠点の周囲1マスでの戦闘で戦力+1。'}];
+function renderTree() {
+  const p = viewP(), body = document.getElementById('treeBody');   // オンラインでは自分のスキルを表示
+  body.innerHTML = `<div style="margin-bottom:10px;font-weight:700">${name(p)}　資源ポイント: ${gm ? '∞' : rp[p]}</div>` + SKILLS.map(k => {
+    if (!isOpen(k, p)) return `<div style="border:1px dashed var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;color:var(--muted)"><div style="font-weight:700">？？？</div><div style="font-size:12px">まだ解放されていません</div></div>`;
+    const got = skills[p][k.id], can = myTurn() && !busy && !over && !selecting && !got && (gm || (rp[p] >= k.cost && actions >= k.spCost && sp[p] >= (k.foodCost || 0)));
+    return `<div style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px">
+      <div style="flex:1"><div style="font-weight:700">${k.name}</div><div style="font-size:12px;color:var(--muted)">${k.desc}</div>${gm ? `<div style="font-size:12px;margin-top:2px;color:#b8860b">🔓 解放条件: ${COND[k.id]}</div>` : ''}<div style="font-size:12px;margin-top:2px">必要: 資源ポイント ${k.cost} ／ 行動回数 ${k.spCost}${k.foodCost ? ` ／ 食料 ${k.foodCost}` : ''}（所持: 資源 ${gm ? '∞' : rp[p]} ／ 行動回数 ${gm ? '∞' : actions}${k.foodCost ? ` ／ 食料 ${gm ? '∞' : sp[p]}` : ''}）</div></div>
+      ${got ? '<span style="font-weight:700">習得済み</span>' : `<button data-skill="${k.id}" ${can ? '' : 'disabled'}>習得</button>`}</div>`;
+  }).join('');
+}
+document.getElementById('treeBody').addEventListener('click', e => {
+  const id = e.target.dataset && e.target.dataset.skill; if (!id) return;
+  const k = SKILLS.find(x => x.id === id);
+  if (!k || over || busy || selecting || !isOpen(k, turn) || skills[turn][id] || (!gm && (rp[turn] < k.cost || actions < k.spCost || sp[turn] < (k.foodCost || 0)))) return;
+  if (!gm) { rp[turn] -= k.cost; actions -= k.spCost; sp[turn] -= (k.foodCost || 0); } skills[turn][id] = true;
+  if (id === 'stone' || id === 'polish') tool[id][turn] = 2;   // 習得したら、満タンの石器がすぐ使える
+  if (id === 'fire' && !isDay()) actions += 1;   // 夜に習得したら、このターンから+1アクション
+  msg = `${name(turn)} が「${k.name}」を習得！`; checkUnlocks(turn, last[turn]);
+  render(); renderTree();
+  if (!gm && actions <= 0) { tree.classList.remove('open'); finishAct(); }   // 行動回数を使い切ったらターン終了の確認へ
+});
+const tree = document.getElementById('tree');
+const TOOLS = [{id:'stone', name:'打製石器', target:'獣との戦闘', cost:1, act:1}, {id:'polish', name:'磨製石器', target:'対人戦', cost:2, act:1}];   // 作製コスト = 習得コスト
+const toolPanel = document.getElementById('tools');
+function renderTools() {   // ツールボタン（⛏）: 石器の使用・作製・修繕、土器の作製
+  const p = turn, body = document.getElementById('toolBody'), ok = !over && !selecting && !busy;
+  const head = `<div style="margin-bottom:10px;font-weight:700">${name(p)}　資源ポイント: ${gm ? '∞' : rp[p]}　行動回数: ${gm ? '∞' : actions}</div>`;
+  const row = (title, sub, btns) => `<div style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px"><div style="font-weight:700">${title}</div><div style="font-size:12px;color:var(--muted)">${sub}</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">${btns}</div></div>`;
+  const gaugeBar = g => `<span style="display:inline-block;vertical-align:middle;margin-left:8px;width:64px;height:12px;border:1.5px solid var(--fg);border-radius:3px;box-sizing:border-box;overflow:hidden"><span style="display:block;height:100%;width:${g * 50}%;background:var(--fg)"></span></span>`;   // ゲージ: 使える回数ぶんだけ左から塗る（白黒）
+  const bt = (kind, id, label, enabled) => `<button data-tool="${kind}:${id}" ${enabled ? '' : 'disabled'}>${label}</button>`;
+  let html = '';
+  for (const t of TOOLS) {
+    if (!skills[p][t.id]) continue;
+    const g = gm ? 2 : tool[t.id][p], broken = !gm && g === 0;
+    const state = broken ? (lock[t.id][p] ? '壊れた（次のターンから作製できます）' : '壊れている') : '使うとゲージが半分減り、2回使うと壊れる';
+    const sub = `${state}<br>${t.target}の戦力 +${boost[t.id][p]}（このターンの使用分）`;
+    html += row(t.name + gaugeBar(g), sub, (broken ? '' : bt('use', t.id, fixed[t.id][p] ? '使用する（修繕したターンは不可）' : '使用する（戦力+1）', ok && !fixed[t.id][p] && (gm || g > 0))) + (g === 1 ? bt('repair', t.id, '修繕（資源1）', ok && rp[p] >= 1) : '') + (broken ? bt('craft', t.id, `作製（資源${t.cost}・行動回数${t.act}）`, ok && !lock[t.id][p] && rp[p] >= t.cost && actions >= t.act) : ''));
+  }
+  if (skills[p].pottery) html += row('土器', pot[p] >= 3 ? '上限に達しました（3/3）' : `貯蔵上限 ${gm ? '∞' : spCap(p)} → ${gm ? '∞' : spCap(p) + 1}（${pot[p]}/3）`, bt('pot', 'pottery', '作製（資源2）', ok && pot[p] < 3 && (gm || rp[p] >= 2)));
+  body.innerHTML = head + (html || '<div style="color:var(--muted)">使えるツールがありません。スキルを習得すると増えます。</div>');
+}
+document.getElementById('toolBody').addEventListener('click', e => {
+  const b = e.target.closest ? e.target.closest('button[data-tool]') : null; if (!b || over || busy || selecting) return;
+  const [kind, id] = b.dataset.tool.split(':'), p = turn, T = TOOLS.find(x => x.id === id);
+  if (kind === 'pot') {
+    if (!skills[p].pottery || pot[p] >= 3 || (!gm && rp[p] < 2)) return;
+    if (!gm) rp[p] -= 2; pot[p] += 1; msg = `${name(p)} が土器を作製！食料の貯蔵上限 ${spCap(p)}`;
+  } else if (!T || !skills[p][id]) return;
+  else if (kind === 'use') {   // 使用: ゲージが半分減る。2回目で壊れる。戦力は使用した分だけ上がる
+    if (fixed[id][p] || (!gm && tool[id][p] < 1)) return;   // 修繕したターンは使用できない
+    if (!gm) tool[id][p]--; boost[id][p]++;
+    msg = `${name(p)} が${T.name}を使用！このターンの${T.target}の戦力+${boost[id][p]}`;
+    if (!gm && tool[id][p] === 0) { lock[id][p] = 1; msg += `（${T.name}は壊れた。次のターンまで作製できない）`; }
+  } else if (kind === 'repair') {   // 修繕: 1回だけ使った石器を、資源1で使用1回分直す
+    if (gm || tool[id][p] !== 1 || rp[p] < 1) return;
+    rp[p] -= 1; tool[id][p] = 2; fixed[id][p] = 1; msg = `${name(p)} が${T.name}を修繕した（このターンは使用できない）`;
+  } else if (kind === 'craft') {   // 作製: 壊れた石器を、習得と同じ資源・行動回数で作り直す
+    if (gm || tool[id][p] !== 0 || lock[id][p] || rp[p] < T.cost || actions < T.act) return;
+    rp[p] -= T.cost; actions -= T.act; tool[id][p] = 2; fixed[id][p] = 1; msg = `${name(p)} が${T.name}を作製！（このターンは使用できない） 残り行動回数 ${actions}`;
+    render(); renderTools();
+    if (actions <= 0) { toolPanel.classList.remove('open'); finishAct(); }
+    return;
+  } else return;
+  render(); renderTools();
+});
+document.getElementById('toolBtn').addEventListener('click', () => { if (busy || over || selecting) return; renderTools(); toolPanel.classList.add('open'); });
+document.getElementById('toolClose').addEventListener('click', () => toolPanel.classList.remove('open'));
+toolPanel.addEventListener('click', e => { if (e.target === toolPanel) toolPanel.classList.remove('open'); });
+document.getElementById('prayBtn').addEventListener('click', () => {
+  if (busy || over || selecting || !started[turn] || !last[turn]) return;
+  if (bless[turn] >= 1) { msg = '命の糧は、1ターンに1回までです'; render(); return; }
+  if (!gm && sp[turn] < 1) { msg = '捧げる食料がありません'; render(); return; }
+  ask('命の糧を捧げますか？<br>（食料1を消費して、このターンの間だけ戦力+1。1ターンに1回）', '捧げる', pray);
+});
+document.getElementById('treeBtn').addEventListener('click', () => { renderTree(); tree.classList.add('open'); });
+document.getElementById('treeClose').addEventListener('click', () => tree.classList.remove('open'));
+tree.addEventListener('click', e => { if (e.target === tree) tree.classList.remove('open'); });
+window.addEventListener('resize', resize);
+
+// 対戦結果の画面: ゲーム終了時に、順位・領地の推移・記録を表示する
+// 既存の関数（init / pickBase / act / battle / buildVillage / eliminate / switchTurn / finish / render）を包んで記録をとる
+const RESULT = (() => {
+  const $ = id => document.getElementById(id), box = $('result');
+  let stats = {}, hist = [], why = '', outSeq = 0, timer = null;   // hist: ラウンドごとの領地のマス数 {r, n:{p:数}}
+  const newStats = () => ({win: 0, draw: 0, lose: 0, beast: 0, harv: 0, built: 0, out: 0, outSeq: 0});
+  function reset() { clearTimeout(timer); stats = per(newStats); hist = []; why = ''; outSeq = 0; box.classList.remove('open'); }
+  function snap(r) {   // 同じラウンドの記録は上書きする
+    const e = {r, n: Object.fromEntries(PL().map(p => [p, count(p)]))};
+    if (hist.length && hist[hist.length - 1].r === r) hist[hist.length - 1] = e; else hist.push(e);
+  }
+  const short = p => esc(PNAME[p] || 'P' + p);
+  const maxOf = p => Math.max(count(p), ...hist.map(h => h.n[p] || 0));
+  function ranking() {   // 生き残った人は領地の多い順（同数は同順位）。脱落した人は、あとに脱落した人ほど上
+    const live = PL().filter(p => alive[p]).sort((a, b) => count(b) - count(a));
+    const out = PL().filter(p => !alive[p]).sort((a, b) => stats[b].outSeq - stats[a].outSeq);
+    const rows = [];
+    live.forEach((p, i) => rows.push({p, rk: i && count(p) === count(live[i - 1]) ? rows[i - 1].rk : i + 1}));
+    out.forEach(p => rows.push({p, rk: rows.length + 1}));
+    return rows;
+  }
+  function chart() {   // 領地の推移（SVGの折れ線）
+    if (hist.length < 2) return '<div style="font-size:12px;color:var(--muted)">記録がありません</div>';
+    const W = 320, H = 170, L = 28, R = 8, T = 8, B = 22;
+    const maxR = hist[hist.length - 1].r || 1;
+    const maxY = Math.max(1, ...hist.flatMap(h => PL().map(p => h.n[p] || 0)));
+    const top = Math.max(4, Math.ceil(maxY / 4) * 4);
+    const x = r => (L + (W - L - R) * r / maxR).toFixed(1), y = v => (T + (H - T - B) * (1 - v / top)).toFixed(1);
+    let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="領地の推移">`;
+    for (let i = 0; i <= 4; i++) {
+      const v = top * i / 4;
+      s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" style="stroke:var(--border)" stroke-width="1"/>`;
+      s += `<text x="${L - 4}" y="${y(v)}" text-anchor="end" dominant-baseline="middle" font-size="9" style="fill:var(--muted)">${v}</text>`;
+    }
+    for (const r of [...new Set([0, Math.round(maxR / 2), maxR])]) s += `<text x="${x(r)}" y="${H - 6}" text-anchor="middle" font-size="9" style="fill:var(--muted)">R${r}</text>`;
+    const order = ranking().map(o => o.p).reverse();   // 上位の線を手前に描く
+    for (const p of order) {
+      const pts = [];
+      for (const h of hist) { pts.push(`${x(h.r)},${y(h.n[p] || 0)}`); if (!alive[p] && h.r > 0 && !h.n[p]) break; }   // 脱落したところで線を止める
+      s += `<polyline points="${pts.join(' ')}" fill="none" stroke="${COLORS[p]}" stroke-width="${p === winner ? 3 : 2}" stroke-linejoin="round" stroke-linecap="round"/>`;
+    }
+    return s + '</svg>';
+  }
+  function show() {
+    if (!over) return;
+    const endR = Math.min(round, MAX_ROUNDS);
+    $('rsHead').innerHTML = `<div class="lbl">対戦結果</div>` +
+      (winner ? `<div class="big">🏆 <span class="nm" style="background:${COLORS[winner]}">${esc(name(winner))}</span> の勝利</div>` : `<div class="big">引き分け</div>`) +
+      `<div class="why">${esc(why)}<br>${NP}人対戦 ／ R${endR}/${MAX_ROUNDS}で終了</div>`;
+    const medal = ['', '🥇', '🥈', '🥉'];
+    $('rsRank').innerHTML = ranking().map(({p, rk}) => {
+      const out = !alive[p], first = rk === 1 && !out;
+      return `<div class="rsRow${first ? ' top' : ''}${out ? ' out' : ''}" style="${first ? `border-color:${COLORS[p]}` : ''}">` +
+        `<span class="rk">${medal[rk] || rk}</span><span class="sw" style="background:${COLORS[p]}"></span><span class="nm">${esc(name(p))}</span>` +
+        `<span class="val">${out ? `<small>R${stats[p].out}で脱落</small>` : `${count(p)}<small> マス</small>`}</span></div>`;
+    }).join('');
+    $('rsChart').innerHTML = chart();
+    $('rsLegend').innerHTML = PL().map(p => `<span><i style="background:${COLORS[p]}"></i>${short(p)}</span>`).join('');
+    $('rsStats').innerHTML = '<table><tr><th>プレイヤー</th><th>勝・分・負</th><th>獣</th><th>回収</th><th>村</th><th>スキル</th><th>最大</th></tr>' +
+      ranking().map(({p}) => { const s = stats[p]; return `<tr><td style="color:${COLORS[p]}">${short(p)}</td><td>${s.win}・${s.draw}・${s.lose}</td><td>${s.beast}</td><td>${s.harv}</td><td>${s.built}</td><td>${Object.values(skills[p] || {}).filter(Boolean).length}/${SKILLS.length}</td><td>${maxOf(p)}</td></tr>`; }).join('') + '</table>';
+    box.classList.add('open');
+    $('resultBox').scrollTop = 0;
+  }
+  $('rsBoard').addEventListener('click', () => box.classList.remove('open'));
+  $('rsAgain').addEventListener('click', () => { if (ONLINE) ONL.again(); else init(); });
+  $('rsTitle').addEventListener('click', () => { if (ONLINE) { ONL.leave(true); return; } init(); $('title').classList.remove('hide'); });
+  $('resultBtn').addEventListener('click', show);
+  box.addEventListener('click', e => { if (e.target === box) box.classList.remove('open'); });
+
+  const wrap = (name, f) => { const orig = window[name]; window[name] = function (...a) { return f(orig, a); }; };
+  wrap('init', (orig, a) => { reset(); return orig.apply(null, a); });
+  wrap('pickBase', (orig, a) => { const s0 = selecting, r = orig.apply(null, a); if (s0 && !selecting) snap(0); return r; });   // 拠点が出そろった時点を0ラウンド目として記録
+  wrap('act', (orig, a) => { const c = a[0], p = turn, h0 = c && c.harv, r = orig.apply(null, a); if (c && !h0 && c.harv && stats[p]) stats[p].harv++; return r; });
+  wrap('battle', (orig, a) => {
+    const c = a[0], p = turn, o0 = c.o, wild = c.forest && c.o === 0, r = orig.apply(null, a), s = stats[p];
+    if (s) { if (c.o === p && o0 !== p) { s.win++; if (wild) s.beast++; } else if (last[p] === c) s.draw++; else s.lose++; }
+    return r;
+  });
+  wrap('buildVillage', (orig, a) => { const had = a[0].village, r = orig.apply(null, a); if (!had && a[0].village && stats[turn]) stats[turn].built++; return r; });
+  wrap('eliminate', (orig, a) => { const o = a[0]; if (stats[o]) { stats[o].out = round; stats[o].outSeq = ++outSeq; } return orig.apply(null, a); });
+  wrap('switchTurn', (orig, a) => { const r0 = round, sel = selecting, r = orig.apply(null, a); if (!sel && round > r0) snap(r0); return r; });   // ラウンドが終わるたびに記録
+  wrap('finish', (orig, a) => {
+    why = a[1] || ''; const r = orig.apply(null, a);
+    snap(Math.min(round, MAX_ROUNDS));
+    clearTimeout(timer); timer = setTimeout(show, 1400);   // 最後の盤面とお知らせを少し見せてから表示する
+    return r;
+  });
+  wrap('render', (orig, a) => { const r = orig.apply(null, a); $('end').style.display = over ? 'none' : ''; $('resultBtn').style.display = over ? '' : 'none'; return r; });
+  return {
+    show,
+    close() { clearTimeout(timer); box.classList.remove('open'); },
+    schedule(ms) { clearTimeout(timer); timer = setTimeout(show, ms); },
+    exportState: () => ({stats, hist, why, outSeq}),   // オンライン対戦で、記録も一緒に同期する
+    importState(o) { if (!o) return; stats = o.stats || per(newStats); hist = o.hist || []; why = o.why || ''; outSeq = o.outSeq || 0; }
+  };
+})();
+
+// オンライン対戦（P2P）: PeerJS で端末どうしを直接つなぐ
+// ホストの端末が部屋の状態を持ち、参加者の端末とデータをやり取りする（ホストが中継役）
+// 手番のプレイヤーの端末だけが状態を送り、ほかの端末はそれを受け取って表示する
+const ONL = (() => {
+  const $ = id => document.getElementById(id), box = $('online');
+  const CODE_CH = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';   // 見間違えやすい I・O・0・1 は使わない
+  const DEF_COL = {1:0, 2:1, 3:2, 4:3, 5:4, 6:5};
+  const PFX = 'hexjintori-v1-';   // PeerJS の公開サーバー上で、ほかのアプリと ID がぶつからないようにする接頭辞
+  const STUN = [{urls: 'stun:stun.l.google.com:19302'}];
+  // TURN の接続情報を取りそろえる（取得できたら、このページを開いている間は使い回す）
+  let iceCache = null;
+  async function fetchIce() {
+    let list = Array.isArray(TURN_CONFIG.iceServers) ? TURN_CONFIG.iceServers : [];
+    if (TURN_CONFIG.credentialUrl) {
+      const ac = new AbortController(), t = setTimeout(() => ac.abort(), 8000);
+      try {
+        const r = await fetch(TURN_CONFIG.credentialUrl, {signal: ac.signal, credentials: 'omit', referrerPolicy: 'no-referrer'});
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const j = await r.json();
+        const v = Array.isArray(j) ? j : j && j.iceServers;   // 配列でも {iceServers: …} でも受け付ける
+        list = Array.isArray(v) ? v : v ? [v] : [];
+      } catch (e) { console.warn('TURN の接続情報を取得できません', e); throw {type: 'relay-fetch'}; }
+      finally { clearTimeout(t); }
+    }
+    // 形を確かめて、TURN（turn: / turns:）の項目だけを残す
+    const ok = u => typeof u === 'string' && /^turns?:/.test(u);
+    const turns = list.filter(s => s && typeof s === 'object').map(s => {
+      const urls = (Array.isArray(s.urls) ? s.urls : [s.urls]).filter(ok);
+      return urls.length && typeof s.username === 'string' && typeof s.credential === 'string' ? {urls, username: s.username, credential: s.credential} : null;
+    }).filter(Boolean);
+    if (!turns.length) throw {type: TURN_CONFIG.credentialUrl ? 'relay-fetch' : 'relay-none'};
+    return turns;
+  }
+  async function peerOptions() {
+    let turns = [];
+    if (!iceCache) iceCache = fetchIce().catch(e => { iceCache = null; throw e; });   // 失敗したら次回やり直す
+    try { turns = await iceCache; }
+    catch (e) { if (TURN_CONFIG.relayOnly) throw e; }   // 中継必須なら、直接通信には切り替えない
+    const config = TURN_CONFIG.relayOnly
+      ? {iceServers: turns, iceTransportPolicy: 'relay'}   // 自分の端末から出す接続先の候補を、TURN の中継アドレスだけにする
+      : {iceServers: [...STUN, ...turns]};
+    return {debug: 0, config};
+  }
+  let peer = null, conn = null, conns = new Map(), connWait = null;   // conn: 参加者→ホスト / conns: ホストが持つ参加者ごとの接続
+  let uid = null, freshUid = false, adopted = false;
+  let code = '', isHost = false, gameDoc = null, players = [], onlineSet = new Set();
+  let G = null, P = [];   // ホストだけが持つ、部屋の正本（G: 部屋の状態 / P: 参加者）
+  let applying = false, ver = 0, lastSent = '', authTurn = 0, lastOut = null;
+  let backup = null, myName = '', myCol = 0, nameTimer = null, busyUI = false, nameSynced = false;
+  let retryT = null, netMsg = '', hostGone = false, beatT = null, heard = 0;
+  const safeSeg = v => String(v).replace(/[^A-Za-z0-9_\-]/g, '_').slice(0, 40);
+  const cleanName = v => String(v || '').replace(/[<>&"'`]/g, '').trim().slice(0, 8);
+  const normName = v => v.normalize('NFKC').toLowerCase().replace(/\s+/g, '');
+  const MAX_S = 300000;   // 1回に受け取る盤面データの上限（文字数）
+  const clampCol = v => { v = parseInt(v); return v >= 0 && v < PALETTE.length ? v : 0; };
+  const BAD_KEY = new Set(['__proto__', 'constructor', 'prototype']);
+  // 受け取ったデータの中身を確かめる: 数値・真偽値・文字列・配列・オブジェクト以外や、HTMLとして解釈される文字を取り除く
+  function deepClean(v, d = 0) {
+    if (d > 8) throw new Error('too deep');
+    if (v === null || typeof v === 'boolean') return v;
+    if (typeof v === 'number') { if (!Number.isFinite(v)) throw new Error('bad number'); return v; }
+    if (typeof v === 'string') return v.replace(/[<>&"'`]/g, '').slice(0, 500);
+    if (Array.isArray(v)) { if (v.length > 5000) throw new Error('too long'); return v.map(x => deepClean(x, d + 1)); }
+    if (typeof v === 'object') {
+      const ks = Object.keys(v); if (ks.length > 500) throw new Error('too many keys');
+      const o = {};
+      for (const k of ks) { if (BAD_KEY.has(k) || !/^[A-Za-z0-9_]{1,24}$/.test(k)) throw new Error('bad key'); o[k] = deepClean(v[k], d + 1); }
+      return o;
+    }
+    throw new Error('bad type');
+  }
+  // 盤面の状態として正しい形かを確かめる。おかしければ例外を投げる（呼び出し側で受け取りを中止する）
+  function validateState(raw) {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('state');
+    const cs = raw.cells;
+    const S = deepClean({...raw, cells: ''});
+    const np = S.NP; if (!Number.isInteger(np) || np < 2 || np > 6) throw new Error('NP');
+    const R = RADIUS_BY_NP[np], n = 3 * R * (R + 1) + 1;
+    if (typeof cs !== 'string' || cs.length !== n * 3 || !new RegExp(`^(?:[0-${np}][a-z][0-9a-v]){${n}}$`).test(cs)) throw new Error('cells');
+    S.cells = cs;
+    const isInt = (v, lo, hi) => Number.isInteger(v) && v >= lo && v <= hi;
+    if (!isInt(S.MAX_ROUNDS, 1, 999) || !isInt(S.turn, 1, np) || !isInt(S.round, 0, 1000)) throw new Error('turn');
+    if (typeof S.actions !== 'number' || S.actions < 0 || S.actions > 1e9) throw new Error('actions');
+    const set = S.SET && typeof S.SET === 'object' ? S.SET : {};
+    S.SET = {}; for (const k of ['mount', 'water', 'res', 'forest']) S.SET[k] = typeof set[k] === 'number' ? Math.max(0, Math.min(100, set[k])) : SET_DEFAULT[k];
+    const ps = Array.from({length: np}, (_, i) => i + 1);
+    const PN = S.PNAME && typeof S.PNAME === 'object' ? S.PNAME : {};
+    S.PNAME = {}; for (const p of ps) { const v = cleanName(PN[p]); if (v) S.PNAME[p] = v; }
+    const PC = S.PCOL && typeof S.PCOL === 'object' ? S.PCOL : {};
+    S.PCOL = {}; for (const p of ps) S.PCOL[p] = clampCol(PC[p] ?? DEF_COL[p]);
+    const perOk = o => o && typeof o === 'object' && !Array.isArray(o) && ps.every(p => p in o);
+    for (const k of ['sp', 'rp', 'pw', 'bless', 'pot']) if (!perOk(S[k]) || ps.some(p => typeof S[k][p] !== 'number')) throw new Error(k);
+    for (const k of ['skills', 'started', 'alive', 'langOpen', 'fireOpen', 'stoneOpen', 'pending', 'last', 'baseCell']) if (!perOk(S[k])) throw new Error(k);
+    for (const k of ['boost', 'tool', 'lock', 'fixed']) if (!S[k] || !perOk(S[k].stone) || !perOk(S[k].polish)) throw new Error(k);
+    if (!S.xOpen || XIDS.some(k => !perOk(S.xOpen[k]))) throw new Error('xOpen');
+    const keyRe = /^-?\d{1,2},-?\d{1,2}$/;
+    for (const p of ps) {
+      if (!S.skills[p] || typeof S.skills[p] !== 'object') throw new Error('skills');
+      for (const k of ['last', 'baseCell']) if (S[k][p] !== null && !(typeof S[k][p] === 'string' && keyRe.test(S[k][p]))) throw new Error(k);
+      if (!Array.isArray(S.pending[p])) throw new Error('pending');
+      S.pending[p] = S.pending[p].slice(0, 50).filter(x => x && typeof x === 'object').map(x => ({t: String(x.t ?? ''), s: String(x.s ?? '')}));
+    }
+    S.over = !!S.over; S.selecting = !!S.selecting;
+    if (typeof S.msg !== 'string') S.msg = '';
+    if (S.result !== null && S.result !== undefined && typeof S.result !== 'object') S.result = null;
+    return S;
+  }
+  // 部屋の情報・参加者の一覧を、決まった形に整える
+  function cleanGame(d) {
+    if (!d || typeof d !== 'object' || !['lobby', 'play', 'closed'].includes(d.phase)) return null;
+    const np = Math.max(2, Math.min(6, parseInt(d.np) || 2));
+    const seats = {}; if (d.seats && typeof d.seats === 'object') for (let p = 1; p <= 6; p++) if (typeof d.seats[p] === 'string' && d.seats[p]) seats[p] = safeSeg(d.seats[p]);
+    return {host: safeSeg(d.host || ''), np, rounds: Math.max(1, Math.min(999, parseInt(d.rounds) || ROUNDS_BY_NP[np])), phase: d.phase, seats,
+      v: Number.isFinite(+d.v) ? +d.v : 0, s: typeof d.s === 'string' && d.s.length <= MAX_S ? d.s : ''};
+  }
+  const cleanPlayers = list => Array.isArray(list) ? list.slice(0, 12).filter(x => x && typeof x === 'object' && typeof x.uid === 'string')
+    .map(x => ({uid: safeSeg(x.uid), name: cleanName(x.name), col: clampCol(x.col), at: Number.isFinite(+x.at) ? +x.at : 0})) : [];
+  const setErr = t => { $('onErr').textContent = t || ''; };
+  const setErr2 = t => { $('onErr2').textContent = t || ''; };
+  const send = (cn, m) => { try { if (cn && cn.open) cn.send(m); } catch (e) {} };
+  const seatOf = u => G ? +(Object.keys(G.seats || {}).find(k => G.seats[k] === u) || 0) : 0;
+  const genCode = () => Array.from({length: 4}, () => CODE_CH[Math.floor(Math.random() * CODE_CH.length)]).join('');
+  const lsGet = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
+  const lsSet = (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+
+  // 端末（タブ）ごとのID。ページを再読み込みしても同じIDで席に戻れる
+  try { uid = sessionStorage.getItem('hexUid'); } catch (e) {}
+  if (!uid) { uid = 'u' + Math.random().toString(36).slice(2, 12); freshUid = true; try { sessionStorage.setItem('hexUid', uid); } catch (e) {} }
+  const setUid = u => { uid = u; try { sessionStorage.setItem('hexUid', u); } catch (e) {} };
+
+  const ERR = {
+    'unavailable-id': 'そのルームIDはすでに使われています。もう一度お試しください',
+    'peer-unavailable': 'ルームが見つかりません。IDを確かめるか、ホストが画面を開いているか確認してください',
+    'network': '接続サーバーにつながりません。インターネット接続を確認してください',
+    'server-error': '接続サーバーにつながりません。しばらくしてからお試しください',
+    'socket-error': '接続サーバーにつながりません。インターネット接続を確認してください',
+    'socket-closed': '接続サーバーとの通信が切れました',
+    'browser-incompatible': 'このブラウザはP2P通信（WebRTC）に対応していません',
+    'webrtc': '中継サーバー経由でつなげませんでした。ネットワークを変えるか、しばらくしてからお試しください',
+    'relay-none': 'オンライン対戦の準備ができていません。ページの設置者が、中継サーバー（TURN）を設定する必要があります',
+    'relay-fetch': '中継サーバー（TURN）の接続情報を取得できませんでした。しばらくしてからお試しください',
+    'timeout': '接続に時間がかかりすぎました。ネットワークを変えるか、もう一度お試しください',
+    'nolib': '通信ライブラリ（PeerJS）を読み込めませんでした。インターネット接続を確認して、ページを開き直してください',
+    'playing': 'このルームはすでに対戦中です',
+    'full': 'このルームは満員です',
+    'closed': 'ホストとの接続が切れました',
+    'offline': 'インターネットに接続されていません。接続を確認してください'
+  };
+  const errText = e => ERR[e && e.type] || '通信に失敗しました。もう一度お試しください';
+
+  function menuState() {
+    const ok = !!window.Peer;
+    $('onCreate').disabled = !ok || busyUI; $('onJoin').disabled = !ok || busyUI;
+    $('onAvail').textContent = !ok ? ERR.nolib
+      : 'インターネット経由で、それぞれの端末から同じルームに入って対戦します。ルームを作った人がホストになります。'
+        + (TURN_CONFIG.relayOnly ? '\n🔒 通信は中継サーバーを経由するため、対戦相手にあなたのIPアドレスは見えません。' : '\n⚠ 端末どうしが直接通信するため、対戦相手にIPアドレスが見える場合があります。');
+  }
+  function open() {
+    setErr(''); $('onMenu').style.display = ''; $('onLobby').style.display = 'none';
+    const sv = lsGet('hexOnline'), sh = lsGet('hexHost'), c = (sv && sv.code) || (sh && sh.code);
+    if (c && !$('onCode').value) $('onCode').value = c;
+    menuState(); box.classList.add('open');
+  }
+  async function withBusy(f) { if (busyUI) return; busyUI = true; menuState(); try { await f(); } catch (e) { teardown(); setErr(errText(e)); } finally { busyUI = false; menuState(); } }
+
+  // PeerJS の接続口を開く（id を省くと、ランダムなIDになる）
+  async function newPeer(id) {
+    if (!window.Peer) throw {type: 'nolib'};
+    const opt = await peerOptions();
+    return new Promise((res, rej) => {
+      let p, done = false;
+      try { p = id ? new Peer(id, opt) : new Peer(opt); } catch (e) { rej({type: 'browser-incompatible'}); return; }
+      const t = setTimeout(() => fin({type: 'timeout'}), 15000);
+      function fin(e) {
+        if (done) return; done = true; clearTimeout(t);
+        if (e) { try { p.destroy(); } catch (_) {} rej(e); } else res(p);
+      }
+      p.on('open', () => fin());
+      p.on('error', e => {
+        if (!done) { fin(e); return; }
+        if (p !== peer) return;
+        if (connWait) { connWait(e); return; }   // 参加しようとしたルームが見つからないときなど
+        if (isHost && ['network', 'server-error', 'socket-error', 'socket-closed'].includes(e && e.type)) {   // 接続サーバーとの通信が不安定（対戦中の通信は続く）
+          if (!netMsg) { netMsg = '接続サーバーとの通信が不安定です。新しい参加者が入れないことがあります'; refresh(); }
+        }
+      });
+      p.on('open', () => { if (done && p === peer && isHost && netMsg.startsWith('接続サーバー')) { netMsg = ''; refresh(); } });
+      p.on('disconnected', () => {   // 接続サーバーとの通信が切れた（端末どうしの通信は続く）。新しい参加を受けるため、つなぎ直す
+        if (p === peer && !p.destroyed) setTimeout(() => { try { if (p === peer && p.disconnected && !p.destroyed) p.reconnect(); } catch (e) {} }, 2000);
+      });
+    });
+  }
+
+  // ルームを作る（ID発行）
+  const create = () => withBusy(async () => {
+    setErr('');
+    if (navigator.onLine === false) throw {type: 'offline'};
+    const np = +$('onNP').value || 2;
+    let p = null, c = '';
+    for (let i = 0; i < 5 && !p; i++) { c = genCode(); try { p = await newPeer(PFX + c); } catch (e) { if (e.type !== 'unavailable-id') throw e; } }
+    if (!p) throw {type: 'unavailable-id'};
+    becomeHost(p, c, {host: uid, np, rounds: ROUNDS_BY_NP[np], phase: 'lobby', v: 0, s: '', seats: {}}, []);
+  });
+  // IDを入力して参加する
+  const join = () => withBusy(async () => {
+    setErr('');
+    if (navigator.onLine === false) throw {type: 'offline'};
+    const c = $('onCode').value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (c.length !== 4) { setErr('ルームIDは4文字です'); return; }
+    const sv = lsGet('hexOnline'), sh = lsGet('hexHost');
+    adopted = false;
+    if (freshUid && sv && sv.code === c && sv.uid && sv.uid !== uid) { setUid(sv.uid); adopted = true; }   // 別のタブから入り直したとき、前の席を引き継ぐ
+    peer = await newPeer();
+    enterLocal(c);
+    try { await connectHost(); }
+    catch (e) {
+      if (e.type === 'dup' && adopted) {   // 引き継ごうとした席は、別のタブで使用中だった
+        setUid('u' + Math.random().toString(36).slice(2, 12)); adopted = false; ONLINE.uid = uid;
+        await connectHost(); return;
+      }
+      if (e.type === 'peer-unavailable' && sh && sh.code === c && sh.G) {   // 自分がホストだったルーム: 保存した状態から開き直す
+        teardown(); await rehost(sh); return;
+      }
+      throw e;
+    }
+    lsSet('hexOnline', {code: c, uid});
+  });
+  async function rehost(sh) {
+    const g = cleanGame(sh.G);
+    if (!g || (g.s && (() => { try { validateState(JSON.parse(g.s)); return false; } catch (e) { return true; } })())) { lsSet('hexHost', null); throw {type: 'peer-unavailable'}; }   // 保存データが壊れていたら使わない
+    sh = {...sh, G: g, P: cleanPlayers(sh.P)};
+    let p = null, last = null;
+    for (let i = 0; i < 4 && !p; i++) {
+      try { p = await newPeer(PFX + sh.code); } catch (e) { last = e; if (e.type !== 'unavailable-id') break; await new Promise(r => setTimeout(r, 1500)); }
+    }
+    if (!p) throw last || {type: 'timeout'};
+    setUid(sh.uid || uid);
+    becomeHost(p, sh.code, sh.G, sh.P || []);
+  }
+
+  function enterLocal(c) {
+    code = c; gameDoc = null; players = []; onlineSet = new Set(); ver = 0; lastSent = ''; authTurn = 0; lastOut = null;
+    hostGone = false; netMsg = ''; nameSynced = false; clearTimeout(retryT);
+    clearInterval(beatT); beatT = setInterval(beat, 4000); heard = Date.now();
+    if (!backup) backup = {NP, MAX_ROUNDS, PNAME: {...PNAME}, PCOL: {...PCOL}};
+    ONLINE = {code: c, seat: 0, uid, playing: false};
+    myName = cleanName(backup.PNAME[1] || ''); myCol = backup.PCOL[1] ?? 0; $('onName').value = myName;
+  }
+  function teardown() {
+    clearTimeout(retryT); clearTimeout(nameTimer); clearInterval(beatT);
+    const p = peer, cs = [...conns.values(), conn];
+    peer = null; conn = null; conns = new Map(); connWait = null;
+    setTimeout(() => { for (const cn of cs) try { if (cn) cn.close(); } catch (e) {} try { if (p) p.destroy(); } catch (e) {} }, 300);   // 最後の連絡を送り切ってから閉じる
+    code = ''; gameDoc = null; players = []; onlineSet = new Set(); isHost = false; G = null; P = []; ONLINE = null; busy = false; netMsg = '';
+    if (backup) { NP = backup.NP; MAX_ROUNDS = backup.MAX_ROUNDS; PNAME = backup.PNAME; PCOL = backup.PCOL; applyColors(); backup = null; }
+  }
+  async function leave(showTitle = true) {
+    const lobby = !gameDoc || gameDoc.phase === 'lobby';
+    if (isHost) {
+      if (lobby) { for (const cn of conns.values()) send(cn, {t: 'closed'}); lsSet('hexHost', null); }
+      else if (over) { for (const cn of conns.values()) send(cn, {t: 'hostleft'}); lsSet('hexHost', null); }
+      // 対戦の途中なら状態を残しておき、同じIDで入り直すと再開できる
+    } else {
+      send(conn, {t: 'bye'});
+      if (lobby || over) lsSet('hexOnline', null);
+    }
+    teardown();
+    RESULT.close(); box.classList.remove('open');
+    init();
+    if (showTitle) $('title').classList.remove('hide');
+  }
+  const leaveMsg = () => isHost && !over
+    ? 'オンライン対戦から退出しますか？<br>あなたはホストです。退出すると、あなたが同じIDで入り直すまで対戦が止まります。'
+    : 'オンライン対戦から退出しますか？<br>同じIDを入力すると、あとで自分の席に戻れます。';
+
+  // 生存確認: 通信が黙って途切れたとき（スマホのスリープなど）にも気づけるよう、4秒ごとに合図を送り合う
+  function beat() {
+    const now = Date.now();
+    if (isHost) {
+      for (const cn of [...conns.values()]) {
+        if (now - (cn.heard || 0) > 14000) { hostDrop(cn); try { cn.close(); } catch (e) {} }
+        else send(cn, {t: 'ping'});
+      }
+    } else if (conn) {
+      if (now - heard > 14000) { const cn = conn; lostHost(); try { cn.close(); } catch (e) {} }
+      else send(conn, {t: 'ping'});
+    }
+  }
+
+  // ===== ホストの処理 =====
+  function becomeHost(p, c, g, savedP) {
+    peer = p; isHost = true; enterLocal(c);
+    G = g; P = savedP;
+    if (G.phase === 'lobby' && !P.some(x => x.uid === uid)) P.push({uid, name: myName, col: myCol, at: Date.now()});
+    p.on('connection', cn => {
+      cn.on('data', m => { try { hostRecv(cn, m); } catch (err) { console.error(err); } });
+      cn.on('close', () => hostDrop(cn));
+      cn.on('error', () => hostDrop(cn));
+    });
+    hostPush(true, true);
+  }
+  function saveHost() { if (isHost && G) lsSet('hexHost', {code, uid, G, P}); }
+  function hostPush(game, plist, force) {   // 部屋の状態を全員に配り、自分の画面にも反映する
+    if (!G) return;
+    saveHost();
+    const on = [uid, ...conns.keys()];
+    for (const cn of conns.values()) { if (plist) send(cn, {t: 'players', list: P, on}); if (game) send(cn, {t: 'game', d: G}); }
+    if (plist) recvPlayers(P, on);
+    if (game) onGame({...G});
+  }
+  function hostDrop(cn) {
+    if (!G || !cn.uid || conns.get(cn.uid) !== cn) return;
+    conns.delete(cn.uid);
+    if (G.phase === 'lobby') P = P.filter(x => x.uid !== cn.uid);   // 待合室で接続が切れた人は、一覧から外す
+    hostPush(false, true);
+  }
+  function hostRecv(cn, m) {
+    if (!G || !m || typeof m !== 'object') return;
+    const now = Date.now(); cn.heard = now;
+    if (now - (cn.win || 0) > 1000) { cn.win = now; cn.cnt = 0; }   // 送信が多すぎる相手は無視し、さらに続けば切断する
+    if (++cn.cnt > 30) { if (cn.cnt > 120) { hostDrop(cn); try { cn.close(); } catch (e) {} } return; }
+    if (m.t === 'ping') { send(cn, {t: 'pong'}); return; }
+    if (m.t === 'sync') { if (cn.uid && conns.get(cn.uid) === cn) send(cn, {t: 'game', d: G, force: true}); return; }
+    if (m.t === 'hello') {
+      const u = safeSeg(m.uid || '');
+      if (!u || u === uid) { send(cn, {t: 'dup'}); return; }
+      const old = conns.get(u);
+      if (old && old !== cn && old.open) {
+        if (m.adopt) { send(cn, {t: 'dup'}); return; }
+        try { old.close(); } catch (e) {}   // 同じ人が入り直した: 古い接続を切る
+      }
+      if (G.phase === 'play' && !seatOf(u)) { send(cn, {t: 'err', e: 'playing'}); setTimeout(() => { try { cn.close(); } catch (e) {} }, 500); return; }
+      if (G.phase === 'lobby' && !P.some(x => x.uid === u) && P.length >= 12) { send(cn, {t: 'err', e: 'full'}); setTimeout(() => { try { cn.close(); } catch (e) {} }, 500); return; }
+      cn.uid = u; conns.set(u, cn);
+      if (G.phase === 'lobby' && !P.some(x => x.uid === u)) P.push({uid: u, name: cleanName(m.name), col: clampCol(m.col), at: Date.now()});
+      send(cn, {t: 'welcome'});
+      hostPush(false, true);
+      send(cn, {t: 'game', d: G});
+      return;
+    }
+    if (!cn.uid || conns.get(cn.uid) !== cn) return;
+    if (m.t === 'me') {
+      const pl = P.find(x => x.uid === cn.uid);
+      if (pl && G.phase === 'lobby') { if ('name' in m) pl.name = cleanName(m.name); if ('col' in m) pl.col = clampCol(m.col); hostPush(false, true); }
+    } else if (m.t === 'state') {
+      const seat = seatOf(cn.uid);
+      if (G.phase !== 'play' || !seat || typeof m.s !== 'string' || m.s.length > MAX_S || !Number.isFinite(+m.v)) return;
+      let cur = {}, next = null; try { cur = JSON.parse(G.s || '{}'); } catch (e) {}
+      try { next = validateState(JSON.parse(m.s)); } catch (e) { next = null; }   // 形のおかしい盤面は受け付けない
+      if (next) { next.PNAME = cur.PNAME || next.PNAME; next.PCOL = cur.PCOL || next.PCOL; next.MAX_ROUNDS = cur.MAX_ROUNDS || next.MAX_ROUNDS; }   // 名前・色・ラウンド数は対戦中に変えさせない
+      if (next && next.NP === cur.NP && +m.v > +G.v && cur.turn === seat) { G.v = +m.v; G.s = JSON.stringify(next); hostPush(true, false); }   // 手番の人からの送信だけを受け付ける
+      else send(cn, {t: 'game', d: G, force: true});   // 食い違ったら、正本で上書きしてもらう
+    } else if (m.t === 'bye') {
+      conns.delete(cn.uid);
+      if (G.phase === 'lobby') P = P.filter(x => x.uid !== cn.uid);
+      hostPush(false, true);
+      setTimeout(() => { try { cn.close(); } catch (e) {} }, 300);
+    }
+  }
+
+  // ===== 参加者の処理 =====
+  function connectHost() {
+    return new Promise((res, rej) => {
+      if (!peer || peer.destroyed) { rej({type: 'closed'}); return; }
+      if (peer.disconnected) { try { peer.reconnect(); } catch (e) {} }
+      let cn, done = false;
+      try { cn = peer.connect(PFX + code, {reliable: true, serialization: 'json'}); } catch (e) { rej({type: 'closed'}); return; }
+      const t = setTimeout(() => fin({type: 'timeout'}), 15000);
+      function fin(e) {
+        if (done) return; done = true; clearTimeout(t); if (connWait === fin) connWait = null;
+        if (e) { try { cn.close(); } catch (_) {} rej(e); } else res();
+      }
+      connWait = fin;
+      cn.on('open', () => send(cn, {t: 'hello', uid, adopt: adopted, name: myName, col: myCol}));
+      cn.on('data', m => {
+        if (!m || typeof m !== 'object') return;
+        if (conn === cn || !done) heard = Date.now();
+        if (m.t === 'ping' || m.t === 'pong') { if (m.t === 'ping') send(cn, {t: 'pong'}); return; }
+        if (!done) {
+          if (m.t === 'welcome') { conn = cn; heard = Date.now(); fin(); if (lastOut) send(cn, {t: 'state', ...lastOut}); }   // 切断中に送れなかった操作を送り直す
+          else if (m.t === 'dup') fin({type: 'dup'});
+          else if (m.t === 'err') fin({type: m.e});
+          return;
+        }
+        if (conn === cn) { try { clientRecv(m); } catch (err) { console.error(err); resync(); } }
+      });
+      const lost = () => { if (!done) fin({type: 'closed'}); else if (conn === cn) lostHost(); };
+      cn.on('close', lost); cn.on('error', lost);
+    });
+  }
+  function clientRecv(m) {
+    if (m.t === 'players') recvPlayers(cleanPlayers(m.list), Array.isArray(m.on) ? m.on.filter(x => typeof x === 'string').slice(0, 20) : []);
+    else if (m.t === 'game') { const d = cleanGame(m.d); if (!d) return; if (m.force) ver = Math.min(ver, d.v - 1); onGame(d); }
+    else if (m.t === 'closed') onGame({phase: 'closed'});
+    else if (m.t === 'hostleft') { hostGone = true; netMsg = 'ホストが退出しました'; conn = null; refresh(); }
+  }
+  function lostHost() {
+    conn = null;
+    if (!code || hostGone) return;
+    netMsg = 'ホストとの接続が切れました。つなぎ直しています…'; refresh();
+    clearTimeout(retryT); retryT = setTimeout(retry, 2500);
+  }
+  async function retry() {
+    if (!code || isHost || conn) return;
+    try {
+      if (!peer || peer.destroyed) peer = await newPeer();
+      await connectHost();
+      netMsg = ''; refresh();
+    } catch (e) {
+      if (e.type === 'playing' || e.type === 'full') { leave(false).then(() => { open(); setErr(errText(e)); }); return; }
+      if (code) { clearTimeout(retryT); retryT = setTimeout(retry, 4000); }
+    }
+  }
+  let syncT = 0;
+  function resync() {   // ホストに最新の盤面をもう一度送ってもらう（続けて呼ばれても2秒に1回まで）
+    if (isHost || !conn || Date.now() - syncT < 2000) return;
+    syncT = Date.now(); ver = 0; send(conn, {t: 'sync'});
+  }
+  function refresh() { if (onPlay()) render(); else if (gameDoc && gameDoc.phase === 'lobby') renderLobby(); }
+
+  // ===== 共通: 受け取った状態を反映する =====
+  function recvPlayers(list, on) {
+    players = list.map(x => ({...x})).sort((a, b) => (a.at || 0) - (b.at || 0));
+    onlineSet = new Set(on);
+    if (!nameSynced) {
+      const me = players.find(x => x.uid === uid);
+      if (me) { myName = cleanName(me.name); myCol = +me.col || 0; $('onName').value = myName; nameSynced = true; }
+    }
+    renderLobby();
+    if (onPlay()) render();
+  }
+
+  // 待合室
+  function renderLobby() {
+    if (!gameDoc || gameDoc.phase !== 'lobby') return;
+    $('onMenu').style.display = 'none'; $('onLobby').style.display = '';
+    box.classList.add('open'); $('title').classList.add('hide');
+    const np = gameDoc.np;
+    $('onCodeBig').textContent = code;
+    $('onShareLink').style.display = location.protocol.startsWith('http') ? '' : 'none';
+    $('onHostNote').style.display = isHost ? '' : 'none';
+    $('onCount').textContent = `${Math.min(players.length, np)} / ${np}人`;
+    $('onList').innerHTML = players.map((pl, i) => {
+      const col = (PALETTE[pl.col] || PALETTE[0]).c;
+      const tags = [i < np ? 'P' + (i + 1) : '満員のため待機', pl.uid === gameDoc.host ? 'ホスト' : '', pl.uid === uid ? 'あなた' : ''].filter(Boolean).join('・');
+      return `<div class="onP${i >= np ? ' wait' : ''}"><span class="sw" style="background:${col}"></span><span class="nm">${esc(cleanName(pl.name) || '（名前なし）')}</span><span class="tag">${tags}</span></div>`;
+    }).join('') || '<div class="onNote">読み込み中…</div>';
+    const others = players.filter(x => x.uid !== uid);
+    const taken = new Set(others.map(x => +x.col));
+    const mine = players.find(x => x.uid === uid);
+    if (mine && others.some(x => +x.col === myCol && (x.at || 0) <= (mine.at || 0))) {   // 先に入った人と色が重なったら、空いている色に替える
+      myCol = PALETTE.findIndex((_, k) => !taken.has(k)); saveMe({col: myCol});
+    }
+    $('onColors').innerHTML = PALETTE.map((c, k) => `<button data-k="${k}" class="${k === myCol ? 'on' : ''}" ${taken.has(k) ? 'disabled' : ''}><span class="sw" style="background:${c.c}"></span>${c.n}</button>`).join('');
+    $('onName').style.borderColor = (PALETTE[myCol] || PALETTE[0]).c;
+    const dup = myName && others.some(x => cleanName(x.name) && normName(cleanName(x.name)) === normName(myName));
+    setErr2(netMsg || (dup ? `「${myName}」はほかの参加者と同じ名前です。別の名前にしてください` : ''));
+    $('onHostOpts').style.display = isHost ? '' : 'none';
+    if (isHost) {
+      if (document.activeElement !== $('onSetNP')) $('onSetNP').value = np;
+      if (document.activeElement !== $('onSetRounds')) $('onSetRounds').value = gameDoc.rounds;
+    }
+    const short = np - players.length;
+    $('onWait').textContent = isHost ? (short > 0 ? `あと${short}人の参加を待っています。` : '人数がそろいました。対戦を始められます。')
+                                     : `ホストが対戦を始めるのを待っています（${np}人対戦・${gameDoc.rounds}ラウンド）。`;
+    $('onStart').style.display = isHost ? '' : 'none';
+    $('onStart').disabled = short > 0 || busyUI;
+  }
+  function saveMe(patch) {
+    if (!code) return;
+    if (isHost) { const pl = P.find(x => x.uid === uid); if (pl) { Object.assign(pl, patch); hostPush(false, true); } }
+    else send(conn, {t: 'me', ...patch});
+  }
+
+  // 部屋の状態の変化を受け取る
+  function onGame(d) {
+    if (!code) return;
+    if (d) { d = cleanGame(d); if (!d) return; }   // 形のおかしいデータは無視する
+    if (!d || d.phase === 'closed') {
+      leave(false).then(() => { open(); setErr('ホストがルームを閉じました'); });
+      return;
+    }
+    gameDoc = d; isHost = d.host === uid;
+    if (d.phase === 'lobby') { renderLobby(); return; }
+    if (d.phase !== 'play') return;
+    const seat = +(Object.keys(d.seats || {}).find(k => d.seats[k] === uid) || 0);
+    if (!seat) { leave(false).then(() => { open(); setErr('対戦が始まりましたが、定員のため参加できませんでした'); }); return; }
+    if (!(+d.v > ver) || !d.s) return;   // 自分の送信や古いデータは無視する
+    let S; try { S = validateState(JSON.parse(d.s)); } catch (e) { console.warn('受け取った盤面が不正です', e); if (!isHost) resync(); return; }
+    if (!S.PCOL || +seat > S.NP) return;
+    const prevVer = ver; ver = +d.v; lastSent = d.s;
+    const first = !onPlay();
+    ONLINE = {code, seat, uid, playing: true};
+    box.classList.remove('open'); $('title').classList.add('hide'); $('setup').classList.remove('open');
+    try { applyState(S, first); }
+    catch (e) {   // 反映の途中で失敗した: 最新の盤面を取り直す
+      console.error(e); applying = false; ver = Math.min(prevVer, ver - 1);
+      if (!isHost) resync(); else { msg = '⚠ 盤面の反映でエラーが起きました'; try { render(); } catch (_) {} }
+    }
+  }
+
+  // 盤面の状態 ⇔ 文字列
+  function exportState() {
+    let cs = '';   // 1マス3文字: 所有者・地形・フラグ（森/元の森/資源/回収済み/村）
+    for (const c of cells.values()) cs += String(c.o) + c.t + ((c.forest ? 1 : 0) | (c.f0 ? 2 : 0) | (c.res ? 4 : 0) | (c.harv ? 8 : 0) | (c.village ? 16 : 0)).toString(36);
+    const k = c => c ? key(c.q, c.r) : null;
+    return {NP, MAX_ROUNDS, SET, PNAME, PCOL, cells: cs, last: per(p => k(last[p])), baseCell: per(p => k(baseCell[p])),
+      sp, rp, pw, skills, started, bless, pot, boost, tool, lock, fixed, langOpen, fireOpen, stoneOpen, xOpen, pending, alive,
+      turn, round, actions, over, winner, msg, selecting, result: RESULT.exportState()};
+  }
+  function applyState(S, first) {
+    const prevTurn = first ? 0 : turn, prevOver = !first && over, sig0 = JSON.stringify([NP, PNAME, PCOL]);
+    applying = true;
+    try {
+      clearTimeout(timer);
+      NP = S.NP; MAX_ROUNDS = S.MAX_ROUNDS; SET = S.SET; RADIUS = RADIUS_BY_NP[NP] || 8; BASES = calcBases();
+      PNAME = S.PNAME || {}; PCOL = {...DEF_COL, ...(S.PCOL || {})}; applyColors();
+      cells = new Map(); let i = 0;
+      for (let q = -RADIUS; q <= RADIUS; q++) for (let r = -RADIUS; r <= RADIUS; r++) if (Math.abs(q + r) <= RADIUS) {
+        const e = S.cells.substr(i * 3, 3), f = parseInt(e[2], 36) || 0; i++;
+        cells.set(key(q, r), {q, r, o: +e[0] || 0, t: e[1] || 'p', forest: !!(f & 1), f0: !!(f & 2), res: !!(f & 4), harv: !!(f & 8), village: !!(f & 16)});
+      }
+      const g = k => k ? cells.get(k) || null : null;
+      last = per(p => g(S.last[p])); baseCell = {}; for (const p of PL()) { const b = g(S.baseCell[p]); if (b) baseCell[p] = b; }
+      ({sp, rp, pw, skills, started, bless, pot, boost, tool, lock, fixed, langOpen, fireOpen, stoneOpen, xOpen, pending, alive, turn, round, actions, over, winner, msg, selecting} = S);
+      viewer = turn; hover = null; authTurn = turn; busy = !myTurn();
+      RESULT.importState(S.result);
+      if (!over) RESULT.close();
+      if (!myTurn()) for (const id of ['confirmReset', 'tree', 'tools']) $(id).classList.remove('open');
+      if (first || sig0 !== JSON.stringify([NP, PNAME, PCOL])) buildHeader();
+      render();
+    } finally { applying = false; }
+    if (!over && !selecting && turn === ONLINE.seat && (first || prevTurn !== turn)) {   // 自分の番になった: 届いていたお知らせを表示
+      popupQ.push(...(pending[turn] || []).splice(0)); showPopup(); if (!first) SFX.play('turn');
+    } else if (!over && selecting && turn === ONLINE.seat && prevTurn !== turn && !first) SFX.play('turn');
+    if (over && !prevOver) { if (!first) SFX.play('fanfare'); RESULT.schedule(first ? 300 : 1400); }
+  }
+
+  // 自分の番の操作を送る（render のたびに確認し、変化があれば送る）
+  function maybeCommit() {
+    if (applying || !onPlay() || authTurn !== ONLINE.seat || !cells || !code) return;
+    const s = JSON.stringify(exportState());
+    if (s === lastSent) return;
+    lastSent = s; authTurn = turn;   // 手番が移ったら、以後は次の人が送る
+    const v = ++ver;
+    if (isHost) { G.v = v; G.s = s; hostPush(true, false); }
+    else { lastOut = {v, s}; send(conn, {t: 'state', v, s}); }   // 切断中なら、つなぎ直したときに送る
+  }
+
+  // ホストが対戦を始める（again: 同じメンバーでもう一度）
+  function startGame(again) {
+    const d = G; if (!d || !isHost) return;
+    let seats, names = {}, cols = {};
+    const np = again ? NP : d.np, rounds = again ? MAX_ROUNDS : (+d.rounds || ROUNDS_BY_NP[np]);
+    if (again) { seats = d.seats; names = {...PNAME}; cols = {...PCOL}; }
+    else {
+      const list = players.slice(0, np);
+      if (list.length < np) { setErr2(`あと${np - list.length}人の参加が必要です`); return; }
+      seats = {}; const usedN = new Set();
+      list.forEach((pl, i) => {
+        const p = i + 1; let nm = cleanName(pl.name) || 'P' + p;
+        if (usedN.has(normName(nm))) nm = nm.slice(0, 7) + p;   // 同じ名前が残っていたら番号を付ける
+        usedN.add(normName(nm)); seats[p] = pl.uid; names[p] = nm; cols[p] = +pl.col || 0;
+      });
+    }
+    const seat = +(Object.keys(seats).find(k => seats[k] === uid) || 0);
+    if (!seat) { setErr2('ホストが参加者に入っていません'); return; }
+    applying = true;
+    try {
+      NP = np; MAX_ROUNDS = rounds; PNAME = names; PCOL = {...DEF_COL, ...cols}; applyColors();
+      ONLINE = {code, seat, uid, playing: false};
+      init();   // ホストの端末でマップを作る
+    } finally { applying = false; }
+    const s = JSON.stringify(exportState()), v = Math.max(ver, +G.v || 0) + 1;
+    Object.assign(G, {phase: 'play', seats, v, s});
+    hostPush(true, false);   // 全員に配る（自分の画面もここで切り替わる）
+  }
+  function again() {
+    if (!onPlay()) return;
+    if (!isHost) { msg = 'もう一度遊ぶときは、ホストが「もう一度」を押します'; render(); return; }
+    startGame(true);
+  }
+
+  // ルームIDと招待リンクの共有
+  const inviteUrl = () => location.href.split(/[?#]/)[0] + '?room=' + code;
+  async function copyText(t, okMsg) {
+    try { await navigator.clipboard.writeText(t); setErr2(''); $('onWait').textContent = okMsg; setTimeout(renderLobby, 1800); }
+    catch (e) { window.prompt('コピーしてください', t); }
+  }
+
+  // 画面の操作
+  $('tiOnline').addEventListener('click', open);
+  $('onClose').addEventListener('click', () => { box.classList.remove('open'); $('title').classList.remove('hide'); });
+  $('onCreate').addEventListener('click', create);
+  $('onJoin').addEventListener('click', join);
+  $('onCode').addEventListener('keydown', e => { if (e.key === 'Enter') join(); });
+  $('onCode').addEventListener('input', () => { $('onCode').value = $('onCode').value.toUpperCase(); });
+  $('onLeave').addEventListener('click', () => leave(false).then(open));
+  $('onCopyId').addEventListener('click', () => copyText(code, 'ルームIDをコピーしました。'));
+  $('onShareLink').addEventListener('click', async () => {
+    const url = inviteUrl();
+    if (navigator.share) { try { await navigator.share({title: 'HEXAREA', text: `ルームID ${code} で対戦しよう`, url}); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+    copyText(url, '招待リンクをコピーしました。');
+  });
+  $('onStart').addEventListener('click', () => {
+    const dup = players.slice(0, gameDoc ? gameDoc.np : 0).map(x => normName(cleanName(x.name) || '')).filter(Boolean);
+    if (new Set(dup).size !== dup.length && !$('onErr2').dataset.warned) { $('onErr2').dataset.warned = '1'; setErr2('同じ名前の参加者がいます。もう一度押すと、番号を付けて始めます'); return; }
+    delete $('onErr2').dataset.warned;
+    startGame(false);
+  });
+  $('onName').addEventListener('input', () => {
+    myName = cleanName($('onName').value); renderLobby();
+    clearTimeout(nameTimer); nameTimer = setTimeout(() => saveMe({name: myName}), 400);   // 入力が止まってから送る
+  });
+  $('onColors').addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if (!b || b.disabled) return; myCol = +b.dataset.k; renderLobby(); saveMe({col: myCol}); });
+  $('onSetNP').addEventListener('change', () => { const np = Math.max(2, Math.min(6, parseInt($('onSetNP').value) || 2)); if (isHost && G && G.phase === 'lobby') { G.np = np; G.rounds = ROUNDS_BY_NP[np]; hostPush(true, false); } });
+  $('onSetRounds').addEventListener('change', () => { const r = Math.max(1, Math.min(999, parseInt($('onSetRounds').value) || 0)); if (r && isHost && G && G.phase === 'lobby') { G.rounds = r; hostPush(true, false); } });
+  document.getElementById('settingsBtn').addEventListener('click', () => {   // オンライン中は、チュートリアルとプレイヤー設定を隠す
+    $('tutStart').parentElement.style.display = ONLINE ? 'none' : '';
+    $('setPlayers').parentElement.style.display = ONLINE ? 'none' : '';
+  });
+  // ホストが対戦中にページを閉じようとしたら、確認を出す
+  window.addEventListener('beforeunload', e => { if (isHost && onPlay() && !over) { e.preventDefault(); e.returnValue = ''; } });
+  // 画面に戻ってきたとき（スマホのスリープ解除など）は、すぐに接続を確かめる
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible' || !code) return;
+    if (!isHost && !conn && !hostGone) { clearTimeout(retryT); retry(); } else beat();
+  });
+  window.addEventListener('online', () => { if (code && !isHost && !conn && !hostGone) { clearTimeout(retryT); retry(); } });
+  // 招待リンク（?room=XXXX）で開いたときは、IDを入れた状態で参加画面を出す
+  setTimeout(() => {
+    const q = new URLSearchParams(location.search).get('room');
+    if (q && !ONLINE) { $('onCode').value = q.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4); $('title').classList.add('hide'); open(); }
+  }, 0);
+
+  // render を包んで、オンライン用の表示と送信を行う（いちばん外側）
+  const wrap = (nm, f) => { const orig = window[nm]; window[nm] = function (...a) { return f(orig, a); }; };
+  wrap('render', (orig, a) => {
+    if (onPlay() && !myTurn()) busy = true;   // 自分の番以外は操作できない
+    const r = orig.apply(null, a);
+    const tag = $('onlineTag');
+    if (onPlay()) {
+      tag.style.display = ''; tag.textContent = netMsg ? '⚠' : '🌐'; tag.title = `オンライン対戦（ルーム ${ONLINE.code}）`;
+      const seats = (gameDoc && gameDoc.seats) || {};
+      for (const p of PL()) { const pe = $('pl' + p); if (pe) { pe.classList.toggle('me', p === ONLINE.seat); pe.classList.toggle('off', !!seats[p] && !onlineSet.has(seats[p])); } }
+      const st = $('status');
+      if (!over && !myTurn()) {
+        const prev = st.textContent; const skip = !prev || prev.includes(name(turn) + 'のターン') || prev.includes('拠点を選んでください');
+        const off = seats[turn] && !onlineSet.has(seats[turn]) ? '（接続が切れています。戻るのを待っています）' : '';
+        st.textContent = `${name(turn)}の${selecting ? '拠点選び' : 'ターン'}を待っています${off}` + (skip ? '' : ' ／ ' + prev);
+      }
+      if (netMsg) st.textContent = '⚠ ' + netMsg + ' ／ ' + st.textContent;
+      if (!myTurn()) $('end').disabled = true;
+      $('rsAgain').disabled = !isHost; $('rsAgain').textContent = isHost ? 'もう一度' : '再戦はホストが開始';
+    } else { tag.style.display = 'none'; $('rsAgain').disabled = false; $('rsAgain').textContent = 'もう一度'; }
+    gmBtn.style.display = ONLINE ? 'none' : '';
+    maybeCommit();
+    return r;
+  });
+  return { open, leave, again, leaveMsg, resync, active: () => !!code };
+})();
+
+// 想定外のエラーが起きても、ゲームが止まったままにならないようにする
+(() => {
+  let lastAt = 0;
+  function report(err) {
+    try {
+      console.error(err);
+      const now = Date.now(); if (now - lastAt < 1500) return; lastAt = now;
+      if (typeof busy !== 'undefined' && !(ONLINE && ONLINE.playing && !myTurn())) busy = false;   // 操作できない状態のまま固まるのを防ぐ
+      const st = document.getElementById('status');
+      if (st) st.textContent = '⚠ エラーが起きました。' + (ONL.active() ? '盤面を取り直しています' : '続けて操作できます（直らないときはリセットしてください）');
+      if (ONL.active()) ONL.resync();
+    } catch (e) {}
+  }
+  window.addEventListener('error', e => report(e.error || e.message));
+  window.addEventListener('unhandledrejection', e => report(e.reason));
+})();
+
+try { init(); resize(); }
+catch (e) { console.error(e); document.body.insertAdjacentHTML('afterbegin', '<div style="padding:12px;background:#e5484d;color:#fff;font-weight:700">ゲームを読み込めませんでした。ページを開き直してください。</div>'); }
+</script>
+</body>
+</html>
