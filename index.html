@@ -362,8 +362,8 @@
 <details open><summary>目的と勝利条件</summary><div class="sec"><ul>
 <li>六角形のマップで、自分の色のマス（領地）を広げます。</li>
 <li>設定したラウンド数が終わった時、または盤面が埋まった時に、領地が最も多いプレイヤーの勝ちです。最多が複数なら引き分けです。</li>
-<li>相手の領地を現在地（白枠）以外すべて奪うと、そのプレイヤーは脱落し、残りの領地は空きマスに戻ります。最後の1人になったプレイヤーは、その場で勝利です。</li>
-<li>🏴 <b>拠点潰し</b>：相手が最初に選んだ拠点（家のマーク）を戦闘で奪うと、領地が残っていても、その相手は脱落します（2人戦ではその場で勝利）。村は対象外です。相手の現在地（白枠）は奪えないので、拠点にいる間は守られます。</li>
+<li>相手の拠点をすべて奪うと、そのプレイヤーは脱落し、残りの領地は空きマスに戻ります。最後の1人になったプレイヤーは、その場で勝利です。</li>
+<li>🏴 <b>拠点潰し</b>：最初に選んだ拠点と、建てた村は、すべて「拠点」（家のマーク）です。相手の拠点を戦闘ですべて奪うと、領地が残っていても、その相手は脱落します（2人戦ではその場で勝利）。1か所奪っただけでは脱落しません。拠点にいる相手も攻撃できます。最後の拠点は、自分で壊せません。</li>
 <li>ゲームが終わると、対戦結果（順位・領地の推移・戦闘などの記録）が表示されます。「盤面を見る」で閉じたあとも、上の「結果」ボタンで開き直せます。</li>
 </ul></div></details>
 <details><summary>ゲームの準備</summary><div class="sec"><ul>
@@ -377,8 +377,8 @@
 <li>拠点は、最外周の1マス内側にある六角形の頂点6か所から、1人1つ選びます。</li>
 </ul>
 <h3>2人対戦</h3><ul>
-<li>先手→後手の順に拠点を選びます。決定した拠点は、お互いに見えません。</li>
-<li>先手だけは、1ターン目に限り後手の拠点の半径2マスが見えます。</li>
+<li>先手→後手の順に拠点を選びます。拠点選びのときは候補の周囲が見えるので、後手は、先手が選んだ拠点を見て選べます。</li>
+<li>先手も、1ターン目に限り後手の拠点の半径2マスが見えます。2ターン目からは、お互いに見えなくなります。</li>
 <li>初期の食料は先手1・後手0、初期の資源は0です。</li>
 </ul>
 <h3>3人以上</h3><ul>
@@ -399,7 +399,7 @@
 <li>移動には行動1と食料が必要です。平地は食料1、山は食料2で、水域は通れません。移動先のマスに、必要な食料が表示されます。</li>
 <li>空きマスへ移動すると、そのマスが自分の色（領地）になります。</li>
 <li>自分の色のマス（道）への移動も、同じ食料がかかり、隣のマスにだけ進めます。</li>
-<li>自分の村へは、どこからでも行動1・食料1で戻れます。</li>
+<li>現在地から一番近い自分の拠点（最初の拠点または村）へは、離れていても行動1・食料1で戻れます。同じ距離の拠点が複数あるときは、どれにも戻れます。</li>
 <li>行き場が無い時だけ、自領に隣接する空きマスへ進めます。</li>
 </ul></div></details>
 <details><summary>視界</summary><div class="sec"><ul>
@@ -422,7 +422,9 @@
 </div></details>
 <details><summary>資源 ✨</summary><div class="sec"><ul>
 <li>資源マスは、初期設定では平地の約20%です。</li>
-<li>まず通常どおり移動して自領にし、そのマスにいる状態でもう一度タップすると、行動1・食料1で資源+1になります。回収できるのは1マスにつき1回です。</li>
+<li>まず通常どおり移動して自領にし、そのマスにいる状態でもう一度タップすると、行動1・食料1で資源+1になります。</li>
+<li>回収したマスは、2ラウンド後に資源が復活します。回収を重ねるたびに、復活が1ラウンドずつ遅くなります（2→3→4…ラウンド後）。復活までの残りラウンドは、回収したマスに ⏳ で表示されます。</li>
+<li>村のあるマスで資源が復活したときは、村の持ち主が自動で回収します（回収した扱いなので、次の復活はさらに遅くなります）。</li>
 <li>言語の獲得を習得すると、道でつながった半径2マス以内の資源も回収できます。</li>
 <li>村1つにつき、毎ターンの開始時に資源+1を得ます。</li>
 <li>資源は、スキルの習得、ツールの作製・修繕、村の建設に使います。</li>
@@ -431,8 +433,8 @@
 <li>現在地に隣接する相手の色のマスや森のマス（赤い枠）をタップすると、確認のうえ戦闘を挑めます。</li>
 <li>戦闘には、行動1と、そのマスへの移動と同じ食料を使います（勝敗にかかわらず消費）。</li>
 <li>戦力が大きい方が勝ちです。勝つとそのマスを自分の色にし、相手のマスなら資源1、森なら食料1を奪います。</li>
-<li>同じ戦力のときは、そのマスを通行できるだけです。負けると何も起きません。</li>
-<li>相手の現在地（白枠）のマスは奪えません。</li>
+<li>同じ戦力のときは、そのマスを通行できるだけです（相手がいるマスには入れません）。負けると何も起きません。</li>
+<li>相手の現在地（白枠）のマスにも戦闘を挑めます。勝つと、相手は<b>強制帰還</b>します。奪ったマスから一番近い自分の拠点（最初の拠点または村）へ戻され、行動回数は使いません。同じ距離の拠点が複数あるときは、相手が次の自分の番に、戻る拠点を選びます。最後の拠点を奪われた相手は脱落するので、帰還はありません。</li>
 </ul>
 <h3>戦力</h3><ul>
 <li>初期値は1で、夜間は-1されます（火の発見で無効。0未満にはなりません）。</li>
@@ -442,12 +444,13 @@
 <details><summary>村 🏠</summary><div class="sec"><ul>
 <li>自分の領地のマス（現在地や道）をタップすると、資源3・食料2で村を建設できます。1人最大3つです。</li>
 <li>初めて村を建てられるだけの資源・食料がたまると、建て方のお知らせが出ます。ツール（⛏）の「村」の欄でも確認できます。</li>
-<li>既存の拠点・村（自分・相手を問わない）のマスと、その隣のマスには建てられません。</li>
+<li>自分の拠点・村から2マス以内には建てられません。</li>
+<li>相手の拠点・村から2マス以内にも建てられますが、そうした<b>前線の村</b>は、同時に1つまでです（壊すか、奪われると、別の場所に建てられます）。</li>
 <li>移動できるマスをタップしたときは、移動か建設かを選べます。</li>
-<li>村は拠点として扱われます（広い視界、戦力+2、周囲1マスで+1）。</li>
+<li>村は拠点として扱われます（広い視界、戦力+2、周囲1マスで+1）。ただし、建てた村は、次の自分の番まで拠点として扱われません。その間は薄く表示され、戦力・視界・行動回数・資源・帰還・拠点の数に入らず、ふつうの領地として奪われます。</li>
 <li>村1つにつき、行動回数+1、毎ターン資源+1、食料収入-1です（定住の暮らしで食料収入の減りがなくなります。収入は0未満になりません）。</li>
-<li>自分の村を長押しすると、行動1を使って壊し、資源3を回収できます（食料は戻りません）。別の場所に建て直せます。</li>
-<li>相手に奪われると、村は失われます。</li>
+<li>自分の村を長押しすると、行動1を使って壊せます。資源・食料は戻りません。別の場所に建て直せます。拠点が1つしか残っていないときは壊せません。</li>
+<li>相手に奪われると、村は失われます（拠点が1つ減ります）。</li>
 </ul></div></details>
 <details><summary>スキル</summary><div class="sec"><ul>
 <li>条件を満たすとスキルが解放され、お知らせが出ます。</li>
@@ -638,7 +641,9 @@ const humanSeat = () => (viewer && !isCPU(viewer) && alive[viewer]) ? viewer : (
 const viewP = () => onPlay() ? (ONLINE.spec ? turn : ONLINE.seat) : isCPU(turn) ? humanSeat() : turn;   // 盤面を見るプレイヤー（オンラインでは自分の席。AIの番では人間の席）
 const myTurn = () => onPlay() ? ONLINE.seat === turn : !isCPU(turn);
 let langOpen = per(false), fireOpen = per(false), stoneOpen = per(false), pending = per(() => []), popupQ = [], gmBackup = null, xOpen = {};   // xOpen: 新石器スキルの解放状態
-const XIDS = ['farm','herd','polish','pottery','faith','cook','settle','trap','survey','summit']; const resetX = () => { for (const k of XIDS) xOpen[k] = per(false); }; resetX(); let baseCell = {};   // 「言語の獲得」の解放状態と、表示待ちのお知らせ   // 手番交代の1秒待ち中は操作を受け付けない
+const XIDS = ['farm','herd','polish','pottery','faith','cook','settle','trap','survey','summit']; const resetX = () => { for (const k of XIDS) xOpen[k] = per(false); }; resetX(); let baseCell = {}, retPick = {}, tieStay = false, vNew = {}, resT = {};   // vNew: 建てたばかり（次の自分の番まで拠点扱いでない）の村 {マスのキー: 1} ／ resT: 回収した資源マスの復活 {マスのキー: [回収した回数, 復活するラウンド]}
+  //   // retPick: 強制帰還で同じ距離の拠点が複数あるとき、本人が選ぶ候補 {席: [マスのキー…] または null} ／ tieStay: 現在地への攻撃が引き分けで、攻撃側が入れなかった
+  //   // 「言語の獲得」の解放状態と、表示待ちのお知らせ   // 手番交代の1秒待ち中は操作を受け付けない
 
 function init() {
   clearTimeout(timer); busy = false;
@@ -650,7 +655,7 @@ function init() {
   genTerrain(); genResources();
   villageTold = {}; traps = {}; scoutV = per(() => []); scoutMode = null; scoutPrev = null; trapMode = false;
   sp = per(startSp); started = per(false); rp = per(startRp); pw = per(1); bless = per(0); pot = per(0); boost = {stone:per(0), polish:per(0)}; tool = {stone:per(0), polish:per(0)}; lock = {stone:per(0), polish:per(0)}; fixed = {stone:per(0), polish:per(0)}; skills = per(() => ({})); last = per(null); alive = per(true); turn = firstPicker(); viewer = isCPU(turn) ? (PL().find(q => !isCPU(q)) || turn) : turn; round = 1; actions = 0; over = false; winner = 0; selecting = true;
-  langOpen = per(false); fireOpen = per(false); stoneOpen = per(false); resetX(); baseCell = {}; pending = per(() => []); popupQ = []; buildHeader(); document.getElementById('notice').classList.remove('open'); if (gm) gmGrant();
+  langOpen = per(false); fireOpen = per(false); stoneOpen = per(false); resetX(); baseCell = {}; retPick = per(null); vNew = {}; resT = {}; pending = per(() => []); popupQ = []; buildHeader(); document.getElementById('notice').classList.remove('open'); if (gm) gmGrant();
   msg = `R1/${MAX_ROUNDS}（朝） ${name(turn)}は拠点を選んでください`; hover = null;
   render();
 }
@@ -796,7 +801,14 @@ const ring = c => (Math.abs(c.q) + Math.abs(c.r) + Math.abs(c.q + c.r)) / 2;   /
 const cost = (c,p=turn) => c.t === 'm' ? ((skills && skills[p] && skills[p].herd) ? 1 : 2) : 1;   // 山は2行動（牧畜の開始で1）
 const roadRange = p => skills[p].cook ? 2 : 1;   // 道での移動半径: 煮炊きの技術で2
 const isJump = (c,p) => c.o === p && !!last[p] && !nbrs(c).includes(last[p]);   // 隣でない道への移動（1行動・食料1）
-const moveCost = (c,p) => isBattle(c,p) ? cost(c,p) : ((c.o === p && c.village) || isJump(c,p)) ? 1 : cost(c,p);   // 自分の村へは常に食料1で戻れる   // 戦闘も、そのマスへ移動する食料を使う（勝敗にかかわらず）   // 自分の色のマス（道）への移動はpt不要
+const returnBases = p => {   // 帰還できる拠点: 現在地から一番近い自分の拠点（最初の拠点・村）。同じ距離なら、どれにも戻れる。拠点の上にいるときは戻る先なし
+  const L0 = last[p]; if (!L0) return [];
+  const bs = basesOf(p); if (!bs.length) return [];
+  const d = Math.min(...bs.map(b => hexDist(b, L0)));
+  return d === 0 ? [] : bs.filter(b => hexDist(b, L0) === d);
+};
+const isReturn = (c,p) => c.o === p && (isActiveVillage(c) || c === baseCell[p]) && returnBases(p).includes(c);
+const moveCost = (c,p) => isBattle(c,p) ? cost(c,p) : (isReturn(c,p) || isJump(c,p)) ? 1 : cost(c,p);   // 一番近い自分の拠点へは、離れていても食料1で戻れる   // 戦闘も、そのマスへ移動する食料を使う（勝敗にかかわらず）   // 自分の色のマス（道）への移動はpt不要
 const onRoad = (c,p) => {   // 現在位置から自分の色のマスでつながっているか
   if (!last[p] || c.o !== p) return false;
   const seen = new Set([key(last[p].q, last[p].r)]), st = [last[p]];
@@ -805,29 +817,35 @@ const onRoad = (c,p) => {   // 現在位置から自分の色のマスでつな�
 };
 const visLevel = (c, p) => Math.max(1, ((isMyBase(c, p) || c === last[p]) ? 3 : 1) + (skills[p].faith ? 1 : 0) - ((isDay() || skills[p].fire) ? 0 : 1));   // 拠点と現在地はレベル3、他の自領はレベル1。夜は-1（火の発見で無効）、神秘の探究で+1
 const specialAround = c => new Set(nbrs(c).map(n => n.t === 'm' ? 'm' : n.t === 's' ? 's' : n.forest ? 'f' : '').filter(Boolean)).size;   // 周囲6マスにある地形の種類数（現在は山・水域・森。資源は含まない。新しい地形マスを追加したら、ここに種類を足す）
-const VILLAGE_RES = 3, VILLAGE_FOOD = 2, VILLAGE_MAX = 3, VILLAGE_REFUND = 3;   // 村の建設: 資源3・食料2、1人最大3つ。壊すと資源3が戻る
+const VILLAGE_RES = 3, VILLAGE_FOOD = 2, VILLAGE_MAX = 3;   // 村の建設: 資源3・食料2、1人最大3つ。壊しても資源・食料は戻らない
 const canBuildVillage = p => gm || (rp[p] >= VILLAGE_RES && sp[p] >= VILLAGE_FOOD && villageCount(p) < VILLAGE_MAX);
 const isAnyBase = x => !!x.village || (isPlayer(x.o) && baseCell[x.o] === x);   // だれかの拠点（最初の拠点、または村）
-const villageSpotOk = c => ![...cells.values()].some(x => isAnyBase(x) && hexDist(x, c) <= 1);   // 既存の拠点・村（自分・相手を問わない）のマスと、その隣には村を建てられない
+const isFrontCell = (c, p) => PL().some(q => q !== p && alive[q] && [...cells.values()].some(x => isMyBase(x, q) && hexDist(x, c) <= 2));   // 前線: 他のプレイヤーの拠点（最初の拠点・村）から2マス以内
+const frontVillages = p => [...cells.values()].filter(c => c.o === p && c.village && isFrontCell(c, p)).length;   // 前線にある自分の村の数（建てたばかりを含む）
+const spotOwnOk = (c, p) => ![...cells.values()].some(x => x.o === p && isAnyBase(x) && hexDist(x, c) <= 2);   // 自分の拠点・村から2マス以内には建てられない
+const spotFrontOk = (c, p) => !isFrontCell(c, p) || frontVillages(p) < FRONT_MAX;   // 前線の村は同時に1つまで
+const villageSpotOk = (c, p = turn) => spotOwnOk(c, p) && spotFrontOk(c, p);   // 相手の拠点の近くにも建てられるが、前線の村は1つまで
 function villageHint() {   // 初めて村を建てられるだけの資源・食料がたまったら、建て方を知らせる（自分の盤面が見えているときだけ）
   const p = turn;
   if (!cells || selecting || over || busy || !alive[p] || isCPU(p) || villageTold[p] || tutOn() || (onPlay() ? ONLINE.spec || ONLINE.seat !== p : viewer !== p)) return;
   if (gm || rp[p] < VILLAGE_RES || sp[p] < VILLAGE_FOOD || villageCount(p) >= VILLAGE_MAX) return;
   villageTold[p] = true;
-  popupQ.push({t: '🏠 村を建てられます', s: `自分の領地のマス（現在地や道）をタップすると、資源${VILLAGE_RES}・食料${VILLAGE_FOOD}で村を建てられます。村は拠点扱いで、行動回数+1・毎ターン資源+1になります（食料収入は-1）。既存の拠点・村の隣には建てられません。`});
+  popupQ.push({t: '🏠 村を建てられます', s: `自分の領地のマス（現在地や道）をタップすると、資源${VILLAGE_RES}・食料${VILLAGE_FOOD}で村を建てられます。村は拠点扱いで、行動回数+1・毎ターン資源+1になります（食料収入は-1）。自分の拠点・村から2マス以内には建てられません。相手の拠点から2マス以内にも建てられますが、そうした「前線の村」は同時に1つまでです。`});
   showPopup();
 }
-const VILLAGE_SPOT_WHY = 'ここには村を建てられません（既存の拠点・村のマスと、その隣のマスには建てられません）';
+const FRONT_MAX = 1;   // 前線の村（他のプレイヤーの拠点から2マス以内の村）を同時に持てる数
+const villageSpotWhy = (c, p) => !spotOwnOk(c, p) ? 'ここには村を建てられません（自分の拠点・村から2マス以内には建てられません）' : `ここには村を建てられません（前線の村は同時に${FRONT_MAX}つまでです。相手の拠点から2マス以内に建てた村を壊すと、建てられます）`;
 const villageWhy = p => villageCount(p) >= VILLAGE_MAX ? `村は最大${VILLAGE_MAX}つまでです（長押しで壊して建て直せます）` : `村の建設には、資源${VILLAGE_RES}と食料${VILLAGE_FOOD}が必要です`;
-function demolishVillage(c) {   // 村を壊して資源3を回収（行動回数1を使う）。食料は戻らない
+function demolishVillage(c) {   // 村を壊す（行動回数1を使う）。資源・食料は戻らない
   const p = turn; if (busy || over || c.o !== p || !c.village || (!gm && actions < 1)) return;
-  c.village = false; if (!gm) { rp[p] += VILLAGE_REFUND; actions--; }
-  msg = `${name(p)} 🏚 村を壊した（資源+${gm ? 0 : VILLAGE_REFUND}） 残り行動回数 ${gm ? '∞' : actions}`; finishAct();
+  if (isActiveVillage(c) && basesOf(p).length <= 1) { msg = '最後の拠点は壊せません'; render(); return; }   // 拠点がなくなると脱落するため
+  c.village = false; delete vNew[key(c.q, c.r)]; if (!gm) actions--;
+  msg = `${name(p)} 🏚 村を壊した 残り行動回数 ${gm ? '∞' : actions}`; finishAct();
 }
-function buildVillage(c) {   // 村の建設: 資源3・食料2。拠点扱い。既存の拠点・村の隣には建てられない
-  const p = turn; if (c.o !== p || c.village || !canBuildVillage(p) || !villageSpotOk(c)) return;
-  if (!gm) { rp[p] -= VILLAGE_RES; sp[p] -= VILLAGE_FOOD; } c.village = true;
-  msg = `${name(p)} 🏠 村を建設した（村は長押しで壊せます。行動回数1を使い、資源${VILLAGE_REFUND}が戻ります）`; checkUnlocks(p, c); finishAct();
+function buildVillage(c) {   // 村の建設: 資源3・食料2。拠点扱い。自分の拠点・村から2マス以内には建てられない
+  const p = turn; if (c.o !== p || c.village || !canBuildVillage(p) || !villageSpotOk(c, p)) return;
+  if (!gm) { rp[p] -= VILLAGE_RES; sp[p] -= VILLAGE_FOOD; } c.village = true; vNew[key(c.q, c.r)] = 1;   // 建てたばかりの村は、次の自分の番まで拠点扱いにならない
+  msg = `${name(p)} 🏠 村を建設した（次の自分の番から拠点になります。村は長押しで壊せますが、資源・食料は戻りません）`; checkUnlocks(p, c); finishAct();
 }
 function pray() {   // 命の糧（🙏ボタン）: 食料1を消費して、そのターンの間だけ戦力+1（行動回数は使わない）（神秘の探究の解放条件にもなる）
   const p = turn, c = last[p]; if (bless[p] >= 1) return; if (!gm) sp[p] -= 1; bless[p] += 1;
@@ -835,27 +853,28 @@ function pray() {   // 命の糧（🙏ボタン）: 食料1を消費して、�
   if (skills[p].lang && specialAround(c) >= 3) unlock(p, '静寂の儀式', 'faith');
   finishAct();
 }
-const enemyLeft = o => [...cells.values()].filter(c => c.o === o && c !== last[o]).length;   // 勝利条件: 相手の領地（現在地を除く）がなくなる
 const reach = p => Math.max(0, ...[...cells.values()].filter(c => c.o === p).map(ring));   // 今いる半径
 const DAY_LEN = 4, PHASE_LEN = DAY_LEN / 4;   // 1日 = 4ラウンド（朝・昼・夕・夜が1ラウンドずつ）。PHASE_LEN を2にすると各時間帯が2ラウンドになる
 const phaseIdx = () => Math.floor((((round - 1) % DAY_LEN) + DAY_LEN) % DAY_LEN / PHASE_LEN);   // 0=朝 1=昼 2=夕 3=夜
 const phaseStep = () => ((((round - 1) % PHASE_LEN) + PHASE_LEN) % PHASE_LEN) + 1;   // その時間帯の何ラウンド目か（1〜2）
 const phase = () => ['朝','昼','夕','夜'][phaseIdx()];   // 朝・昼=昼間 / 夕・夜=夜間
 const isDay = () => phaseIdx() < 2;   // 朝・昼=昼間 / 夕・夜=夜間 を繰り返す
-const villageCount = p => [...cells.values()].filter(c => c.o === p && c.village).length;   // 村の数
-const actionsFor = () => (isDay() ? 2 : (skills[turn].fire ? 2 : 1)) + villageCount(turn);   // 村1つにつき+1   // 昼は2、夜は1（火の発見で夜も2）
+const villageCount = p => [...cells.values()].filter(c => c.o === p && c.village).length;   // 村の数（建てたばかりを含む。最大数・建設の判定に使う）
+const isActiveVillage = c => !!c.village && !vNew[key(c.q, c.r)];   // 拠点として働く村（建てたばかりの村は、次の自分の番まで働かない）
+const activeVillages = p => [...cells.values()].filter(c => c.o === p && isActiveVillage(c)).length;
+const actionsFor = () => (isDay() ? 2 : (skills[turn].fire ? 2 : 1)) + activeVillages(turn);   // 村1つにつき+1   // 昼は2、夜は1（火の発見で夜も2）
 const baseForest = p => basesOf(p).some(b => nbrs(b).some(n => n.f0));   // 拠点の周囲1マス以内に、もともと森があったか
 const spCap = p => 3 + (skills[p].pottery ? pot[p] : 0);   // 食料の上限: 3（土器の作製の「作製」で資源2につき+1）
 const addSp = (p, n) => { sp[p] = Math.max(sp[p], Math.min(spCap(p), sp[p] + n)); };
-const income = p => Math.max(0, 2 - (skills[p].settle ? 0 : villageCount(p)) + (skills[p].farm && isDay() ? 1 : 0) + (skills[p].herd && !isDay() ? 1 : 0));   // 農耕で昼間+1、牧畜で夜間+1
+const income = p => Math.max(0, 2 - (skills[p].settle ? 0 : activeVillages(p)) + (skills[p].farm && isDay() ? 1 : 0) + (skills[p].herd && !isDay() ? 1 : 0));   // 農耕で昼間+1、牧畜で夜間+1
 // 空きマスが自領に隣接しているか（盤面が埋まったかの判定用）
 const isFrontier = (c,p) => c.o === 0 && c.t !== 's' && !!started[p] && nbrs(c).some(n => n.o === p);
 const canStep = p => last[p] && nbrs(last[p]).some(n => n.t !== 's' && (n.o === 0 || n.o === p));
 // 移動先: 最初は★の隣。以降は直近のマスの隣（空きマス、または自分が染めたマス）。行き場が無い時だけ自領の隣の空きマスへ
 const isTarget = (c,p) => {
   if (c.t === 's') return false;
-  if (c.o !== 0 && c.o !== p) return c !== last[c.o] && !!started[p] && !!last[p] && nbrs(c).includes(last[p]);   // 相手の現在地（白枠）は奪えない   // 相手の色のマス: 現在位置に隣接していれば戦闘を挑める
-  if (c.o === p) return started[p] && c !== last[p] && (!!c.village || nbrs(c).includes(last[p]) || (roadRange(p) > 1 && hexDist(c, last[p]) <= roadRange(p) && onRoad(c,p)));   // 自領: 通常は隣のマスだけ。煮炊きの技術で、道でつながった半径2マス以内も移動できる
+  if (c.o !== 0 && c.o !== p) return !!started[p] && !!last[p] && nbrs(c).includes(last[p]);   // 相手の現在地（白枠）も攻撃できる   // 相手の色のマス: 現在位置に隣接していれば戦闘を挑める
+  if (c.o === p) return started[p] && c !== last[p] && (isReturn(c, p) || nbrs(c).includes(last[p]) || (roadRange(p) > 1 && hexDist(c, last[p]) <= roadRange(p) && onRoad(c,p)));   // 自領: 通常は隣のマスだけ。煮炊きの技術で、道でつながった半径2マス以内も移動できる
   if (!started[p]) return isFrontier(c,p);
   if (!canStep(p)) return isFrontier(c,p);
   return nbrs(c).includes(last[p]);
@@ -864,6 +883,19 @@ const isHarvest = (c,p) => c.res && !c.harv && c.o === p && !!last[p] && (c === 
 const isLegal = (c,p) => !over && actions > 0 && ((isTarget(c,p) && sp[p] >= moveCost(c,p)) || (isHarvest(c,p) && sp[p] >= 1));
 const anyTarget = p => [...cells.values()].some(c => isFrontier(c,p));
 const anyHarvest = p => [...cells.values()].some(c => isHarvest(c,p));
+function markHarvested(c) {   // 資源を回収: 復活までのラウンド数は、1回目2、2回目3、3回目4…とだんだん遅くなる
+  const k = key(c.q, c.r), n = (resT[k] ? resT[k][0] : 0) + 1;
+  c.harv = true; resT[k] = [n, round + n + 1];
+}
+function respawnTick() {   // 復活の時期が来た資源マスを元に戻す。村のあるマスに復活したら、村の持ち主が自動で回収する（回収した扱いなので、次の復活はさらに遅くなる）
+  for (const k of Object.keys(resT)) {
+    const e = resT[k], c = cells.get(k);
+    if (!c || !c.res) { delete resT[k]; continue; }
+    if (!c.harv || round < e[1]) continue;
+    c.harv = false;
+    if (c.village && isPlayer(c.o) && alive[c.o]) { rp[c.o] += 1; markHarvested(c); if (rp[c.o] >= 2) unlock(c.o, '打撃の共鳴', 'stone'); }
+  }
+}
 const anyLegal = p => [...cells.values()].some(c => isLegal(c,p));
 const count = p => [...cells.values()].filter(c => c.o === p).length;
 const name = p => `${PNAME[p] || 'P' + p}（${PNAMES[p] || ''}）`;
@@ -880,11 +912,12 @@ function territoryEnd() {   // 領地が最も多いプレイヤーの勝ち（�
 const allStuck = () => PL().filter(q => alive[q]).every(q => !anyTarget(q));   // 盤面が埋まった
 function eliminate(o) {   // 脱落: 残りの領地（現在地・村）は空きマスに戻る
   alive[o] = false;
-  for (const c of cells.values()) if (c.o === o) { c.o = 0; c.village = false; }
+  for (const c of cells.values()) if (c.o === o) { c.o = 0; c.village = false; delete vNew[key(c.q, c.r)]; }
   for (const k in traps) if (traps[k] === o) delete traps[k];   // 脱落した人の罠は消える
-  last[o] = null; pending[o] = [];
+  last[o] = null; pending[o] = []; retPick[o] = null;
 }
 function switchTurn(note) {
+  if (retPick[turn]) retPick[turn] = null;   // 帰還する拠点を選ばずに番を終えたときは、仮に置かれた拠点のまま
   if (!selecting && !over && skills[turn].fire && phase() === '夜') unlock(turn, '火を囲む夜');   // 火の発見後に夜を終える
   scoutMode = null; scoutPrev = null; trapMode = false;
   scoutV = per(() => []);   // 偵察で晴らした霧は、ターンが替わると元に戻る
@@ -892,10 +925,12 @@ function switchTurn(note) {
   let t = turn, g = 0;   // 次の（脱落していない）プレイヤーへ。P1に戻ったらラウンドが進む
   do { t = t % NP + 1; if (t === 1) round++; } while (!alive[t] && g++ < NP);
   turn = t;
+  for (const k of Object.keys(vNew)) { const x = cells.get(k); if (!x || !x.village || x.o === turn) delete vNew[k]; }   // 自分の番が来た: 前に建てた村が拠点として働き始める
+  respawnTick();
   if (round > MAX_ROUNDS) { territoryEnd(); return; }
   actions = gm ? 1e9 : actionsFor(); addSp(turn, income(turn));
-  const vn = villageCount(turn); if (vn > 0) { rp[turn] += vn; if (rp[turn] >= 2) unlock(turn, '打撃の共鳴', 'stone'); }   // 村1つにつき毎ターン資源+1
-  msg = (note ? note + ' ' : '') + `R${round}/${MAX_ROUNDS}（${phase()}） ${name(turn)}のターン`;
+  const vn = activeVillages(turn); if (vn > 0) { rp[turn] += vn; if (rp[turn] >= 2) unlock(turn, '打撃の共鳴', 'stone'); }   // 村1つにつき毎ターン資源+1
+  msg = (note ? note + ' ' : '') + `R${round}/${MAX_ROUNDS}（${phase()}） ${name(turn)}のターン` + (retPick[turn] ? ' ／ 戻る拠点を選んでください' : '');
 }
 function advance() {
   let guard = 0, note = '';
@@ -915,22 +950,28 @@ function pickBase(c) {   // 拠点選び: 2人は先手→後手、3人以上は
   render();
 }
 function act(c) {
+  if (!selecting && !over && retPick[turn]) {   // 強制帰還で同じ距離の拠点が複数ある: 戻る拠点を選ぶ（光っている拠点をタップ）
+    if (busy) return;
+    if (retPick[turn].includes(key(c.q, c.r))) { last[turn] = c; retPick[turn] = null; msg = `${name(turn)}は拠点に戻った。 残り行動回数 ${gm ? '∞' : actions}`; }
+    else msg = '戻る拠点を選んでください（光っている拠点をタップ）';
+    render(); return;
+  }
   if (selecting) {   // 拠点選び: 確認ダイアログで決定
     if (busy || over || !isBase(c) || c.o !== 0) return;
     ask(`${name(turn)}の拠点をここに決定しますか？`, '決定', () => pickBase(c));
     return;
   }
   if (!busy && !skipVillage && started[turn] && c.o === turn && !c.village && (c === last[turn] || isLegal(c, turn)) && !isHarvest(c, turn)) {   // 自領のマス: 村の建設
-    const can = canBuildVillage(turn), spot = villageSpotOk(c);
-    if (c === last[turn] && !spot) { msg = VILLAGE_SPOT_WHY; render(); return; }
-    if (c === last[turn]) { if (can) ask(`ここに村を建設しますか？<br>（資源${VILLAGE_RES}・食料${VILLAGE_FOOD}。最大${VILLAGE_MAX}つ。村は拠点扱いです。拠点・村の隣には建てられません）<br>※建てた村は長押しで壊せます（行動回数1・資源${VILLAGE_REFUND}が戻り、別の場所に建て直せます）`, '建設', () => buildVillage(c)); else { msg = villageWhy(turn); render(); } return; }
-    if (can && spot) { ask(`このマスに村を建設しますか？<br>（資源${VILLAGE_RES}・食料${VILLAGE_FOOD}。最大${VILLAGE_MAX}つ。村は拠点扱いです。拠点・村の隣には建てられません）<br>※建てた村は長押しで壊せます（行動回数1・資源${VILLAGE_REFUND}が戻り、別の場所に建て直せます）`, '建設', () => buildVillage(c), '移動', () => { skipVillage = true; act(c); skipVillage = false; }); return; }
+    const can = canBuildVillage(turn), spot = villageSpotOk(c, turn);
+    if (c === last[turn] && !spot) { msg = villageSpotWhy(c, turn); render(); return; }
+    if (c === last[turn]) { if (can) ask(`ここに村を建設しますか？<br>（資源${VILLAGE_RES}・食料${VILLAGE_FOOD}。最大${VILLAGE_MAX}つ。村は、次の自分の番から拠点になります。自分の拠点・村から2マス以内には建てられません。相手の拠点から2マス以内の村は、同時に1つまでです）<br>※建てた村は長押しで壊せます（行動回数1を使い、資源・食料は戻りません）`, '建設', () => buildVillage(c)); else { msg = villageWhy(turn); render(); } return; }
+    if (can && spot) { ask(`このマスに村を建設しますか？<br>（資源${VILLAGE_RES}・食料${VILLAGE_FOOD}。最大${VILLAGE_MAX}つ。村は、次の自分の番から拠点になります。自分の拠点・村から2マス以内には建てられません。相手の拠点から2マス以内の村は、同時に1つまでです）<br>※建てた村は長押しで壊せます（行動回数1を使い、資源・食料は戻りません）`, '建設', () => buildVillage(c), '移動', () => { skipVillage = true; act(c); skipVillage = false; }); return; }
   }
   if (!busy && !over && actions > 0 && isTarget(c, turn) && !isHarvest(c, turn) && sp[turn] < moveCost(c, turn)) { msg = `食料が足りません（このマスには食料${moveCost(c, turn)}が必要です）`; render(); return; }
   if (busy || !isLegal(c, turn)) return;
   if (isBattle(c, turn)) {   // 相手の色のマス・森のマス: 確認のうえ戦闘
     const wild = c.forest && c.o === 0;
-    ask(wild ? `獣（戦力 ${forestSize(c)}）の縄張りです。<br>戦闘しますか？（自分の戦力 ${battlePower(turn, true, c)} ／ 食料${cost(c, turn)}消費）` : `${name(c.o)}と戦闘しますか？<br>（自分の戦力 ${battlePower(turn, false, c)} ／ 相手の戦力 ${battlePower(c.o, false, c)} ／ 食料${cost(c, turn)}消費）` + (c === baseCell[c.o] ? '<br>🏴 ここは相手の拠点です。奪うと相手は脱落します' : ''), '戦闘', () => battle(c));
+    ask(wild ? `獣（戦力 ${forestSize(c)}）の縄張りです。<br>戦闘しますか？（自分の戦力 ${battlePower(turn, true, c)} ／ 食料${cost(c, turn)}消費）` : `${name(c.o)}と戦闘しますか？<br>（自分の戦力 ${battlePower(turn, false, c)} ／ 相手の戦力 ${battlePower(c.o, false, c)} ／ 食料${cost(c, turn)}消費）` + (isPlayer(c.o) && isMyBase(c, c.o) ? (basesOf(c.o).length === 1 ? '<br>🏴 ここは相手の最後の拠点です。奪うと相手は脱落します' : '<br>🏴 ここは相手の拠点です。拠点をすべて奪うと相手は脱落します') : ''), '戦闘', () => battle(c));
     return;
   }
   if (isHarvest(c, turn) && !pickMode && c !== last[turn] && isTarget(c, turn) && sp[turn] >= 1 && sp[turn] >= moveCost(c, turn)) {   // 回収と移動の両方できるマス（言語の獲得）: 選べる
@@ -938,7 +979,7 @@ function act(c) {
     return;
   }
   if (isHarvest(c, turn) && pickMode !== 'move') {                          // 自領の資源マスを再タップ → 資源獲得
-    if (!gm) sp[turn] -= 1; const gain = 1; c.harv = true; rp[turn] += gain; actions--;
+    if (!gm) sp[turn] -= 1; const gain = 1; markHarvested(c); rp[turn] += gain; actions--;
     msg = `${name(turn)} 💎資源+${gain} 残り行動回数 ${gm ? '∞' : actions}`;
     if (nbrs(c).some(n => n.t === 'm')) unlock(turn, '山火事の痕跡', 'fire'); if (rp[turn] >= 2) unlock(turn, '打撃の共鳴', 'stone');   // 山に隣接する資源を初めて回収
   } else {
@@ -951,7 +992,7 @@ function act(c) {
   finishAct();
 }
 const effPower = p => (gm && p === turn) ? 999 : Math.max(0, pw[p] + bless[p] - ((isDay() || skills[p].fire) ? 0 : 1));   // 戦力: 夜間-1（火の発見で打ち消し）
-const isMyBase = (c, p) => c.o === p && (c === baseCell[p] || !!c.village);   // 拠点または村（村は拠点扱い）
+const isMyBase = (c, p) => c.o === p && (c === baseCell[p] || isActiveVillage(c));   // 拠点または村（村は拠点扱い。建てたばかりの村は、次の自分の番から）
 const basesOf = p => [...cells.values()].filter(c => isMyBase(c, p));
 const baseDist = (p, c) => Math.min(99, ...basesOf(p).map(b => hexDist(c, b)));
 const baseNear = (p, c) => { if (!c) return 0; const d = baseDist(p, c); return d === 0 ? 2 : d === 1 ? 1 : 0; };   // 自分の拠点のマスで+2、周囲1マスで+1
@@ -966,21 +1007,31 @@ function meetCheck(p, c) {   // 「未知の存在との出会い」: 隣り合�
   const adj = [...new Set(nbrs(c).map(n => n.o).filter(o => isEnemy(o, p)))];
   if (adj.length) { unlock(p, '未知の存在との出会い'); for (const o of adj) unlock(o, '未知の存在との出会い'); }
 }
+function forceReturn(o, from) {   // 現在地を奪われた人を、奪われたマスから一番近い自分の拠点へ強制帰還させる（行動は消費しない）。同じ距離の拠点が複数あるときは、本人が次の番に選ぶ（AIは自動で選ぶ）
+  retPick[o] = null; const bs = basesOf(o); if (!bs.length) return [];
+  const d = Math.min(...bs.map(b => hexDist(b, from))), cand = bs.filter(b => hexDist(b, from) === d);
+  last[o] = cand[0];   // 選ぶまでは仮にここに置く
+  if (cand.length > 1) {
+    if (isCPU(o)) { const near = b => [...cells.values()].filter(x => x.o === o && hexDist(x, b) <= 2).length; last[o] = cand.reduce((a, b) => near(b) > near(a) ? b : a); }   // AI: 自分の領地が多く集まっている拠点
+    else retPick[o] = cand.map(b => key(b.q, b.r));
+  }
+  return cand;
+}
 function battle(c) {   // 戦闘に挑む（確認済み）。勝利でマスを奪う／同数は通行のみ／敗北は何も起きない。行動回数は必ず1回使う
-  const p = turn, o = c.o, wild = c.forest && c.o === 0;
+  const p = turn, o = c.o, wild = c.forest && c.o === 0, wasBase = !wild && isPlayer(o) && isMyBase(c, o), wasLoc = !wild && isPlayer(o) && last[o] === c;   // wasBase: 奪うマスは相手の拠点 ／ wasLoc: 相手の現在地への攻撃
+  tieStay = false;
   if (!gm) sp[p] -= cost(c, p);   // 戦闘の食料（そのマスへ移動するのと同じ）
   const me = battlePower(p, wild, c), foe = wild ? forestSize(c) : battlePower(o, false, c);
   const title = wild ? '縄張りの主張' : '戦闘';
   let sub;
   if (me > foe) {
-    if (!wild && last[o] === c) last[o] = nbrs(c).find(n => n.o === o) || [...cells.values()].find(x => x.o === o) || last[o];
-    c.o = p; c.village = false; started[p] = true; last[p] = c;   // 森は獣に勝っても森のまま（自分の領地の森になる）
+    c.o = p; c.village = false; delete vNew[key(c.q, c.r)]; started[p] = true; last[p] = c;   // 森は獣に勝っても森のまま（自分の領地の森になる）
     if (wild) { addSp(p, 1); sub = `勝利！（戦力 ${me} 対 ${foe}）食料を1奪った`; }
     else if (rp[o] > 0) { rp[o]--; rp[p]++; sub = `勝利！（戦力 ${me} 対 ${foe}）資源を1奪った`; }
     else sub = `勝利！（戦力 ${me} 対 ${foe}）マスを奪った`;
   } else if (me === foe) {
-    last[p] = c;
-    sub = `引き分け（戦力 ${me} 対 ${foe}）このマスを通行できる`;
+    if (wasLoc) { tieStay = true; sub = `引き分け（戦力 ${me} 対 ${foe}）相手がいるマスなので、通行できない`; }   // 相手と同じマスには入れない
+    else { last[p] = c; sub = `引き分け（戦力 ${me} 対 ${foe}）このマスを通行できる`; }
   } else sub = `敗北…（戦力 ${me} 対 ${foe}）何も起こらなかった`;
   actions--;
   msg = `${name(p)} ${title}：${sub}`;
@@ -991,16 +1042,28 @@ function battle(c) {   // 戦闘に挑む（確認済み）。勝利でマスを
   }
   if (!isCPU(p)) popupQ.push({t: title, s: sub});
   else if (!wild && !isCPU(o)) {   // AIに攻められた人へ、守った側から見た結果を知らせる
-    const ds = me > foe ? `マスを奪われた…（戦力 ${me} 対 ${foe}）` + (sub.includes('資源') ? ' 資源を1奪われた' : '') : me === foe ? `引き分け（戦力 ${me} 対 ${foe}）相手はこのマスを通行した` : `撃退した！（戦力 ${me} 対 ${foe}）`;
+    const ds = me > foe ? `マスを奪われた…（戦力 ${me} 対 ${foe}）` + (sub.includes('資源') ? ' 資源を1奪われた' : '') : me === foe ? `引き分け（戦力 ${me} 対 ${foe}）` + (wasLoc ? '相手は通行できなかった' : '相手はこのマスを通行した') : `撃退した！（戦力 ${me} 対 ${foe}）`;
     (o === viewP() && humansAlive() < 2 ? popupQ : pending[o]).push({t: `⚔ ${name(p)}の攻撃`, s: ds});
   }
-  const baseHit = me > foe && !wild && c === baseCell[o];   // 拠点潰し: 相手の最初の拠点を奪った
-  if (me > foe && !wild && (baseHit || enemyLeft(o) === 0)) {   // 相手の拠点を奪った／領地を現在地以外すべて奪った → 脱落
-    if (baseHit) { popupQ.push({t: '拠点潰し', s: `${name(o)}の拠点を奪った！`}); msg += ' ／ 🏴拠点を奪った！'; }
+  const baseTaken = me > foe && wasBase, baseHit = baseTaken && basesOf(o).length === 0;   // 拠点潰し: 相手の拠点（最初の拠点・村）をすべて奪った
+  if (baseTaken && !baseHit) { popupQ.push({t: '拠点を奪った', s: `${name(o)}の拠点を奪った！（相手の拠点は、あと${basesOf(o).length}か所）`}); msg += ' ／ 🏴拠点を奪った！'; }
+  if (baseHit) {   // 相手の拠点をすべて奪った → 脱落
+    popupQ.push({t: '拠点潰し', s: `${name(o)}の拠点をすべて奪った！`}); msg += ' ／ 🏴拠点をすべて奪った！';
     eliminate(o);
     const rest = PL().filter(q => alive[q]);
-    if (rest.length === 1) { showPopup(); finish(p, baseHit ? `${NP === 2 ? '相手' : name(o)}の拠点を奪った（拠点潰し）` : NP === 2 ? '相手の領地を現在地以外すべて奪った' : '他のプレイヤーをすべて脱落させた'); render(); return; }
-    popupQ.push({t: '脱落', s: `${name(o)}は領地を失い、脱落した`}); msg += ` ／ ${name(o)}が脱落！`;
+    if (rest.length === 1) { showPopup(); finish(p, `${NP === 2 ? '相手' : name(o)}の拠点をすべて奪った（拠点潰し）`); render(); return; }
+    popupQ.push({t: '脱落', s: `${name(o)}は拠点をすべて失い、脱落した`}); msg += ` ／ ${name(o)}が脱落！`;
+  }
+  if (me > foe && !wild && alive[o]) {   // 強制帰還: 現在地を奪われた人は、一番近い拠点へ戻される
+    if (retPick[o] && !wasLoc) {   // 帰還先の候補にしていた別の拠点を奪われた: 候補を減らす
+      retPick[o] = retPick[o].filter(k => { const x = cells.get(k); return x && isMyBase(x, o); });
+      if (retPick[o].length === 1) { last[o] = cells.get(retPick[o][0]); retPick[o] = null; } else if (!retPick[o].length) retPick[o] = null;
+    }
+    if (wasLoc) {
+      const cand = forceReturn(o, c), to = cand.length === 1 ? '一番近い拠点' : `同じ距離の拠点（${cand.length}か所）`;
+      msg += ` ／ ${name(o)}は拠点へ強制帰還`;
+      if (!isCPU(o)) (isCPU(p) && o === viewP() && humansAlive() < 2 ? popupQ : pending[o]).push({t: '🏠 強制帰還', s: cand.length === 1 ? `現在地を奪われ、${to}へ戻された。` : retPick[o] ? `現在地を奪われた。${to}があるので、次の自分の番に、戻る拠点を選んでください。` : `現在地を奪われ、${to}のひとつへ戻された。`});
+    }
   }
   showPopup();
   finishAct();
@@ -1275,7 +1338,12 @@ function draw() {
       sparkle(x - size*0.06, y + size*0.06, size*0.46, !c.harv);          // ✨ 辺が弧を描く4つ角の星
       sparkle(x + size*0.3, y - size*0.3, size*0.2, !c.harv);
     }
-    if (c.village || (c.o && c === baseCell[c.o])) drawHouse(x, y - size*0.05, size*0.38);   // 村と最初の拠点: 家のマーク
+    if (c.res && c.harv && showRes && resT[key(c.q, c.r)]) {   // 回収済みの資源マス: 復活までの残りラウンド
+      const left = Math.max(1, resT[key(c.q, c.r)][1] - round);
+      ctx.save(); ctx.font = `800 ${Math.round(size*0.5)}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(0,0,0,0.75)'; ctx.fillStyle = '#ffe9a8';
+      ctx.strokeText('⏳' + left, x, y + size*0.52); ctx.fillText('⏳' + left, x, y + size*0.52); ctx.restore();
+    }
+    if (c.village || (c.o && c === baseCell[c.o])) { const nw = c.village && vNew[key(c.q, c.r)]; ctx.save(); if (nw) ctx.globalAlpha = 0.45; drawHouse(x, y - size*0.05, size*0.38); ctx.restore(); }   // 村と最初の拠点: 家のマーク（建てたばかりの村は薄く）
     if (c.t === 'm' && !(target && c.o === 0)) {
       drawMountain(x, y, size*0.52, 0.92);
     } else if (c.t === 's') {
@@ -1292,12 +1360,19 @@ function draw() {
     for (const c of modeCells()) { const p = toPixel(c.q, c.r); hexPath(p.x, p.y, size - 3); ctx.fill(); }
     ctx.restore();
   }
+  if (MT && !over && !selecting && retPick[turn]) {   // 強制帰還: 戻る拠点の候補を点滅させる
+    const k = 0.5 + 0.5 * Math.sin(Date.now() / 250);
+    ctx.save(); ctx.lineWidth = 4; ctx.strokeStyle = `rgba(255,210,63,${0.65 + 0.35 * k})`; ctx.fillStyle = `rgba(255,210,63,${0.12 + 0.18 * k})`;
+    for (const kk of retPick[turn]) { const c = cells.get(kk); if (!c) continue; const p = toPixel(c.q, c.r); hexPath(p.x, p.y, size * 0.92); ctx.fill(); ctx.stroke(); }
+    ctx.restore();
+  }
   if (scoutPrev) {   // 偵察する範囲の下見（確認中）
     ctx.save(); ctx.lineWidth = 3; ctx.strokeStyle = '#5ec8ff'; ctx.fillStyle = 'rgba(94,200,255,0.35)';
     for (const kk of scoutPrev) { const c = cells.get(kk); if (!c) continue; const p = toPixel(c.q, c.r); hexPath(p.x, p.y, size - 3); ctx.fill(); ctx.stroke(); }
     ctx.restore();
   }
 }
+setInterval(() => { if (cells && !document.hidden && !over && !selecting && retPick[turn] && myTurn()) draw(); }, 100);   // 候補の点滅
 function drawTrap(x, y, r, col) {   // 🪤 罠: 地面に刺した3本の杭（縁どりは仕掛けた人の色）
   ctx.save(); ctx.translate(x, y); ctx.scale(r, r); ctx.lineJoin = 'round';
   ctx.beginPath();
@@ -1377,7 +1452,7 @@ canvas.addEventListener('click', e => { if (lpFired) { lpFired = false; return; 
     lpT = setTimeout(() => {
       lpT = null; lpFired = true;
       if (!gm && actions < 1) { msg = '村を壊すには、行動回数1が必要です'; render(); return; }
-      ask(`この村を壊しますか？<br>（行動回数1を使い、資源${VILLAGE_REFUND}を回収します。食料は戻りません。あとで別の場所に建て直せます）`, '壊す', () => demolishVillage(c));
+      ask(`この村を壊しますか？<br>（行動回数1を使います。資源・食料は戻りません。あとで別の場所に建て直せます）`, '壊す', () => demolishVillage(c));
     }, 600);
   });
   canvas.addEventListener('pointermove', e => { if (lpT && lpStart && Math.hypot(e.clientX - lpStart.x, e.clientY - lpStart.y) > 10) lpCancel(); });
@@ -1684,7 +1759,7 @@ const SFX = (() => {
   });
   wrap('battle', (orig, a) => {
     const c = a[0], p = turn, o0 = c.o; orig.apply(null, a);
-    if (!over) SFX.play(c.o === p && o0 !== p ? 'win' : last[p] === c ? 'draw' : 'lose');
+    if (!over) SFX.play(c.o === p && o0 !== p ? 'win' : (last[p] === c || tieStay) ? 'draw' : 'lose');
   });
   wrap('buildVillage', (orig, a) => { const had = a[0].village; orig.apply(null, a); if (!had && a[0].village) SFX.play('build'); });
   wrap('demolishVillage', (orig, a) => { const had = a[0].village; orig.apply(null, a); if (had && !a[0].village) SFX.play('demolish'); });
@@ -1716,17 +1791,17 @@ const TUT = (() => {
   document.getElementById('wrap').appendChild(el);
   const $ = id => document.getElementById(id);
   const STEPS = [
-    {text: 'ようこそ！ここでは基本を、実際の盤面で体験します。このゲームは、六角形のマップで自分の色のマス（領地）を広げ、最後に領地が多いほうが勝ちです。'},
-    {text: 'まず「拠点」を選びます。光っている★のマスをタップして、確認で「決定」を押してください。', hl: () => [T.b], only: c => c === T.b, done: () => started[1]},
-    {text: '拠点が決まりました。相手（赤）の拠点は見えません。見えるのは、拠点や自分の色のマスのまわりだけです。このチュートリアルでは、相手は自動でパスします。'},
-    {text: '隣のマスへ移動しましょう。光っているマスをタップしてください。移動したマスは自分の色（領地）になります。平地の移動には食料1を使います（上のパネルで確認）。', hl: () => [T.m1], only: c => c === T.m1, done: () => T.m1.o === 1},
-    {text: '続けて、光っているマスへ。✨が付いたマスは資源マスです。', hl: () => [T.R], only: c => c === T.R, done: () => T.R.o === 1},
-    {text: '行動回数を使い切りました。1ターンの行動回数は、昼間は2回です。「ターン終了」を押してください（自動で確認も出ます）。', done: () => round >= 2},
-    {text: 'ターンが進みました。資源マスの上にいるときに、そのマスをもう一度タップすると、資源ポイントが+1されます（行動1・食料1）。資源は、スキルの習得などに使います。', hl: () => [T.R], only: c => c === T.R, done: () => T.R.harv},
-    {text: '光っている緑のマスは、獣の縄張りです。タップして戦闘しましょう。自分の戦力が獣より大きければ勝ちで、マスを奪って食料+1（森は自分の領地の森になり、次からは戦闘なしで通れます）。拠点の近くでは戦力が上がります。負けても、行動回数と食料は消費します。', hl: () => [T.F], only: c => c === T.F, done: () => T.F.o === 1},
-    {text: '時間帯は、朝→昼→夕→夜の順に進みます（左上の🌞🌙をタップで確認）。夜は行動回数が1に減り、視界が狭くなり、戦力も-1されます。'},
-    {text: '食料は毎ターン+2され、貯蔵は3までです。移動・戦闘・資源の回収に使います（平地は1、山▲は2、水域≈は通れません）。食料が足りないと動けないので、計画的に使いましょう。'},
-    {text: '勝利条件は、ラウンド終了時に領地が多いこと、相手の領地を現在地以外すべて奪うこと、または相手の拠点を奪う（拠点潰し）ことです。村・スキル・ツール・命の糧は、右上のボタンと❔のルール説明で確認できます。', last: true}
+    {text: 'ようこそ！ここでは基本を、実際の盤面で、2人対戦のかたちで体験します。このゲームは、六角形のマップで自分の色のマス（領地）を広げ、ラウンドが終わったときに領地が多いほうが勝ちです。また、相手の拠点をすべて奪うと、その場で勝ちになります。'},
+    {text: 'まず「拠点」を選びます。家のマークがついた6か所が候補です。光っているマスをタップして、確認で「決定」を押してください。拠点は自分の出発点です。あとで建てる村も拠点になり、すべての拠点を奪われると負けになります。', hl: () => [T.b], only: c => c === T.b, done: () => started[1]},
+    {text: '拠点が決まりました。光っている家が、相手（P2）の拠点です。先手は1ターン目だけ、相手の拠点のまわりが見えます。2ターン目からは見えなくなり、見えるのは、自分の拠点と現在地のまわり、自分の色のマスだけです。このチュートリアルでは、相手は自動でパスします。', hl: () => [T.p2]},
+    {text: '隣のマスへ移動しましょう。光っているマスをタップしてください。移動できるマスには、必要な食料の数字が出ています。移動したマスは自分の色（領地）になります。平地の移動には食料1を使います（上のパネルで確認）。', hl: () => [T.m1], only: c => c === T.m1, done: () => T.m1.o === 1},
+    {text: '続けて、光っているマスへ。✨が付いたマスは資源マスで、このあと資源を回収します。', hl: () => [T.R], only: c => c === T.R, done: () => T.R.o === 1},
+    {text: '行動回数を使い切りました。1ターンの行動回数は、昼間（朝・昼）は2回です。上の「ターン終了」を押してください（行動できなくなると、確認も自動で出ます）。', nudge: '上の「ターン終了」を押してください', done: () => round >= 2},
+    {text: 'ターンが進みました。資源マスの上にいるときに、そのマスをもう一度タップすると、資源が+1されます（行動1・食料1）。回収したマスは、2ラウンド後に復活します（回収のたびに、復活が1ラウンドずつ遅くなります）。資源は、スキルの習得や村の建設などに使います。', hl: () => [T.R], only: c => c === T.R, done: () => T.R.harv},
+    {text: '光っている緑のマスは、獣の縄張りです。タップして戦闘しましょう。自分の戦力が獣より大きければ勝ちで、マスを奪って食料+1（森は自分の領地の森になり、次からは戦闘なしで通れます）。拠点の近くでは戦力が上がります。確認画面で、自分の戦力と食料の消費を確かめられます。負けても、行動回数と食料は消費します。', hl: () => [T.F], only: c => c === T.F, done: () => T.F.o === 1},
+    {text: '時間帯は、1ラウンドごとに朝→昼→夕→夜の順に進みます（左上の時間帯ボタンをタップで確認）。朝・昼が昼間、夕・夜が夜間です。夜間は行動回数が1に減り、視界が狭くなり、戦力も-1されます。'},
+    {text: '食料は毎ターンの開始時に+2され、貯蔵は3までです。移動・戦闘・資源の回収に使います（平地は1、山▲は2、水域≈は通れません）。食料が足りないと動けないので、計画的に使いましょう。'},
+    {text: '勝利条件は2つです。①ラウンドが終わったとき（または盤面が埋まったとき）に、領地が最も多い。②相手の拠点（最初の拠点と村）を、すべて戦闘で奪う（拠点潰し）。相手がいるマスも攻撃でき、勝つと相手は、一番近い拠点へ強制帰還します。村・スキル・ツール・命の糧は、右上のボタンと、右下の❔（ルール説明）で確認できます。', last: true}
   ];
   const cur = () => STEPS[Math.min(i, STEPS.length - 1)], real = () => STEPS[Math.min(top, STEPS.length - 1)];
   function update() {
@@ -1772,8 +1847,8 @@ const TUT = (() => {
   return {
     get on() { return on; }, get starting() { return starting; }, get p2() { return T && T.p2; },
     hl() { return on && cells && T && i >= top ? (cur().hl ? cur().hl() : []) : []; },
-    allow(c) { const s = real(); return !s.only || s.only(c); },   // 読み返し中も、実際に進んだ手順の指示に従う
-    nudge() { msg = '光っているマスをタップしてください'; render(); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); },
+    allow(c) { const s = real(); return !!s.only && s.only(c); },   // 読み返し中も、実際に進んだ手順の指示に従う
+    nudge() { const s = real(); msg = s.only ? '光っているマスをタップしてください' : (s.nudge || '今は盤面をタップする場面ではありません。吹き出しを読んで「次へ」を押してください'); render(); el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); },
     update, start, stop
   };
 })();
@@ -1947,7 +2022,7 @@ function renderTools() {   // ツールボタン（⛏）: 石器の使用・作
     const sub = `${state}<br>${t.target}の戦力 +${boost[t.id][p]}（このターンの使用分）`;
     html += row(t.name + gaugeBar(g), sub, (broken ? '' : bt('use', t.id, fixed[t.id][p] ? '使用する（修繕したターンは不可）' : '使用する（戦力+1）', ok && !fixed[t.id][p] && (gm || g > 0))) + (g === 1 ? bt('repair', t.id, '修繕（資源1）', ok && rp[p] >= 1) : '') + (broken ? bt('craft', t.id, `作製（資源${t.cost}・行動回数${t.act}）`, ok && !lock[t.id][p] && rp[p] >= t.cost && actions >= t.act) : ''));
   }
-  html += row('村 🏠', `建てた数 ${villageCount(p)}/${VILLAGE_MAX}。建て方: 自分の領地のマス（現在地や道）をタップします。資源${VILLAGE_RES}・食料${VILLAGE_FOOD}（所持: 資源 ${gm ? '∞' : rp[p]} ／ 食料 ${gm ? '∞' : sp[p]}）。既存の拠点・村のマスと、その隣には建てられません。村は長押しで壊せます。`, '');
+  html += row('村 🏠', `建てた数 ${villageCount(p)}/${VILLAGE_MAX}。建て方: 自分の領地のマス（現在地や道）をタップします。資源${VILLAGE_RES}・食料${VILLAGE_FOOD}（所持: 資源 ${gm ? '∞' : rp[p]} ／ 食料 ${gm ? '∞' : sp[p]}）。自分の拠点・村から2マス以内には建てられません。相手の拠点から2マス以内の「前線の村」は、同時に1つまでです（現在 ${frontVillages(p)}/${FRONT_MAX}）。建てた村は、次の自分の番から拠点になります。村は長押しで壊せます（資源・食料は戻りません。最後の拠点は壊せません）。`, '');
   if (skills[p].trap) html += row('罠 🪤', `仕掛けた数 ${trapCount(p)}/${TRAP_MAX}。自分の領地か、現在地の隣の空きマスに仕掛けます。相手が入ると、食料-${TRAP_FOOD_DMG}とそのターンの行動終了（罠はなくなります）。`, bt('trap', 'set', trapCount(p) >= TRAP_MAX ? `上限です（${TRAP_MAX}つまで）` : `仕掛ける場所を選ぶ（資源${TRAP_RES}・行動回数${TRAP_ACT}）`, ok && canAffordTrap(p)));
   if (skills[p].pottery) html += row('土器', pot[p] >= 3 ? '上限に達しました（3/3）' : `貯蔵上限 ${gm ? '∞' : spCap(p)} → ${gm ? '∞' : spCap(p) + 1}（${pot[p]}/3）`, bt('pot', 'pottery', '作製（資源2）', ok && pot[p] < 3 && (gm || rp[p] >= 2)));
   body.innerHTML = head + html;   // 「村」の欄は常に出る
@@ -2097,7 +2172,7 @@ const RESULT = (() => {
   wrap('act', (orig, a) => { const c = a[0], p = turn, h0 = c && c.harv, r = orig.apply(null, a); if (c && !h0 && c.harv && stats[p]) stats[p].harv++; return r; });
   wrap('battle', (orig, a) => {
     const c = a[0], p = turn, o0 = c.o, wild = c.forest && c.o === 0, r = orig.apply(null, a), s = stats[p];
-    if (s) { if (c.o === p && o0 !== p) { s.win++; if (wild) s.beast++; } else if (last[p] === c) s.draw++; else s.lose++; }
+    if (s) { if (c.o === p && o0 !== p) { s.win++; if (wild) s.beast++; } else if (last[p] === c || tieStay) s.draw++; else s.lose++; }
     return r;
   });
   wrap('buildVillage', (orig, a) => { const had = a[0].village, r = orig.apply(null, a); if (!had && a[0].village && stats[turn]) stats[turn].built++; return r; });
@@ -2221,6 +2296,10 @@ const ONL = (() => {
       if (!Array.isArray(S.pending[p])) throw new Error('pending');
       S.pending[p] = S.pending[p].slice(0, 50).filter(x => x && typeof x === 'object').map(x => ({t: String(x.t ?? ''), s: String(x.s ?? '')}));
     }
+    const rk = S.retPick && typeof S.retPick === 'object' && !Array.isArray(S.retPick) ? S.retPick : {};   // 強制帰還の候補 {席: [キー…] または null}（古い保存データには無いので、無ければ空）
+    S.retPick = {}; for (const p of ps) { const a = Array.isArray(rk[p]) ? rk[p].filter(k => typeof k === 'string' && keyRe.test(k)).slice(0, 6) : []; S.retPick[p] = a.length ? a : null; }
+    S.vNew = {}; for (const k of (Array.isArray(raw.vNew) ? raw.vNew : []).slice(0, 40)) if (typeof k === 'string' && keyRe.test(k)) S.vNew[k] = 1;   // 建てたばかりの村（古い保存データには無いので、無ければ空）
+    S.resT = {}; for (const e of (Array.isArray(raw.resT) ? raw.resT : []).slice(0, 2000)) if (Array.isArray(e) && typeof e[0] === 'string' && keyRe.test(e[0]) && Number.isInteger(e[1]) && e[1] >= 1 && e[1] <= 1000 && Number.isInteger(e[2]) && e[2] >= 0 && e[2] <= 5000) S.resT[e[0]] = [e[1], e[2]];   // 回収した資源マスの復活
     const tr = Array.isArray(S.traps) ? S.traps : [];   // 罠 [[キー, 席], …]（オブジェクトのキーにはマスのキーを使えないため配列で受け取る）
     S.traps = {}; for (const e of tr.slice(0, 6 * TRAP_MAX)) if (Array.isArray(e) && typeof e[0] === 'string' && keyRe.test(e[0]) && Number.isInteger(e[1]) && e[1] >= 1 && e[1] <= np) S.traps[e[0]] = e[1];
     const sc = S.scout && typeof S.scout === 'object' && !Array.isArray(S.scout) ? S.scout : {};   // 偵察 {席: [{c: [キー…], u: ラウンド}]}
@@ -2664,7 +2743,8 @@ const ONL = (() => {
     }
     const k = c => c ? key(c.q, c.r) : null;
     return {NP, MAX_ROUNDS, SET, PNAME, PCOL, cells: cs, last: per(p => k(last[p])), baseCell: per(p => k(baseCell[p])),
-      sp, rp, pw, skills, started, bless, pot, boost, tool, lock, fixed, langOpen, fireOpen, stoneOpen, xOpen, pending, alive,
+      sp, rp, pw, skills, started, bless, pot, boost, tool, lock, fixed, langOpen, fireOpen, stoneOpen, xOpen, pending, alive, retPick,
+      vNew: Object.keys(vNew), resT: Object.entries(resT).map(([k, e]) => [k, e[0], e[1]]),
       turn, round, actions, over, winner, msg, selecting, traps: Object.entries(traps), scout: scoutV, result: RESULT.exportState()};
   }
   function applyState(S, first) {
@@ -2682,7 +2762,8 @@ const ONL = (() => {
       }
       const g = k => k ? cells.get(k) || null : null;
       last = per(p => g(S.last[p])); baseCell = {}; for (const p of PL()) { const b = g(S.baseCell[p]); if (b) baseCell[p] = b; }
-      ({sp, rp, pw, skills, started, bless, pot, boost, tool, lock, fixed, langOpen, fireOpen, stoneOpen, xOpen, pending, alive, turn, round, actions, over, winner, msg, selecting, traps} = S);
+      ({sp, rp, pw, skills, started, bless, pot, boost, tool, lock, fixed, langOpen, fireOpen, stoneOpen, xOpen, pending, alive, retPick, turn, round, actions, over, winner, msg, selecting, traps} = S);
+      vNew = S.vNew; resT = S.resT;
       scoutV = S.scout; if (prevTurn !== turn) { scoutMode = null; scoutPrev = null; trapMode = false; }
       viewer = turn; hover = null; authTurn = turn; busy = !myTurn();
       RESULT.importState(S.result);
@@ -2862,7 +2943,7 @@ const AI = (() => {
   // ===== スキル・村・土器（成長の計画） =====
   const PLAN = ['fire', 'lang', 'stone', 'herd', 'trap', 'pottery', 'polish', 'T', 'farm', 'V', 'cook', 'settle', 'P', 'faith', 'V', 'T', 'P', 'P', 'V'];   // T: 罠を仕掛ける
   const vMax = (p, L) => skills[p].settle ? (L === 1 ? 1 : 3) : (L === 1 ? 1 : 1 + (skills[p].farm && skills[p].herd ? 1 : 0));   // 定住の暮らしがないうちは、村で食料が減るので控えめに
-  const villageSpot = p => { const c = last[p]; return c && c.o === p && !c.village && c !== baseCell[p] && baseDist(p, c) >= 3 && villageSpotOk(c) ? c : null; };   // 既存の拠点・村の隣には建てない
+  const villageSpot = p => { const c = last[p]; return c && c.o === p && !c.village && c !== baseCell[p] && baseDist(p, c) >= 3 && villageSpotOk(c, p) ? c : null; };   // 自分の拠点・村から2マス以内には建てない
   function trapSpot(p) {   // 罠の場所: 相手の領地に面した自分のマス、なければ拠点の隣の自分のマス
     const mine = [...cells.values()].filter(c => canTrapAt(c, p) && c.o === p);
     const front = mine.filter(c => nbrs(c).some(n => isEnemy(n.o, p))), home = mine.filter(c => baseCell[p] && hexDist(c, baseCell[p]) === 1);
@@ -2923,9 +3004,9 @@ const AI = (() => {
         else {
           if (!aggro) continue;
           const o = c.o, safe = battlePower(o, false, c) + 1 <= me - use;   // 奪ったあと、取り返されにくいか
-          s = 10 + (rp[o] > 0 ? 2 : 0) + (c.village ? 6 : 0) + (c === baseCell[o] ? 4 : 0) + (safe ? 1 : 0);
-          if (enemyLeft(o) === 1) s += 40;   // 最後の1マスを奪えば脱落させられる
-          if (c === baseCell[o]) s += 45;   // 拠点潰し
+          s = 10 + (rp[o] > 0 ? 2 : 0) + (isMyBase(c, o) ? 4 : 0) + (c.village ? 2 : 0) + (safe ? 1 : 0);
+          if (last[o] === c) s += 3;   // 相手がいるマスを奪うと、相手を拠点へ戻せる
+          if (isMyBase(c, o)) s += basesOf(o).length === 1 ? 45 : 8;   // 拠点潰し: 最後の拠点なら脱落させられる
           if (L === 3 && !isCPU(o)) s += 1;
         }
         s -= use * (L === 3 ? 2 : 3) + (cost(c, p) - 1) * 2;
