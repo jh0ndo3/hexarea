@@ -358,7 +358,7 @@
 <li>拠点・村と現在地（白枠）は、周囲まで広く見えます。</li>
 <li>それ以外の自領は、そのマスだけが見えます。</li>
 <li>見えないマスは、輪郭だけが表示されます。</li>
-<li>☀️ 設定の「昼（朝・昼）はマップ全体が見える」は、初期値はオフです。切り替えはGMモードのときだけできます。オンのときは昼の間、盤面全体が見えます（夜と拠点選びの間は対象外）。オンライン対戦では、GMモードでルームを作ったホストだけが変えられます。</li>
+<li>☀️ 設定の「昼（朝・昼）はマップ全体が見える」は、初期値はオフです（ページを開くたびにオフから始まります）。切り替えはGMモードのときだけできます。オンのときは昼の間、盤面全体が見えます（夜と拠点選びの間は対象外）。オンライン対戦では、GMモードでルームを作ったホストだけが変えられます。</li>
 <li>🔭 偵察のスキルを習得すると、離れた場所の霧をそのターンの間だけ晴らせます（下の「偵察」を参照）。</li>
 <li>夜間は視界が狭まります（火の発見で無効）。神秘の探究を習得すると、視界が広がります。</li>
 <li>ゲーム終了後は、盤面全体が見えます。</li>
@@ -368,7 +368,7 @@
 <dt>平地</dt><dd>移動に食料1。</dd>
 <dt>山 ▲</dt><dd>移動に食料2（牧畜の開始で1）。単独、2マスの直線、3マスのかたまり（直線に限らない）で出現し、最外周にも出ます。山同士は離れていて、拠点候補に隣接する山は1マスまでです。</dd>
 <dt>水域 ≈</dt><dd>通行できません。最大3マスまでつながり、3マスのときは直線になりません。拠点候補の周囲1マスには出ません。</dd>
-<dt>森（緑）</dt><dd>獣の縄張りです。獣の戦力は、つながった森のマス数（1〜3）です。2マス以上の森の獣に勝つと、牧畜の開始が解放されます。2マスの森はマップの半径の3分の2以内、3マスの森は3分の1以内にだけ出ます。拠点候補の周囲1マスには出ません。</dd>
+<dt>森（緑）</dt><dd>獣の縄張りです。獣に勝つと、そのマスは森のまま自分の領地になり（左上に小さな木）、以後は戦闘なしで出入りできます。獣の戦力は、だれの領地でもない森のつながりで数えます。脱落したプレイヤーの森は、獣の縄張りに戻ります。獣の戦力は、つながった森のマス数（1〜3）です。2マス以上の森の獣に勝つと、牧畜の開始が解放されます。2マスの森はマップの半径の3分の2以内、3マスの森は3分の1以内にだけ出ます。拠点候補の周囲1マスには出ません。</dd>
 </dl>
 <ul><li>地形は毎回ランダムで、同じ種類同士がなるべく離れるよう、マップ全体に分散して置かれます。</li><li>マップの輪郭（外周の形）も毎回ランダムです。</li></ul>
 </div></details>
@@ -573,7 +573,7 @@ let size = 36, cx = 0, cy = 0;
 let busy = false, timer = null;
 let ONLINE = null;   // オンライン対戦中: {code, seat, uid, playing}
 const onPlay = () => !!(ONLINE && ONLINE.playing);
-const loadDV = () => { try { return localStorage.getItem('hexDayVision2') === '1'; } catch (e) { return false; } };   // 設定: 昼はマップ全体が見える（初期値: オフ。切り替えはGMモードのみ）。初期値を変えたため、保存名を hexDayVision2 に変えている
+const loadDV = () => false;   // 昼の全体表示は、ページを開くたびに必ずオフから始める（GMが切り替えても保存しない。切り替えはGMモードのみ）
 let villageTold = {};   // 村の建て方のお知らせを出したか（席ごと・ゲームごと。通信しない）
 let traps = {}, scoutV = {}, scoutMode = null, scoutPrev = null, trapMode = false;   // traps: 罠 {マスのキー: 仕掛けた人} ／ scoutV: 偵察で晴らしたマス {席: [{c:[キー…], u:見える最後のラウンド}]} ／ scoutMode・trapMode・scoutPrev: 場所を選んでいる間の画面の状態（通信しない）
 let dayVision = loadDV();   // オンライン対戦中は、ホストが決めた部屋の設定になる
@@ -908,9 +908,9 @@ const basesOf = p => [...cells.values()].filter(c => isMyBase(c, p));
 const baseDist = (p, c) => Math.min(99, ...basesOf(p).map(b => hexDist(c, b)));
 const baseNear = (p, c) => { if (!c) return 0; const d = baseDist(p, c); return d === 0 ? 2 : d === 1 ? 1 : 0; };   // 自分の拠点のマスで+2、周囲1マスで+1
 const battlePower = (p, wild, c) => effPower(p) + ((gm && p === turn) ? 0 : baseNear(p, c) + (wild ? boost.stone[p] : boost.polish[p]) + ((skills[p].faith && c && baseDist(p, c) <= 1) ? 1 : 0));   // 神秘の探究: 拠点の周囲1マスでの戦闘で+1   // 打製石器の加工: 獣との戦闘のみ+1 ／ 磨製石器の加工: 対人戦のみ+1
-function forestSize(c) {   // 獣の戦力 = つながった森のマス数
+function forestSize(c) {   // 獣の戦力 = つながった「だれの領地でもない」森のマス数（領地になった森には獣はいない）
   const seen = new Set([key(c.q,c.r)]), st = [c];
-  while (st.length) { const x = st.pop(); for (const n of nbrs(x)) if (n.forest && !seen.has(key(n.q,n.r))) { seen.add(key(n.q,n.r)); st.push(n); } }
+  while (st.length) { const x = st.pop(); for (const n of nbrs(x)) if (n.forest && n.o === 0 && !seen.has(key(n.q,n.r))) { seen.add(key(n.q,n.r)); st.push(n); } }
   return seen.size;
 }
 const isBattle = (c, p) => (c.forest && c.o === 0) || isEnemy(c.o, p);
@@ -926,7 +926,7 @@ function battle(c) {   // 戦闘に挑む（確認済み）。勝利でマスを
   let sub;
   if (me > foe) {
     if (!wild && last[o] === c) last[o] = nbrs(c).find(n => n.o === o) || [...cells.values()].find(x => x.o === o) || last[o];
-    c.o = p; c.forest = false; c.village = false; started[p] = true; last[p] = c;
+    c.o = p; c.village = false; started[p] = true; last[p] = c;   // 森は獣に勝っても森のまま（自分の領地の森になる）
     if (wild) { addSp(p, 1); sub = `勝利！（戦力 ${me} 対 ${foe}）食料を1奪った`; }
     else if (rp[o] > 0) { rp[o]--; rp[p]++; sub = `勝利！（戦力 ${me} 対 ${foe}）資源を1奪った`; }
     else sub = `勝利！（戦力 ${me} 対 ${foe}）マスを奪った`;
@@ -1151,11 +1151,11 @@ function draw() {
   }
   for (const c0 of cells.values()) {
     // 森のマス（元の森を含む）にいる相手は、偵察では見えない: 相手の色・コマ・村を隠して、森として描く
-    const hideFoe = scoutOnly.has(key(c0.q, c0.r)) && c0.f0 && isEnemy(c0.o, V);
+    const hideFoe = scoutOnly.has(key(c0.q, c0.r)) && (c0.forest || c0.f0) && isEnemy(c0.o, V);
     const c = hideFoe ? {...c0, o: 0, forest: true, village: false, res: false} : c0;
     const {x,y} = toPixel(c.q,c.r);
     const kk = key(c.q,c.r), isFull = full.has(kk) || nores.has(kk), isTerr = !isFull && terr.has(kk);
-    if (!isFull && !(isTerr && !over && isTarget(c,turn) && c.o === 0 && !c.forest)) {   // 全表示でない（夜の移動先だけは表示する）
+    if (!isFull && !(isTerr && !over && isTarget(c,turn) && c.o === 0 && !(c.forest && c.o === 0))) {   // 全表示でない（夜の移動先だけは表示する）
       hexPath(x,y,size-2);
       if (isTerr && (c.t === 'm' || c.t === 's')) {            // 夜: 山と海だけ見える
         ctx.fillStyle = c.t === 'm' ? '#6e5a49' : '#3b8ea5'; ctx.fill();
@@ -1188,11 +1188,12 @@ function draw() {
     if (MT && !over && isHarvest(c,turn)) { hexPath(x,y,size-2); ctx.lineWidth = 3; ctx.strokeStyle = legal ? '#ffd23f' : 'rgba(255,210,63,0.5)'; ctx.stroke(); }
     if (target && ((c.forest && c.o === 0) || isEnemy(c.o, turn))) { hexPath(x,y,size-2); ctx.lineWidth = 3; ctx.strokeStyle = legal ? '#e5484d' : '#d9a0a2'; ctx.stroke(); }   // 戦闘できるマスは赤い枠
     if (c.t === 'm' && target) { hexPath(x,y,size-2); ctx.lineWidth = 3; ctx.strokeStyle = legal ? '#3fb950' : '#9ccfa6'; ctx.stroke(); }
-    if (target && c.o !== turn && !c.forest && !(c.res && showRes)) {
+    if (target && c.o !== turn && !(c.forest && c.o === 0) && !(c.res && showRes)) {
       ctx.fillStyle = '#fff'; ctx.font = `bold ${size*0.45}px system-ui,sans-serif`;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText(cost(c), x, y);
     }
+    if (c.forest && c.o !== 0) drawTree(x - size*0.4, y - size*0.3, size*0.3);   // 領地になった森: 左上に小さな木（獣はいない）
     if (c.forest && c.o === 0) {
       drawTree(x, y - size*0.1, size*0.5);
       ctx.fillStyle = '#fff'; ctx.font = `bold ${size*0.45}px system-ui,sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -1606,7 +1607,7 @@ const TUT = (() => {
     {text: '続けて、光っているマスへ。✨が付いたマスは資源マスです。', hl: () => [T.R], only: c => c === T.R, done: () => T.R.o === 1},
     {text: '行動回数を使い切りました。1ターンの行動回数は、昼間は2回です。「ターン終了」を押してください（自動で確認も出ます）。', done: () => round >= 2},
     {text: 'ターンが進みました。資源マスの上にいるときに、そのマスをもう一度タップすると、資源ポイントが+1されます（行動1・食料1）。資源は、スキルの習得などに使います。', hl: () => [T.R], only: c => c === T.R, done: () => T.R.harv},
-    {text: '光っている緑のマスは、獣の縄張りです。タップして戦闘しましょう。自分の戦力が獣より大きければ勝ちで、マスを奪って食料+1。拠点の近くでは戦力が上がります。負けても、行動回数と食料は消費します。', hl: () => [T.F], only: c => c === T.F, done: () => !T.F.forest},
+    {text: '光っている緑のマスは、獣の縄張りです。タップして戦闘しましょう。自分の戦力が獣より大きければ勝ちで、マスを奪って食料+1（森は自分の領地の森になり、次からは戦闘なしで通れます）。拠点の近くでは戦力が上がります。負けても、行動回数と食料は消費します。', hl: () => [T.F], only: c => c === T.F, done: () => T.F.o === 1},
     {text: '時間帯は、朝→昼→夕→夜の順に進みます（左上の🌞🌙をタップで確認）。夜は行動回数が1に減り、視界が狭くなり、戦力も-1されます。'},
     {text: '食料は毎ターン+2され、貯蔵は3までです。移動・戦闘・資源の回収に使います（平地は1、山▲は2、水域≈は通れません）。食料が足りないと動けないので、計画的に使いましょう。'},
     {text: '勝利条件は、ラウンド終了時に領地が多いこと、相手の領地を現在地以外すべて奪うこと、または相手の拠点を奪う（拠点潰し）ことです。村・スキル・ツール・命の糧は、右上のボタンと❔のルール説明で確認できます。', last: true}
@@ -2908,12 +2909,12 @@ const AI = (() => {
   $('settingsBtn').addEventListener('click', () => {
     $('sDayVis').checked = dayVision; $('sDayVis').disabled = !!ONLINE || !gm;   // GMモードのときだけ切り替えられる
     $('setDayNote').textContent = ONLINE ? 'オンライン対戦では、ホストが決めた部屋の設定が使われます。'
-      : gm ? 'オンにすると、昼（朝・昼）は盤面全体が見えます。夜（夕・夜）は通常の視界です。この設定は端末に保存されます。'
+      : gm ? 'オンにすると、昼（朝・昼）は盤面全体が見えます。夜（夕・夜）は通常の視界です。ページを開き直すとオフに戻ります。'
       : `いまは${dayVision ? 'オン' : 'オフ'}です（初期値はオフ）。切り替えはGMモードのときだけできます。`;
   });
   $('sDayVis').addEventListener('change', () => {
     if (ONLINE || !gm) { $('sDayVis').checked = dayVision; return; }   // 念のため: GM以外の変更は受け付けない
-    dayVision = $('sDayVis').checked; try { localStorage.setItem('hexDayVision2', dayVision ? '1' : '0'); } catch (e) {} render();
+    dayVision = $('sDayVis').checked; render();   // 保存しない（開き直すとオフに戻る）
   });
 }
 
