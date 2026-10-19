@@ -34,9 +34,9 @@
   #tiNP .np.on { background:#f6ead2; color:#2a1a08; border-color:#f6ead2; }
   .pl .n .nm { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .pl > .n.nm { display:block; }
-  #setup { position:fixed; inset:0; z-index:19; display:none; align-items:center; justify-content:center; padding:16px; background:var(--bg); }
+  #setup { position:fixed; inset:0; z-index:19; display:none; align-items:flex-start; justify-content:center; overflow-y:auto; box-sizing:border-box; padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px)); background:var(--bg); }
   #setup.open { display:flex; }
-  #setupBox { max-width:360px; width:100%; box-sizing:border-box; padding:18px; color:var(--fg); background:var(--bar); border:1px solid var(--border); border-radius:16px; }
+  #setupBox { margin:auto 0; max-width:360px; width:100%; box-sizing:border-box; padding:18px; color:var(--fg); background:var(--bar); border:1px solid var(--border); border-radius:16px; }
   #suStep { font-size:12px; color:var(--muted); margin-bottom:2px; }
   #suTitle { margin:0 0 14px; font-size:20px; font-weight:800; }
   #setupBox .lbl { display:block; font-size:13px; font-weight:700; margin:12px 0 6px; }
@@ -87,8 +87,8 @@
     radial-gradient(1.2px 1.2px at 94% 88%, #fff 60%, transparent),
     linear-gradient(180deg,#05060f 0%,#0c1440 55%,#1a2260 100%); }
   canvas { width:100%; height:100%; display:block; touch-action:manipulation; }
-  #help, #tree, #tools { position:fixed; inset:0; z-index:20; display:none; align-items:center; justify-content:center; padding:16px; background:rgba(0,0,0,.5); }
-  #help.open, #tree.open, #tools.open { display:flex; }
+  #help, #tree, #tools, #scout { position:fixed; inset:0; z-index:20; display:none; align-items:center; justify-content:center; box-sizing:border-box; padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px)); background:rgba(0,0,0,.5); }
+  #help.open, #tree.open, #tools.open, #scout.open { display:flex; }
   #cycleBox { max-width:320px; width:100%; box-sizing:border-box; padding:16px; font-size:14px; color:var(--fg); background:var(--bar); border:1px solid var(--border); border-radius:14px; }
   #cycleBox .row { display:flex; align-items:center; gap:10px; padding:8px 10px; margin-bottom:6px; border:2px solid var(--border); border-radius:10px; }
   #cycleBox .row.now { border-color:#ffd23f; }
@@ -102,9 +102,9 @@
   #noticeBox { max-width:320px; width:100%; box-sizing:border-box; padding:24px 18px; text-align:center; color:var(--fg); background:var(--bar); border:1px solid var(--border); border-radius:14px; }
   #noticeT { font-size:22px; font-weight:800; margin-bottom:8px; }
   #noticeS { font-size:15px; margin-bottom:16px; color:var(--muted); }
-  #settings { position:fixed; inset:0; z-index:42; display:none; align-items:center; justify-content:center; padding:16px; background:rgba(0,0,0,.5); }
+  #settings { position:fixed; inset:0; z-index:42; display:none; align-items:center; justify-content:center; box-sizing:border-box; padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px)); background:rgba(0,0,0,.5); }
   #settings.open { display:flex; }
-  #settingsBox { max-width:340px; width:100%; box-sizing:border-box; padding:16px 18px; font-size:14px; color:var(--fg); background:var(--bar); border:1px solid var(--border); border-radius:14px; }
+  #settingsBox { max-width:340px; width:100%; max-height:100%; overflow-y:auto; box-sizing:border-box; padding:16px 18px; font-size:14px; color:var(--fg); background:var(--bar); border:1px solid var(--border); border-radius:14px; }
   #settingsBox .srow { display:flex; flex-direction:column; gap:4px; margin:12px 0; font-weight:600; }
   #settingsBox .srow input[type=range] { width:100%; }
   #settingsBox .srow input[type=number] { width:100px; font:inherit; padding:5px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--fg); }
@@ -121,9 +121,9 @@
   #confirmReset.open { display:flex; }
   #confirmBox { max-width:320px; box-sizing:border-box; padding:18px; text-align:center; font-size:15px; line-height:1.6; color:var(--fg); background:var(--bar); border:1px solid var(--border); border-radius:14px; }
   #confirmBox .btns { display:flex; gap:10px; justify-content:center; margin-top:14px; }
-  #rules, #treeBox, #toolBox { position:relative; max-width:480px; max-height:80%; overflow-y:auto; box-sizing:border-box; padding:16px 18px; font-size:14px; color:var(--fg); background:var(--bar); border:1px solid var(--border); border-radius:14px; line-height:1.7; }
-  #rules h2, #treeBox h2, #toolBox h2 { margin:0 0 8px; font-size:16px; }
-  body.spec #toolBtn, body.spec #prayBtn, body.spec #treeBtn, body.spec #end, body.spec #gmBtn { display:none !important; }
+  #rules, #treeBox, #toolBox, #scoutBox { position:relative; max-width:480px; max-height:80%; overflow-y:auto; box-sizing:border-box; padding:16px 18px; font-size:14px; color:var(--fg); background:var(--bar); border:1px solid var(--border); border-radius:14px; line-height:1.7; }
+  #rules h2, #treeBox h2, #toolBox h2, #scoutBox h2 { margin:0 0 8px; font-size:16px; }
+  body.spec #scoutBtn, body.spec #toolBtn, body.spec #prayBtn, body.spec #treeBtn, body.spec #end, body.spec #gmBtn { display:none !important; }
   #gate { position:fixed; inset:0; z-index:30; display:none; align-items:center; justify-content:center; text-align:center; padding:24px; background:var(--bg); }
   #gate.open { display:flex; }
   #gateTitle { font-size:26px; font-weight:800; margin-bottom:8px; }
@@ -131,10 +131,17 @@
   #gateBtn { font-size:18px; font-weight:700; padding:12px 28px; border-radius:12px; color:#fff; border:none; }
   #dayBox { cursor:pointer; pointer-events:auto; z-index:5; position:absolute; top:8px; left:8px; display:flex; flex-direction:column; align-items:center; gap:2px; min-width:44px; padding:4px 8px; border:1px solid var(--border); border-radius:10px; background:var(--bar); font-size:12px; font-weight:700; line-height:1.1; }
   #treeBtn { position:absolute; top:8px; right:8px; z-index:5; background:var(--bar); width:48px; height:48px; padding:0; border-radius:50%; line-height:1; }
-  #treeBtn, #prayBtn, #toolBtn { display:flex; align-items:center; justify-content:center; color:var(--fg); }
-  #treeBtn svg, #prayBtn svg, #toolBtn svg { width:36px; height:36px; display:block; }
+  #treeBtn, #prayBtn, #toolBtn, #scoutBtn { display:flex; align-items:center; justify-content:center; color:var(--fg); }
+  #treeBtn svg, #prayBtn svg, #toolBtn svg, #scoutBtn svg { width:36px; height:36px; display:block; }
   #prayBtn { position:absolute; top:8px; right:62px; z-index:5; background:var(--bar); width:48px; height:48px; padding:0; border-radius:50%; line-height:1; }
   #toolBtn { position:absolute; top:8px; right:116px; z-index:5; background:var(--bar); width:48px; height:48px; padding:0; border-radius:50%; line-height:1; }
+  #scoutBtn { position:absolute; top:8px; right:170px; z-index:5; background:var(--bar); width:48px; height:48px; padding:0; border-radius:50%; line-height:1; }
+  #scoutBtn.on, #toolBtn.on { background:#5ec8ff; border-color:#5ec8ff; color:#0b2233; }   /* 偵察・罠の場所を選んでいる間 */
+  #toolBtn.on { background:#f0b429; border-color:#f0b429; color:#2a1a08; }
+  #scoutBox .opt { display:block; width:100%; text-align:left; margin-bottom:8px; padding:10px 12px; border-radius:10px; }
+  #scoutBox .opt b { display:block; font-size:15px; }
+  #scoutBox .opt:disabled { opacity:.5; cursor:default; }
+  #scoutBox .opt span { font-size:12px; color:var(--muted); }
   .mono { filter:grayscale(1) contrast(1.15); display:inline-block; }
   #helpBtn { position:fixed; right:14px; bottom:calc(14px + env(safe-area-inset-bottom,0px)); z-index:10; width:44px; height:44px; padding:0; border-radius:50%; font-size:22px; line-height:1; box-shadow:0 2px 8px rgba(0,0,0,.25); }
   #tut { position:absolute; left:8px; right:8px; z-index:6; box-sizing:border-box; padding:10px 12px; border-radius:12px; background:var(--bar); color:var(--fg); border:2px solid #ffd23f; box-shadow:0 4px 16px rgba(0,0,0,.35); font-size:13px; line-height:1.55; display:none; }
@@ -144,16 +151,20 @@
   #tutBtns .main { background:#ffd23f; color:#222; border-color:#ffd23f; font-weight:700; }
   #tut.flash { animation:tutflash .5s; }
   @keyframes tutflash { 0%,100% { transform:none; } 25% { transform:translateX(-5px); } 75% { transform:translateX(5px); } }
-  #title { position:fixed; inset:0; z-index:18; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:24px calc(24px + env(safe-area-inset-right,0px)) calc(24px + env(safe-area-inset-bottom,0px)) 24px; box-sizing:border-box; text-align:center; color:#f6ead2; background:radial-gradient(circle at 50% 30%,#6b4a2b 0%,#3b2a1a 55%,#1d150d 100%); transition:opacity .35s; }
+  #title { position:fixed; inset:0; z-index:18; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:10px; overflow-y:auto; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; padding:calc(16px + env(safe-area-inset-top,0px)) calc(24px + env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) calc(24px + env(safe-area-inset-left,0px)); box-sizing:border-box; text-align:center; color:#f6ead2; background:radial-gradient(circle at 50% 30%,#6b4a2b 0%,#3b2a1a 55%,#1d150d 100%); transition:opacity .35s; }
   #title.hide { opacity:0; pointer-events:none; }
-  #title svg { width:min(60vw,240px); height:auto; margin-bottom:6px; filter:drop-shadow(0 6px 14px rgba(0,0,0,.45)); }
+  /* 中身が画面より高いとき、上下中央寄せ（justify-content:center）だと上側が画面外に押し出されて見切れる。
+     自動マージンで中央に寄せ、はみ出すときは上から並べてスクロールできるようにする */
+  #title > * { flex-shrink:0; }
+  #title > :first-child { margin-top:auto; }
+  #title > :last-child { margin-bottom:auto; }
+  #title svg { width:min(60vw,240px,24vh); height:auto; margin-bottom:6px; filter:drop-shadow(0 6px 14px rgba(0,0,0,.45)); }
   #title h1 { margin:0; font-size:clamp(28px,8vw,40px); font-weight:800; letter-spacing:.06em; text-shadow:0 3px 10px rgba(0,0,0,.5); }
   #title .sub { font-size:14px; color:#d9c39a; margin-bottom:18px; }
   #title .tbtn { width:min(78vw,280px); font-size:17px; font-weight:700; padding:13px 0; border-radius:14px; border:2px solid #d9c39a; background:rgba(0,0,0,.25); color:#f6ead2; }
   #title .tbtn.main { background:#f0b429; border-color:#f0b429; color:#2a1a08; font-size:20px; padding:15px 0; }
   #title .small { display:flex; gap:10px; }
   #title .small .tbtn { width:min(37vw,135px); font-size:15px; padding:11px 0; }
-  #title .tip { margin-top:14px; font-size:12px; color:#bda57a; line-height:1.6; }
   #rules .lead { font-size:12px; color:var(--muted); margin:-4px 0 10px; }
   #rules details { border:1px solid var(--border); border-radius:10px; margin-bottom:8px; background:var(--bg); }
   #rules summary { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; font-weight:700; cursor:pointer; list-style:none; }
@@ -212,7 +223,7 @@
   .pl.off .nm::after { content:' 📵'; font-size:11px; }
   .onIdRow { display:flex; gap:8px; justify-content:center; margin:2px 0 6px; }
   .onIdRow button { font-size:13px; padding:6px 12px; }
-  #online { position:fixed; inset:0; z-index:50; display:none; align-items:center; justify-content:center; padding:16px; background:var(--bg); }
+  #online { position:fixed; inset:0; z-index:50; display:none; align-items:center; justify-content:center; box-sizing:border-box; padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px)); background:var(--bg); }
   #online.open { display:flex; }
   #onBox { max-width:380px; width:100%; max-height:100%; overflow-y:auto; box-sizing:border-box; padding:18px; color:var(--fg); background:var(--bar); border:1px solid var(--border); border-radius:16px; font-size:14px; }
   #onBox h2 { margin:0 0 6px; font-size:20px; font-weight:800; }
@@ -245,11 +256,15 @@
 <body>
 <header id="hdr"></header>
 <div id="bar"><div id="msg"></div><button id="settingsBtn">⚙️ 設定</button><button id="end">⏭ ターン終了</button><span id="onlineTag" style="display:none"></span><button id="resultBtn" style="display:none">🏆 結果</button><button id="reset">🔄 リセット</button></div>
-<div id="wrap"><canvas id="c"></canvas><div id="dayBox"></div><button id="gmBtn">GM</button><button id="treeBtn" aria-label="スキル一覧"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 28V21C22 19.5 25.5 16.5 25.5 11.5C25.5 6.5 21.5 3 16 3C10.5 3 6.5 7 6.5 12C6.5 13.5 7 14.5 7.8 15.5L5.5 19.5L7.8 20.5V24.5C7.8 26 9 27 10.5 27H13.5C15 27 16.2 26 16.2 24.5"/><path d="M11.5 12C10 10.5 11 8 13 8C13.5 6.5 16 6 17 7.5C18.5 6.8 20.5 8 20 9.8C21.5 10.5 21.5 13 19.8 13.5C19.5 15 17.5 15.8 16.2 15C15 16 12.8 15.7 12.5 14.2C11.3 14.2 10.6 13 11.5 12z"/><path d="M16 15.5C16 17.5 15 18 15 20.5"/><path d="M13.8 10.4C14.8 9.8 15.9 10.2 16.4 11.2"/><path d="M17.6 9.6C18.6 10 18.9 11.1 18.5 12"/></svg></button><button id="prayBtn" aria-label="命の糧"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10.8C15.2 10 14 10.3 13.4 11.3L10.6 17.2C10 18.4 9.9 19.4 10.1 20.6"/><path d="M13.6 23.4L14.6 22.6C15.6 22 16 21.2 16 20V12.5"/><path d="M8.2 23L10.6 20.6L13.6 23.6L11.2 26z"/><path d="M12.6 19.2L13.6 14.3C13.8 13.3 15.2 13 15.6 14"/><path d="M 16 10.8 C 16.8 10 18 10.3 18.6 11.3 L 21.4 17.2 C 22 18.4 22.1 19.4 21.9 20.6"/><path d="M 18.4 23.4 L 17.4 22.6 C 16.4 22 16 21.2 16 20 V12.5"/><path d="M 23.8 23 L 21.4 20.6 L 18.4 23.6 L 20.8 26 z"/><path d="M 19.4 19.2 L 18.4 14.3 C 18.2 13.3 16.8 13 16.4 14"/><path d="M16.0 9.0L16.0 6.5"/><path d="M12.4 8.8L11.2 6.6"/><path d="M8.8 10.8L6.6 9.6"/><path d="M6.5 15.0L4.0 15.0"/><path d="M19.6 8.8L20.8 6.6"/><path d="M23.2 10.8L25.4 9.6"/><path d="M25.5 15.0L28.0 15.0"/></svg></button><button id="toolBtn" aria-label="ツール"><svg viewBox="60 60 900 900" overflow="visible" fill="none" stroke="currentColor" stroke-width="44" stroke-linejoin="round" stroke-linecap="round"><g style="fill:var(--bar)"><path d="M207 790L650 347L705 392L257 840A35 35 0 0 1 207 790Z"/><path d="M487 183C590 180 680 215 730 258L668 310C620 270 560 225 487 183Z"/><path d="M792 325C845 395 870 470 862 563C840 505 790 430 745 382Z"/><path d="M757 242L807 293L712 400L645 335Z"/><path d="M170 218C265 198 335 208 370 237L440 311L400 403L350 447L262 488L185 410C150 330 155 260 170 218Z"/><path d="M287 335L355 358L712 716L655 754L316 413Z"/><path d="M712 716L775 732L800 757L707 848L682 822L668 765L655 754Z"/></g><path d="M383 455L407 432M642 725L668 700"/></svg></button></div>
+<div id="wrap"><canvas id="c"></canvas><div id="dayBox"></div><button id="gmBtn">GM</button><button id="treeBtn" aria-label="スキル一覧"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 28V21C22 19.5 25.5 16.5 25.5 11.5C25.5 6.5 21.5 3 16 3C10.5 3 6.5 7 6.5 12C6.5 13.5 7 14.5 7.8 15.5L5.5 19.5L7.8 20.5V24.5C7.8 26 9 27 10.5 27H13.5C15 27 16.2 26 16.2 24.5"/><path d="M11.5 12C10 10.5 11 8 13 8C13.5 6.5 16 6 17 7.5C18.5 6.8 20.5 8 20 9.8C21.5 10.5 21.5 13 19.8 13.5C19.5 15 17.5 15.8 16.2 15C15 16 12.8 15.7 12.5 14.2C11.3 14.2 10.6 13 11.5 12z"/><path d="M16 15.5C16 17.5 15 18 15 20.5"/><path d="M13.8 10.4C14.8 9.8 15.9 10.2 16.4 11.2"/><path d="M17.6 9.6C18.6 10 18.9 11.1 18.5 12"/></svg></button><button id="prayBtn" aria-label="命の糧"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10.8C15.2 10 14 10.3 13.4 11.3L10.6 17.2C10 18.4 9.9 19.4 10.1 20.6"/><path d="M13.6 23.4L14.6 22.6C15.6 22 16 21.2 16 20V12.5"/><path d="M8.2 23L10.6 20.6L13.6 23.6L11.2 26z"/><path d="M12.6 19.2L13.6 14.3C13.8 13.3 15.2 13 15.6 14"/><path d="M 16 10.8 C 16.8 10 18 10.3 18.6 11.3 L 21.4 17.2 C 22 18.4 22.1 19.4 21.9 20.6"/><path d="M 18.4 23.4 L 17.4 22.6 C 16.4 22 16 21.2 16 20 V12.5"/><path d="M 23.8 23 L 21.4 20.6 L 18.4 23.6 L 20.8 26 z"/><path d="M 19.4 19.2 L 18.4 14.3 C 18.2 13.3 16.8 13 16.4 14"/><path d="M16.0 9.0L16.0 6.5"/><path d="M12.4 8.8L11.2 6.6"/><path d="M8.8 10.8L6.6 9.6"/><path d="M6.5 15.0L4.0 15.0"/><path d="M19.6 8.8L20.8 6.6"/><path d="M23.2 10.8L25.4 9.6"/><path d="M25.5 15.0L28.0 15.0"/></svg></button><button id="scoutBtn" aria-label="偵察"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16C6.5 10 11 7 16 7C21 7 25.5 10 29 16C25.5 22 21 25 16 25C11 25 6.5 22 3 16z"/><circle cx="16" cy="16" r="4.5"/><circle cx="16" cy="16" r="1.4" fill="currentColor"/><path d="M16 2.5V4.5M7 5L8.3 6.6M25 5L23.7 6.6"/></svg></button><button id="toolBtn" aria-label="ツール"><svg viewBox="60 60 900 900" overflow="visible" fill="none" stroke="currentColor" stroke-width="44" stroke-linejoin="round" stroke-linecap="round"><g style="fill:var(--bar)"><path d="M207 790L650 347L705 392L257 840A35 35 0 0 1 207 790Z"/><path d="M487 183C590 180 680 215 730 258L668 310C620 270 560 225 487 183Z"/><path d="M792 325C845 395 870 470 862 563C840 505 790 430 745 382Z"/><path d="M757 242L807 293L712 400L645 335Z"/><path d="M170 218C265 198 335 208 370 237L440 311L400 403L350 447L262 488L185 410C150 330 155 260 170 218Z"/><path d="M287 335L355 358L712 716L655 754L316 413Z"/><path d="M712 716L775 732L800 757L707 848L682 822L668 765L655 754Z"/></g><path d="M383 455L407 432M642 725L668 700"/></svg></button></div>
 <div id="status"></div>
 <div id="gate"><div><div id="gateTitle"></div><div id="gateSub"></div><button id="gateBtn">ターンを開始</button></div></div>
 <div id="tree"><div id="treeBox"><h2>スキル一覧</h2><div id="treeBody"></div><div style="text-align:right;margin-top:12px"><button id="treeClose">閉じる</button></div></div></div>
 <div id="tools"><div id="toolBox"><h2>ツール</h2><div id="toolBody"></div><div style="text-align:right;margin-top:12px"><button id="toolClose">閉じる</button></div></div></div>
+<div id="scout"><div id="scoutBox"><h2>🔭 偵察</h2><div id="scoutHead" style="font-size:12px;color:var(--muted);margin-bottom:10px"></div>
+  <button class="opt" data-scout="hex"><b>◎ 地形の熟知（7マスの塊）</b><span id="scoutHexSub"></span></button>
+  <button class="opt" data-scout="line"><b>➶ 山頂の瞰視（一直線）</b><span id="scoutLineSub"></span></button>
+  <div style="text-align:right;margin-top:4px"><button id="scoutClose">閉じる</button></div></div></div>
 <div id="cycle"><div id="cycleBox"></div></div>
 <div id="notice"><div id="noticeBox"><div id="noticeT"></div><div id="noticeS"></div><button id="noticeOk">OK</button></div></div>
 <div id="result"><div id="resultBox">
@@ -269,8 +284,8 @@
   <div class="srow"><button id="setPlayers">👥 プレイヤーの名前と色</button></div>
   <div class="srow" id="setSound"><span>BGM <b id="vBgm"></b></span><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sBgmOn"> BGMを流す</label><input type="range" id="sBgmVol" min="0" max="100" step="5"></div>
   <div class="srow" id="setSfx"><span>効果音 <b id="vSfx"></b></span><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sSfxOn"> 効果音を鳴らす</label><input type="range" id="sSfxVol" min="0" max="100" step="5"></div>
-  <div class="srow" id="setDay"><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sDayVis"> ☀️ 昼（朝・昼）はマップ全体が見える</label></div>
-  <div class="note" id="setDayNote">夜（夕・夜）は、通常どおり視界が狭まります。</div>
+  <div class="srow" id="setDay"><label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="sDayVis"> ☀️ 昼（朝・昼）はマップ全体が見える（GMのみ）</label></div>
+  <div class="note" id="setDayNote">初期値はオフです。切り替えはGMモードのときだけできます。</div>
   <div id="setRates">
   <div class="note" style="color:var(--fg)">🛠 出現率（GMモードのみ変更できます）</div>
   <label class="srow"><span>山の出現率 <b id="vMount"></b></span><input type="range" id="sMount" min="0" max="30" step="1"></label>
@@ -306,6 +321,7 @@
 <details><summary>ゲームの準備</summary><div class="sec"><ul>
 <li>プレイ人数は2〜6人です。タイトル画面か「設定」で、ゲーム開始前だけ選べます。</li>
 <li>マップの大きさとラウンド数の初期値は、人数で変わります。</li>
+<li>マップの輪郭は毎回ランダムです。外周が最大2マス盛り上がったり削れたりします（拠点候補のまわりは削れません）。下の半径は基本の大きさです。</li>
 </ul>
 <div class="tbl"><table><tr><th>人数</th><td>2人</td><td>3人</td><td>4人</td><td>5人</td><td>6人</td></tr><tr><th>マップ半径</th><td>7</td><td>7</td><td>8</td><td>8</td><td>9</td></tr><tr><th>ラウンド数</th><td>100</td><td>68</td><td>64</td><td>52</td><td>56</td></tr></table></div>
 <ul>
@@ -324,7 +340,7 @@
 <li>6人対戦では、最後に拠点を選ぶP1は、初期資源がさらに+1（合計2）されます。</li>
 </ul></div></details>
 <details><summary>ターンと時間帯</summary><div class="sec"><ul>
-<li>時間帯は1ラウンドごとに朝→昼→夕→夜と進み、4ラウンドで1周します。左上のマークをタップすると確認できます。</li>
+<li>時間帯は1ラウンドごとに朝→昼→夕→夜と進み、4ラウンドで1日が終わります。左上のマークをタップすると確認できます。</li>
 <li>朝・昼は昼間、夕・夜は夜間です。</li>
 <li>1ターンの行動回数は、昼間が2、夜間が1です（村1つにつき+1）。</li>
 <li>ターン開始時に食料を2獲得します。食料の貯蔵上限は3です。</li>
@@ -342,7 +358,8 @@
 <li>拠点・村と現在地（白枠）は、周囲まで広く見えます。</li>
 <li>それ以外の自領は、そのマスだけが見えます。</li>
 <li>見えないマスは、輪郭だけが表示されます。</li>
-<li>☀️ 設定の「昼（朝・昼）はマップ全体が見える」がオンのとき（初期値）、昼は盤面全体が見えます。夜（夕・夜）は、下の通常の視界になります。拠点を選ぶ間は対象外です。オンライン対戦では、ホストが部屋ごとに決めます。</li>
+<li>☀️ 設定の「昼（朝・昼）はマップ全体が見える」は、初期値はオフです。切り替えはGMモードのときだけできます。オンのときは昼の間、盤面全体が見えます（夜と拠点選びの間は対象外）。オンライン対戦では、GMモードでルームを作ったホストだけが変えられます。</li>
+<li>🔭 偵察のスキルを習得すると、離れた場所の霧をそのターンの間だけ晴らせます（下の「偵察」を参照）。</li>
 <li>夜間は視界が狭まります（火の発見で無効）。神秘の探究を習得すると、視界が広がります。</li>
 <li>ゲーム終了後は、盤面全体が見えます。</li>
 </ul></div></details>
@@ -353,7 +370,7 @@
 <dt>水域 ≈</dt><dd>通行できません。最大3マスまでつながり、3マスのときは直線になりません。拠点候補の周囲1マスには出ません。</dd>
 <dt>森（緑）</dt><dd>獣の縄張りです。獣の戦力は、つながった森のマス数（1〜3）です。2マス以上の森の獣に勝つと、牧畜の開始が解放されます。2マスの森はマップの半径の3分の2以内、3マスの森は3分の1以内にだけ出ます。拠点候補の周囲1マスには出ません。</dd>
 </dl>
-<ul><li>地形は毎回ランダムで、同じ種類同士がなるべく離れるよう、マップ全体に分散して置かれます。</li></ul>
+<ul><li>地形は毎回ランダムで、同じ種類同士がなるべく離れるよう、マップ全体に分散して置かれます。</li><li>マップの輪郭（外周の形）も毎回ランダムです。</li></ul>
 </div></details>
 <details><summary>資源 ✨</summary><div class="sec"><ul>
 <li>資源マスは、初期設定では平地の約20%です。</li>
@@ -375,7 +392,9 @@
 <li>命の糧・石器・神秘の探究で、さらに上げられます（下の項目を参照）。</li>
 </ul></div></details>
 <details><summary>村 🏠</summary><div class="sec"><ul>
-<li>自分の領地のマス（現在地や道）をタップすると、資源5・食料2で村を建設できます。1人最大3つです。</li>
+<li>自分の領地のマス（現在地や道）をタップすると、資源3・食料2で村を建設できます。1人最大3つです。</li>
+<li>初めて村を建てられるだけの資源・食料がたまると、建て方のお知らせが出ます。ツール（⛏）の「村」の欄でも確認できます。</li>
+<li>既存の拠点・村（自分・相手を問わない）のマスと、その隣のマスには建てられません。</li>
 <li>移動できるマスをタップしたときは、移動か建設かを選べます。</li>
 <li>村は拠点として扱われます（広い視界、戦力+2、周囲1マスで+1）。</li>
 <li>村1つにつき、行動回数+1、毎ターン資源+1、食料収入-1です（定住の暮らしで食料収入の減りがなくなります。収入は0未満になりません）。</li>
@@ -390,6 +409,9 @@
 <dt>火の発見 <small>資源1</small></dt><dd><b>解放：</b>山に隣接する資源マスを初めて回収する<br><b>効果：</b>夜間の行動回数+1。夜間の視界の低下と戦力-1がなくなる</dd>
 <dt>言語の獲得 <small>資源0</small></dt><dd><b>解放：</b>次のいずれか。①火の発見後に夜を終える ②他のプレイヤーと領地が隣り合う ③自領が10マスに到達する<br><b>効果：</b>道でつながった半径2マス以内の未回収の資源を回収できる。移動もできるマスでは、回収か移動かを選べる</dd>
 <dt>打製石器の加工 <small>資源1</small></dt><dd><b>解放：</b>資源が2以上になる<br><b>効果：</b>打製石器が手に入る（獣との戦闘の戦力+1）</dd>
+<dt>地形の熟知 <small>資源1</small></dt><dd><b>解放：</b>言語の獲得を習得する<br><b>効果：</b>偵察で、現在地から2〜3マス離れた7マスの塊の霧を晴らせる</dd>
+<dt>山頂の瞰視 <small>資源1</small></dt><dd><b>解放：</b>山を領地にする<br><b>効果：</b>自分の領地の山マスにいるとき、偵察で一直線6マスの霧を晴らせる</dd>
+<dt>罠の工夫 <small>資源1</small></dt><dd><b>解放：</b>打製石器の加工を習得する<br><b>効果：</b>ツール（⛏）から罠を仕掛けられる（下の「罠」を参照）</dd>
 </dl>
 <h3>新石器</h3><dl>
 <dt>農耕の確立 <small>資源2・食料1</small></dt><dd><b>解放：</b>磨製石器の加工を習得し、水域に面した平地を領地にする<br><b>効果：</b>昼間の食料収入+1</dd>
@@ -410,9 +432,23 @@
 <h3>土器（⛏）</h3><ul>
 <li>土器の作製を習得すると、資源2で食料の貯蔵上限を+1できます（最大3回）。</li>
 </ul>
+<h3>罠 🪤（⛏）</h3><ul>
+<li>罠の工夫を習得すると、ツールの「仕掛ける場所を選ぶ」から、資源1・行動1で罠を仕掛けられます。1人3つまでです。</li>
+<li>置ける場所は、自分の領地か、現在地の隣の空きマスです（水域・森・だれかの現在地は不可）。光っているマスをタップして決めます。やめるときは⛏をもう一度押します。</li>
+<li>相手が移動や戦闘（勝ち・引き分け）でそのマスに入ると発動し、食料-2（0未満にはなりません）、そのターンの行動はそこで終わります。罠はなくなり、仕掛けた人にお知らせが届きます。</li>
+<li>罠は仕掛けた本人にしか見えません（相手は偵察すると見つけられます）。脱落すると罠も消えます。</li>
+</ul>
 <h3>命の糧（祈りの手）</h3><ul>
 <li>食料1を捧げると、そのターンの間だけ戦力+1です。行動回数は使わず、1ターンに1回までです。</li>
 <li>神秘の探究の解放にも使います。</li>
+</ul></div></details>
+<details><summary>偵察 🔭</summary><div class="sec"><ul>
+<li>偵察は、スキルを習得すると使えるようになります。右上の👁ボタンで行い、1回につき行動1・食料1を使います。</li>
+<li>◎ <b>地形の熟知</b>：現在地から2〜3マス離れたマスを中心に、7マスの塊（中心と周り6マス）の霧を晴らします。</li>
+<li>➶ <b>山頂の瞰視</b>：自分の領地の山マスにいるときだけ使えます。そこから、タップした方向へまっすぐ6マスの霧を晴らします。</li>
+<li>場所・方向を選ぶと範囲が光り、確認のあとで実行されます。やめるときは👁をもう一度押します。</li>
+<li>晴らしたマスが見えるのは、そのターンの間だけです。次のターンには霧に戻ります。</li>
+<li>晴らしたマスにある資源や、相手の罠も見つけられます。ただし、森のマス（獣に勝って領地にした元の森を含む）にいる相手は、偵察では見えません（森として表示されます）。</li>
 </ul></div></details>
 <details><summary>オンライン対戦 🌐</summary><div class="sec"><ul>
 <li>タイトル画面の「オンライン対戦」で、離れた場所の人ともインターネット経由で遊べます。ログインは不要です。</li>
@@ -444,8 +480,7 @@
   <button class="tbtn" id="tiSpec">👁 観戦</button>
   <button class="tbtn" id="tiOnline">🌐 オンライン対戦</button>
   <button class="tbtn" id="tiTut">🎓 チュートリアル</button>
-  <div class="small"><button class="tbtn" id="tiSet">設定</button><button class="tbtn" id="tiRule">ルール</button></div>
-  <div class="tip">「オフライン対戦」は1台の端末を交代で使います。<br>「AI対戦」は、コンピューター（AI）と対戦します。<br>「観戦」は、オンライン対戦の部屋のIDを入れて、ほかの人の対戦を見ます。<br>「オンライン対戦」は、それぞれの端末からルームIDで参加します。</div></div>
+  <div class="small"><button class="tbtn" id="tiSet">設定</button><button class="tbtn" id="tiRule">ルール</button></div></div>
 <div id="online"><div id="onBox">
   <div id="onMenu">
     <h2>オンライン対戦</h2>
@@ -467,7 +502,7 @@
     <div id="onMine"><label class="lbl" for="onName">あなたの名前（8文字まで）</label><input id="onName" maxlength="8" autocomplete="off">
     <span class="lbl">あなたの色</span><div id="onColors"></div></div>
     <div id="onHostOpts"><span class="lbl">対戦の設定（ホストのみ）</span><div class="onRow"><select id="onSetNP"><option value="2">2人</option><option value="3">3人</option><option value="4">4人</option><option value="5">5人</option><option value="6">6人</option></select><span>ラウンド</span><input type="number" id="onSetRounds" min="1" max="999"></div>
-      <label class="onRow" style="gap:8px;margin-top:8px"><input type="checkbox" id="onSetDV"> ☀️ 昼（朝・昼）はマップ全体が見える</label>
+      <label class="onRow" style="gap:8px;margin-top:8px"><input type="checkbox" id="onSetDV"> ☀️ 昼（朝・昼）はマップ全体が見える（GMでルームを作ったときのみ変更可）</label>
       <label class="onRow" style="gap:8px;margin-top:4px"><input type="checkbox" id="onSetSpec"> 👁 観戦を許可する（観戦者には盤面全体が見えます）</label></div>
     <div id="onWait" class="onNote" style="margin-top:12px"></div>
     <div id="onErr2" aria-live="polite"></div>
@@ -538,7 +573,9 @@ let size = 36, cx = 0, cy = 0;
 let busy = false, timer = null;
 let ONLINE = null;   // オンライン対戦中: {code, seat, uid, playing}
 const onPlay = () => !!(ONLINE && ONLINE.playing);
-const loadDV = () => { try { return localStorage.getItem('hexDayVision') !== '0'; } catch (e) { return true; } };   // 設定: 昼はマップ全体が見える（初期値: オン）
+const loadDV = () => { try { return localStorage.getItem('hexDayVision2') === '1'; } catch (e) { return false; } };   // 設定: 昼はマップ全体が見える（初期値: オフ。切り替えはGMモードのみ）。初期値を変えたため、保存名を hexDayVision2 に変えている
+let villageTold = {};   // 村の建て方のお知らせを出したか（席ごと・ゲームごと。通信しない）
+let traps = {}, scoutV = {}, scoutMode = null, scoutPrev = null, trapMode = false;   // traps: 罠 {マスのキー: 仕掛けた人} ／ scoutV: 偵察で晴らしたマス {席: [{c:[キー…], u:見える最後のラウンド}]} ／ scoutMode・trapMode・scoutPrev: 場所を選んでいる間の画面の状態（通信しない）
 let dayVision = loadDV();   // オンライン対戦中は、ホストが決めた部屋の設定になる
 const fullDay = () => dayVision && !selecting && isDay();   // 昼（朝・昼）は、盤面全体が見える（拠点を選ぶ間は、選んだ拠点を隠すため対象外）
 // AI（コンピューター）が操作する席: {席番号: 強さ}（1=やさしい 2=ふつう 3=つよい）。オフライン対戦のみ
@@ -553,7 +590,7 @@ const humanSeat = () => (viewer && !isCPU(viewer) && alive[viewer]) ? viewer : (
 const viewP = () => onPlay() ? (ONLINE.spec ? turn : ONLINE.seat) : isCPU(turn) ? humanSeat() : turn;   // 盤面を見るプレイヤー（オンラインでは自分の席。AIの番では人間の席）
 const myTurn = () => onPlay() ? ONLINE.seat === turn : !isCPU(turn);
 let langOpen = per(false), fireOpen = per(false), stoneOpen = per(false), pending = per(() => []), popupQ = [], gmBackup = null, xOpen = {};   // xOpen: 新石器スキルの解放状態
-const XIDS = ['farm','herd','polish','pottery','faith','cook','settle']; const resetX = () => { for (const k of XIDS) xOpen[k] = per(false); }; resetX(); let baseCell = {};   // 「言語の獲得」の解放状態と、表示待ちのお知らせ   // 手番交代の1秒待ち中は操作を受け付けない
+const XIDS = ['farm','herd','polish','pottery','faith','cook','settle','trap','survey','summit']; const resetX = () => { for (const k of XIDS) xOpen[k] = per(false); }; resetX(); let baseCell = {};   // 「言語の獲得」の解放状態と、表示待ちのお知らせ   // 手番交代の1秒待ち中は操作を受け付けない
 
 function init() {
   clearTimeout(timer); busy = false;
@@ -561,11 +598,40 @@ function init() {
   cells = new Map();
   for (let q=-RADIUS;q<=RADIUS;q++) for (let r=-RADIUS;r<=RADIUS;r++)
     if (Math.abs(q+r) <= RADIUS) cells.set(key(q,r), {q,r,o:0,t:'p'});
+  shapeCoast();   // マップの輪郭を毎回ランダムに盛り上げ・削る
   genTerrain(); genResources();
+  villageTold = {}; traps = {}; scoutV = per(() => []); scoutMode = null; scoutPrev = null; trapMode = false;
   sp = per(startSp); started = per(false); rp = per(startRp); pw = per(1); bless = per(0); pot = per(0); boost = {stone:per(0), polish:per(0)}; tool = {stone:per(0), polish:per(0)}; lock = {stone:per(0), polish:per(0)}; fixed = {stone:per(0), polish:per(0)}; skills = per(() => ({})); last = per(null); alive = per(true); turn = firstPicker(); viewer = isCPU(turn) ? (PL().find(q => !isCPU(q)) || turn) : turn; round = 1; actions = 0; over = false; winner = 0; selecting = true;
   langOpen = per(false); fireOpen = per(false); stoneOpen = per(false); resetX(); baseCell = {}; pending = per(() => []); popupQ = []; buildHeader(); document.getElementById('notice').classList.remove('open'); if (gm) gmGrant();
   msg = `R1/${MAX_ROUNDS}（朝） ${name(turn)}は拠点を選んでください`; hover = null;
   render();
+}
+// マップの輪郭: 六角形を土台に、角度ごとに滑らかに変わる「ゆらぎ」で外周を最大 COAST_MAX マス盛り上げたり削ったりする。
+// 拠点候補の半径2マスと、中央付近（外周から3マスより内側）は削らない。最後に、本体から切れたマスと細い突き出しを取り除く
+const COAST_MAX = 2;   // 外周が基本の半径から増減する最大のマス数（通信の盤面データもこの分だけ大きく持つ）
+function shapeCoast() {
+  const R0 = RADIUS, RB = R0 + COAST_MAX, S3 = Math.sqrt(3);
+  const keep = c => ring(c) <= R0 - 3 || BASES.some(([bq, br]) => hexDist(c, {q: bq, r: br}) <= 2);
+  const waves = [2, 3, 4, 5, 7].map((fq, i) => ({fq, a: [0.9, 0.7, 0.45, 0.35, 0.25][i] * (0.5 + Math.random()), ph: Math.random() * Math.PI * 2}));
+  const bias = (Math.random() - 0.5) * 0.8 - 0.35;   // 全体の大きさのぶれ（拠点まわりは削らないため、やや縮む側に寄せて釣り合わせる）
+  const off = (q, r) => { const th = Math.atan2(1.5 * r, S3 * (q + r / 2)); return Math.max(-COAST_MAX, Math.min(COAST_MAX, bias + waves.reduce((s, w) => s + w.a * Math.sin(w.fq * th + w.ph), 0))); };
+  const all = new Map();
+  for (let q = -RB; q <= RB; q++) for (let r = -RB; r <= RB; r++) if (Math.abs(q + r) <= RB) {
+    const c = {q, r, o: 0, t: 'p'};
+    if ((ring(c) <= R0 && keep(c)) || ring(c) <= Math.round(R0 + off(q, r))) all.set(key(q, r), c);
+  }
+  const nb = c => DIRS.map(([a, b]) => all.get(key(c.q + a, c.r + b))).filter(Boolean);
+  for (let pass = 0; pass < 3; pass++) {   // 1マスだけ突き出た細い岬を削る／ほぼ囲まれた切れ込みを埋める
+    for (const c of [...all.values()]) if (!keep(c) && nb(c).length <= 1) all.delete(key(c.q, c.r));
+    for (let q = -RB; q <= RB; q++) for (let r = -RB; r <= RB; r++) {
+      const k = key(q, r); if (Math.abs(q + r) > RB || all.has(k)) continue;
+      const c = {q, r, o: 0, t: 'p'}; if (nb(c).length >= 5) all.set(k, c);
+    }
+  }
+  const seen = new Set(['0,0']), st = [all.get('0,0')];   // 中央とつながっていないマスは消す
+  while (st.length) { const c = st.pop(); for (const n of nb(c)) { const k = key(n.q, n.r); if (!seen.has(k)) { seen.add(k); st.push(n); } } }
+  cells = new Map();
+  for (let q = -RB; q <= RB; q++) for (let r = -RB; r <= RB; r++) { const k = key(q, r); if (seen.has(k)) cells.set(k, all.get(k)); }   // 並び順を q・r の順にそろえる
 }
 // 地形: p=平地(1pt) / m=山(2pt) / s=水域(通行不可)。毎回ランダムに生成
 function seaSize(c0) {   // c0を含む海マスのつながりの大きさ
@@ -691,18 +757,29 @@ const onRoad = (c,p) => {   // 現在位置から自分の色のマスでつな�
 };
 const visLevel = (c, p) => Math.max(1, ((isMyBase(c, p) || c === last[p]) ? 3 : 1) + (skills[p].faith ? 1 : 0) - ((isDay() || skills[p].fire) ? 0 : 1));   // 拠点と現在地はレベル3、他の自領はレベル1。夜は-1（火の発見で無効）、神秘の探究で+1
 const specialAround = c => new Set(nbrs(c).map(n => n.t === 'm' ? 'm' : n.t === 's' ? 's' : n.forest ? 'f' : '').filter(Boolean)).size;   // 周囲6マスにある地形の種類数（現在は山・水域・森。資源は含まない。新しい地形マスを追加したら、ここに種類を足す）
-const VILLAGE_RES = 5, VILLAGE_FOOD = 2, VILLAGE_MAX = 3, VILLAGE_REFUND = 3;   // 村の建設: 資源5・食料2、1人最大3つ
+const VILLAGE_RES = 3, VILLAGE_FOOD = 2, VILLAGE_MAX = 3, VILLAGE_REFUND = 3;   // 村の建設: 資源3・食料2、1人最大3つ。壊すと資源3が戻る
 const canBuildVillage = p => gm || (rp[p] >= VILLAGE_RES && sp[p] >= VILLAGE_FOOD && villageCount(p) < VILLAGE_MAX);
+const isAnyBase = x => !!x.village || (isPlayer(x.o) && baseCell[x.o] === x);   // だれかの拠点（最初の拠点、または村）
+const villageSpotOk = c => ![...cells.values()].some(x => isAnyBase(x) && hexDist(x, c) <= 1);   // 既存の拠点・村（自分・相手を問わない）のマスと、その隣には村を建てられない
+function villageHint() {   // 初めて村を建てられるだけの資源・食料がたまったら、建て方を知らせる（自分の盤面が見えているときだけ）
+  const p = turn;
+  if (!cells || selecting || over || busy || !alive[p] || isCPU(p) || villageTold[p] || tutOn() || (onPlay() ? ONLINE.spec || ONLINE.seat !== p : viewer !== p)) return;
+  if (gm || rp[p] < VILLAGE_RES || sp[p] < VILLAGE_FOOD || villageCount(p) >= VILLAGE_MAX) return;
+  villageTold[p] = true;
+  popupQ.push({t: '🏠 村を建てられます', s: `自分の領地のマス（現在地や道）をタップすると、資源${VILLAGE_RES}・食料${VILLAGE_FOOD}で村を建てられます。村は拠点扱いで、行動回数+1・毎ターン資源+1になります（食料収入は-1）。既存の拠点・村の隣には建てられません。`});
+  showPopup();
+}
+const VILLAGE_SPOT_WHY = 'ここには村を建てられません（既存の拠点・村のマスと、その隣のマスには建てられません）';
 const villageWhy = p => villageCount(p) >= VILLAGE_MAX ? `村は最大${VILLAGE_MAX}つまでです（長押しで壊して建て直せます）` : `村の建設には、資源${VILLAGE_RES}と食料${VILLAGE_FOOD}が必要です`;
 function demolishVillage(c) {   // 村を壊して資源3を回収（行動回数1を使う）。食料は戻らない
   const p = turn; if (busy || over || c.o !== p || !c.village || (!gm && actions < 1)) return;
   c.village = false; if (!gm) { rp[p] += VILLAGE_REFUND; actions--; }
   msg = `${name(p)} 🏚 村を壊した（資源+${gm ? 0 : VILLAGE_REFUND}） 残り行動回数 ${gm ? '∞' : actions}`; finishAct();
 }
-function buildVillage(c) {   // 村の建設: 資源5・食料2。拠点扱い
-  const p = turn; if (c.o !== p || c.village || !canBuildVillage(p)) return;
+function buildVillage(c) {   // 村の建設: 資源3・食料2。拠点扱い。既存の拠点・村の隣には建てられない
+  const p = turn; if (c.o !== p || c.village || !canBuildVillage(p) || !villageSpotOk(c)) return;
   if (!gm) { rp[p] -= VILLAGE_RES; sp[p] -= VILLAGE_FOOD; } c.village = true;
-  msg = `${name(p)} 🏠 村を建設した（村は長押しで壊せます。行動回数1を使い、資源3が戻ります）`; checkUnlocks(p, c); finishAct();
+  msg = `${name(p)} 🏠 村を建設した（村は長押しで壊せます。行動回数1を使い、資源${VILLAGE_REFUND}が戻ります）`; checkUnlocks(p, c); finishAct();
 }
 function pray() {   // 命の糧（🙏ボタン）: 食料1を消費して、そのターンの間だけ戦力+1（行動回数は使わない）（神秘の探究の解放条件にもなる）
   const p = turn, c = last[p]; if (bless[p] >= 1) return; if (!gm) sp[p] -= 1; bless[p] += 1;
@@ -712,8 +789,11 @@ function pray() {   // 命の糧（🙏ボタン）: 食料1を消費して、�
 }
 const enemyLeft = o => [...cells.values()].filter(c => c.o === o && c !== last[o]).length;   // 勝利条件: 相手の領地（現在地を除く）がなくなる
 const reach = p => Math.max(0, ...[...cells.values()].filter(c => c.o === p).map(ring));   // 今いる半径
-const phase = () => ['朝','昼','夕','夜'][(round - 1) % 4];   // 朝・昼=昼間 / 夕・夜=夜間
-const isDay = () => ((round - 1) % 4) < 2;   // 1,2ラウンド=昼 / 3,4ラウンド=夜 を繰り返す
+const DAY_LEN = 4, PHASE_LEN = DAY_LEN / 4;   // 1日 = 4ラウンド（朝・昼・夕・夜が1ラウンドずつ）。PHASE_LEN を2にすると各時間帯が2ラウンドになる
+const phaseIdx = () => Math.floor((((round - 1) % DAY_LEN) + DAY_LEN) % DAY_LEN / PHASE_LEN);   // 0=朝 1=昼 2=夕 3=夜
+const phaseStep = () => ((((round - 1) % PHASE_LEN) + PHASE_LEN) % PHASE_LEN) + 1;   // その時間帯の何ラウンド目か（1〜2）
+const phase = () => ['朝','昼','夕','夜'][phaseIdx()];   // 朝・昼=昼間 / 夕・夜=夜間
+const isDay = () => phaseIdx() < 2;   // 朝・昼=昼間 / 夕・夜=夜間 を繰り返す
 const villageCount = p => [...cells.values()].filter(c => c.o === p && c.village).length;   // 村の数
 const actionsFor = () => (isDay() ? 2 : (skills[turn].fire ? 2 : 1)) + villageCount(turn);   // 村1つにつき+1   // 昼は2、夜は1（火の発見で夜も2）
 const baseForest = p => basesOf(p).some(b => nbrs(b).some(n => n.f0));   // 拠点の周囲1マス以内に、もともと森があったか
@@ -753,10 +833,13 @@ const allStuck = () => PL().filter(q => alive[q]).every(q => !anyTarget(q));   /
 function eliminate(o) {   // 脱落: 残りの領地（現在地・村）は空きマスに戻る
   alive[o] = false;
   for (const c of cells.values()) if (c.o === o) { c.o = 0; c.village = false; }
+  for (const k in traps) if (traps[k] === o) delete traps[k];   // 脱落した人の罠は消える
   last[o] = null; pending[o] = [];
 }
 function switchTurn(note) {
   if (!selecting && !over && skills[turn].fire && phase() === '夜') unlock(turn, '火を囲む夜');   // 火の発見後に夜を終える
+  scoutMode = null; scoutPrev = null; trapMode = false;
+  scoutV = per(() => []);   // 偵察で晴らした霧は、ターンが替わると元に戻る
   bless = per(0); boost = {stone:per(0), polish:per(0)}; lock = {stone:per(0), polish:per(0)}; fixed = {stone:per(0), polish:per(0)};   // 命の糧・石器の使用の効果はターン終了で消える。作製ロック・修繕後の使用不可も解ける
   let t = turn, g = 0;   // 次の（脱落していない）プレイヤーへ。P1に戻ったらラウンドが進む
   do { t = t % NP + 1; if (t === 1) round++; } while (!alive[t] && g++ < NP);
@@ -790,9 +873,10 @@ function act(c) {
     return;
   }
   if (!busy && !skipVillage && started[turn] && c.o === turn && !c.village && (c === last[turn] || isLegal(c, turn)) && !isHarvest(c, turn)) {   // 自領のマス: 村の建設
-    const can = canBuildVillage(turn);
-    if (c === last[turn]) { if (can) ask('ここに村を建設しますか？<br>（資源5・食料2。最大3つ。村は拠点扱いです）<br>※建てた村は長押しで壊せます（行動回数1・資源3が戻り、別の場所に建て直せます）', '建設', () => buildVillage(c)); else { msg = villageWhy(turn); render(); } return; }
-    if (can) { ask('このマスに村を建設しますか？<br>（資源5・食料2。最大3つ。村は拠点扱いです）<br>※建てた村は長押しで壊せます（行動回数1・資源3が戻り、別の場所に建て直せます）', '建設', () => buildVillage(c), '移動', () => { skipVillage = true; act(c); skipVillage = false; }); return; }
+    const can = canBuildVillage(turn), spot = villageSpotOk(c);
+    if (c === last[turn] && !spot) { msg = VILLAGE_SPOT_WHY; render(); return; }
+    if (c === last[turn]) { if (can) ask(`ここに村を建設しますか？<br>（資源${VILLAGE_RES}・食料${VILLAGE_FOOD}。最大${VILLAGE_MAX}つ。村は拠点扱いです。拠点・村の隣には建てられません）<br>※建てた村は長押しで壊せます（行動回数1・資源${VILLAGE_REFUND}が戻り、別の場所に建て直せます）`, '建設', () => buildVillage(c)); else { msg = villageWhy(turn); render(); } return; }
+    if (can && spot) { ask(`このマスに村を建設しますか？<br>（資源${VILLAGE_RES}・食料${VILLAGE_FOOD}。最大${VILLAGE_MAX}つ。村は拠点扱いです。拠点・村の隣には建てられません）<br>※建てた村は長押しで壊せます（行動回数1・資源${VILLAGE_REFUND}が戻り、別の場所に建て直せます）`, '建設', () => buildVillage(c), '移動', () => { skipVillage = true; act(c); skipVillage = false; }); return; }
   }
   if (!busy && !over && actions > 0 && isTarget(c, turn) && !isHarvest(c, turn) && sp[turn] < moveCost(c, turn)) { msg = `食料が足りません（このマスには食料${moveCost(c, turn)}が必要です）`; render(); return; }
   if (busy || !isLegal(c, turn)) return;
@@ -814,6 +898,7 @@ function act(c) {
     msg = `${name(turn)} 残り行動回数 ${gm ? '∞' : actions}`;
     meetCheck(turn, c);   // 他のプレイヤーと領地が隣り合った
     if (count(turn) >= 10) unlock(turn, '部族社会の発展'); checkUnlocks(turn, c);
+    springTrap(turn, c);   // 相手の罠のマスに入った
   }
   finishAct();
 }
@@ -851,6 +936,7 @@ function battle(c) {   // 戦闘に挑む（確認済み）。勝利でマスを
   } else sub = `敗北…（戦力 ${me} 対 ${foe}）何も起こらなかった`;
   actions--;
   msg = `${name(p)} ${title}：${sub}`;
+  if (last[p] === c) springTrap(p, c);   // 勝ち・引き分けでそのマスに入ったとき、相手の罠があれば発動
   if (me > foe) {
     meetCheck(p, c);
     if (count(p) >= 10) unlock(p, '部族社会の発展'); checkUnlocks(p, c); if (wild && foe >= 2) unlock(p, '獣の馴化', 'herd');   // 2マス以上の森の獣に勝ったときだけ解放
@@ -883,6 +969,75 @@ function finishAct() {
   } else { advance(); render(); }
 }
 
+// ===== 🔭 偵察: 行動1・食料1で、離れた7マスの塊、または一直線のマスの霧を晴らす =====
+const SCOUT_MIN = 2, SCOUT_RANGE = 3, SCOUT_LINE = 6, SCOUT_ACT = 1, SCOUT_FOOD = 1;   // 地形の熟知: 中心は現在地から2〜3マス ／ 山頂の瞰視: 6マス
+const onOwnMountain = p => !!last[p] && last[p].o === p && last[p].t === 'm';   // 山頂の瞰視は、自分の領地の山マスにいるときだけ
+const scoutModeOk = (p, mode) => mode === 'hex' ? !!skills[p].survey : mode === 'line' ? !!skills[p].summit && onOwnMountain(p) : false;
+const scoutSet = p => { const s = new Set(); for (const e of ((scoutV && scoutV[p]) || [])) if (e.u >= round) for (const k of e.c) s.add(k); return s; };   // いま見えている偵察のマス
+const canScout = p => !!last[p] && started[p] && (!!skills[p].survey || !!skills[p].summit) && (gm || (actions >= SCOUT_ACT && sp[p] >= SCOUT_FOOD));   // 偵察はスキルを習得してから
+function scoutCells(mode, c, p = turn) {   // 偵察で晴れるマスのキー
+  const o = last[p]; if (!o || !c || !scoutModeOk(p, mode)) return [];
+  if (mode === 'hex') return hexDist(c, o) >= SCOUT_MIN && hexDist(c, o) <= SCOUT_RANGE ? [c, ...nbrs(c)].map(n => key(n.q, n.r)) : [];
+  if (c === o) return [];
+  const a = toPixel(o.q, o.r), b = toPixel(c.q, c.r), ang = Math.atan2(b.y - a.y, b.x - a.x);   // タップした方向に、いちばん近い6方向のひとつを選ぶ
+  let best = 0, bd = -Infinity;
+  DIRS.forEach(([dq, dr], i) => { const v = toPixel(o.q + dq, o.r + dr), d = Math.cos(Math.atan2(v.y - a.y, v.x - a.x) - ang); if (d > bd) { bd = d; best = i; } });
+  const [dq, dr] = DIRS[best], out = [];
+  for (let i = 1; i <= SCOUT_LINE; i++) { const k = key(o.q + dq * i, o.r + dr * i); if (cells.has(k)) out.push(k); }
+  return out;
+}
+function scout(keys) {   // 偵察の実行（確認済み）。晴らすマスのキーを受け取る
+  const p = turn; if (busy || over || selecting || !canScout(p) || !keys || !keys.length) return;
+  if (!gm) { actions -= SCOUT_ACT; sp[p] -= SCOUT_FOOD; }
+  scoutV[p] = [...(scoutV[p] || []), {c: keys.filter(k => cells.has(k)), u: round}];   // そのターンの間だけ見える（ターン交代で消える）
+  scoutMode = null; scoutPrev = null;
+  const foes = keys.filter(k => traps[k] && traps[k] !== p).length;
+  msg = `${name(p)} 🔭 偵察した（${keys.length}マス${foes ? `・相手の罠を${foes}つ発見！` : ''}） 残り行動回数 ${gm ? '∞' : actions}`;
+  finishAct();
+}
+// ===== 🪤 罠: 「罠の工夫」を習得すると、ツール（⛏）から仕掛けられる =====
+const TRAP_RES = 1, TRAP_ACT = 1, TRAP_MAX = 3, TRAP_FOOD_DMG = 2;   // 仕掛ける: 資源1・行動1。1人3つまで ／ かかると食料-2・そのターンの行動終了
+const trapCount = p => Object.values(traps).filter(o => o === p).length;
+const canAffordTrap = p => !!skills[p] && !!skills[p].trap && trapCount(p) < TRAP_MAX && (gm || (rp[p] >= TRAP_RES && actions >= TRAP_ACT));
+const canTrapAt = (c, p) => !!c && !!last[p] && c.t !== 's' && !traps[key(c.q, c.r)] && !PL().some(q => last[q] === c) && !(c.forest && c.o === 0)
+  && (c.o === p || (c.o === 0 && hexDist(c, last[p]) === 1));   // 自分の領地、または現在地の隣の空きマス（森・水域・だれかの現在地は不可）
+function setTrap(c) {   // 罠を仕掛ける（確認済み）
+  const p = turn; if (busy || over || selecting || !canAffordTrap(p) || !canTrapAt(c, p)) return;
+  if (!gm) { rp[p] -= TRAP_RES; actions -= TRAP_ACT; }
+  traps[key(c.q, c.r)] = p; trapMode = false;
+  msg = `${name(p)} 🪤 罠を仕掛けた（${trapCount(p)}/${TRAP_MAX}） 残り行動回数 ${gm ? '∞' : actions}`;
+  finishAct();
+}
+function springTrap(p, c) {   // 相手の罠のマスに入った: 食料-2、このターンの行動はここで終わり。罠はなくなる
+  const k = key(c.q, c.r), o = traps[k]; if (!o || o === p || !isPlayer(o)) return false;
+  delete traps[k];
+  if (!gm) { sp[p] = Math.max(0, sp[p] - TRAP_FOOD_DMG); actions = 0; }
+  msg = msg.replace(/ 残り行動回数 \S+/, '') + ` ／ 🪤 ${name(o)}の罠にかかった！（食料-${TRAP_FOOD_DMG}・行動終了）`;
+  if (!isCPU(p)) popupQ.push({t: '🪤 罠にかかった！', s: `${name(o)}の罠が作動した。食料-${TRAP_FOOD_DMG}、このターンの行動はここまで`});
+  if (!isCPU(o) && alive[o]) pending[o].push({t: '🪤 罠が作動した', s: `${name(p)}があなたの罠にかかった（食料-${TRAP_FOOD_DMG}・足止め）`});
+  try { SFX.play('trap'); } catch (e) {}
+  return true;
+}
+// 場所を選んでいる間（偵察・罠）の、選べるマスとタップの処理
+function modeCells() {
+  const p = turn, o = last[p]; if (!o) return [];
+  if (trapMode) return [...cells.values()].filter(c => canTrapAt(c, p));
+  if (scoutMode === 'hex') return [...cells.values()].filter(c => hexDist(c, o) >= SCOUT_MIN && hexDist(c, o) <= SCOUT_RANGE);
+  if (scoutMode === 'line') { const out = []; for (const [dq, dr] of DIRS) for (let i = 1; i <= SCOUT_LINE; i++) { const c = cells.get(key(o.q + dq * i, o.r + dr * i)); if (c) out.push(c); } return out; }
+  return [];
+}
+function modePick(c) {   // 盤面のタップ（偵察・罠の場所選び中）
+  if (busy || over || selecting || !myTurn()) return;
+  if (trapMode) {
+    if (!canTrapAt(c, turn)) { msg = '🪤 そこには仕掛けられません（自分の領地か、現在地の隣の空きマスを選んでください。やめるときは⛏）'; render(); return; }
+    ask(`このマスに罠を仕掛けますか？<br>（資源${TRAP_RES}・行動回数${TRAP_ACT}。相手が入ると、食料-${TRAP_FOOD_DMG}とそのターンの行動終了）`, '仕掛ける', () => setTrap(c));
+    return;
+  }
+  const keys = scoutCells(scoutMode, c);
+  if (!keys.length) { msg = !scoutModeOk(turn, scoutMode) ? '🔭 この偵察は、いまは使えません' : scoutMode === 'hex' ? `🔭 現在地から${SCOUT_MIN}〜${SCOUT_RANGE}マス離れたマスを選んでください（やめるときは🔭）` : '🔭 現在地以外のマスをタップして、方向を選んでください（やめるときは🔭）'; render(); return; }
+  scoutPrev = keys; draw();
+  ask(scoutMode === 'hex' ? `光っている7マスを偵察しますか？（地形の熟知）<br>（行動回数${SCOUT_ACT}・食料${SCOUT_FOOD}。見えるのはこのターンの間だけです）` : `この方向の${keys.length}マスを偵察しますか？（山頂の瞰視）<br>（行動回数${SCOUT_ACT}・食料${SCOUT_FOOD}。見えるのはこのターンの間だけです）`, '偵察', () => scout(keys));
+}
 const SET_DEFAULT = {mount:10, water:10, res:20, forest:10};   // 出現率(%)の初期値。変更できるのはGMモードのみ（ラウンド数の初期値は ROUNDS_BY_NP）
 let SET = {mount: SET_DEFAULT.mount, water: SET_DEFAULT.water, res: SET_DEFAULT.res, forest: SET_DEFAULT.forest};   // 出現率(%)。設定画面から、ゲーム開始前のみ変更できる
 const canEdit = () => !ONLINE && selecting && PL().every(q => !started[q]) && !over;   // 最初のプレイヤーが拠点を選ぶ前だけ
@@ -933,8 +1088,11 @@ function resize() {
   const dpr = window.devicePixelRatio || 1, rect = canvas.getBoundingClientRect();
   canvas.width = rect.width*dpr; canvas.height = rect.height*dpr;
   ctx.setTransform(dpr,0,0,dpr,0,0);
-  cx = rect.width/2; cy = rect.height/2;
-  size = Math.max(10, Math.min((rect.width-12)/(Math.sqrt(3)*(2*RADIUS+1)), (rect.height-12)/(3*RADIUS+2)));
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;   // マス全体の範囲（マスの大きさ1のとき）。輪郭がランダムなので、実際のマスから求める
+  for (const c of (cells ? cells.values() : [])) { const x = Math.sqrt(3) * (c.q + c.r / 2), y = 1.5 * c.r; x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+  if (!(x1 >= x0)) { x0 = y0 = -Math.sqrt(3) * RADIUS; x1 = y1 = -x0; }
+  size = Math.max(10, Math.min((rect.width-12)/(x1 - x0 + Math.sqrt(3)), (rect.height-12)/(y1 - y0 + 2)));
+  cx = rect.width/2 - size * (x0 + x1) / 2; cy = rect.height/2 - size * (y0 + y1) / 2;
   draw();
 }
 function hexPath(x,y,s) {
@@ -951,6 +1109,7 @@ function visionOf(V) {   // プレイヤーVの視界（full: 資源まで見え
   if (!V || !alive[V]) return {full, part};
   if (fullDay()) { for (const kk of cells.keys()) full.add(kk); return {full, part}; }
   for (const sc of cells.values()) if (sc.o === V || sc === last[V]) { full.add(key(sc.q, sc.r)); const lv = visLevel(sc, V); if (lv === 2) disk(part, sc, 1); else if (lv >= 3) disk(full, sc, lv - 2); }
+  for (const kk of scoutSet(V)) full.add(kk);   // 偵察で晴らしたマス
   return {full, part};
 }
 function drawPawn(x, y, r, col) {   // ♟ プレイヤーの色のコマ（白い縁どり）
@@ -971,21 +1130,29 @@ function draw() {
   ctx.fillStyle = '#000';
   for (const c of cells.values()) { const p = toPixel(c.q,c.r); hexPath(p.x,p.y,size+0.5); ctx.fill(); }
   // 視界（今のターンのプレイヤー視点）。ゲーム終了後は全体が見える
-  const full = new Set(), terr = new Set(), nores = new Set();   // nores: 見えるが資源だけ見えないマス（視界レベル2）
+  const full = new Set(), terr = new Set(), nores = new Set(), scoutOnly = new Set();   // scoutOnly: 偵察だけで見えているマス   // nores: 見えるが資源だけ見えないマス（視界レベル2）
   //   // 視界レベル: 1=そのマスのみ ／ 2=周囲1マスの地形も ／ 3=周囲1マスすべて ／ 4以降は半径が1ずつ増える
   const disk = (set, sc, n) => { for (let dq = -n; dq <= n; dq++) for (let dr = Math.max(-n, -dq - n); dr <= Math.min(n, -dq + n); dr++) set.add(key(sc.q + dq, sc.r + dr)); };
   const sel = selecting && !over, V = viewP(), MT = myTurn();   // V: 視点のプレイヤー ／ MT: 自分が操作できるか
   if (over || gm || spectating() || fullDay() || ((onPlay() || isCPU(turn)) && !alive[V])) for (const kk of cells.keys()) full.add(kk);
   else if (sel) { for (const sc of cells.values()) if (isBase(sc)) disk(full, sc, 2); }   // 拠点選び中は候補6か所の半径2マスが見える
-  else for (const sc of cells.values()) {
-    if (sc.o === V || sc === last[V]) { full.add(key(sc.q, sc.r)); const lv = visLevel(sc, V); if (lv === 2) disk(nores, sc, 1); else if (lv >= 3) disk(full, sc, lv - 2); }
+  else {
+    for (const sc of cells.values()) {
+      if (sc.o === V || sc === last[V]) { full.add(key(sc.q, sc.r)); const lv = visLevel(sc, V); if (lv === 2) disk(nores, sc, 1); else if (lv >= 3) disk(full, sc, lv - 2); }
+    }
+    for (const kk of scoutSet(V)) if (!full.has(kk) && !nores.has(kk)) { full.add(kk); scoutOnly.add(kk); }   // 🔭 偵察で晴らしたマス（そのターンの間だけ）
   }
+  const seeAllTraps = over || gm || spectating(), scouted = seeAllTraps ? null : scoutSet(V);
+  const trapShown = kk => traps[kk] && (seeAllTraps || traps[kk] === V || scouted.has(kk));   // 罠は仕掛けた本人だけに見える（偵察したマスでは、相手の罠も見つかる）
   if (!over && !selecting && round === 1) for (const q of PL()) {   // 1ターン目だけ: 2人は先手が後手の拠点の半径2マスを見られる ／ 3人以上は、先にターンを行ったプレイヤーの拠点のマス（色）だけ見える
     const b = baseCell[q]; if (q === V || !alive[q] || !b || b.o !== q) continue;
     if (multi()) { if (q < V) full.add(key(b.q, b.r)); }
     else if (q > V) disk(full, b, 2);
   }
-  for (const c of cells.values()) {
+  for (const c0 of cells.values()) {
+    // 森のマス（元の森を含む）にいる相手は、偵察では見えない: 相手の色・コマ・村を隠して、森として描く
+    const hideFoe = scoutOnly.has(key(c0.q, c0.r)) && c0.f0 && isEnemy(c0.o, V);
+    const c = hideFoe ? {...c0, o: 0, forest: true, village: false, res: false} : c0;
     const {x,y} = toPixel(c.q,c.r);
     const kk = key(c.q,c.r), isFull = full.has(kk) || nores.has(kk), isTerr = !isFull && terr.has(kk);
     if (!isFull && !(isTerr && !over && isTarget(c,turn) && c.o === 0 && !c.forest)) {   // 全表示でない（夜の移動先だけは表示する）
@@ -1000,6 +1167,7 @@ function draw() {
         ctx.fillStyle = '#2f3441'; ctx.fill();
         ctx.lineWidth = 1.5; ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.stroke();
       }
+      if (trapShown(kk)) drawTrap(x - size*0.32, y + size*0.34, size*0.26, COLORS[traps[kk]]);   // 自分の罠は、見えないマスでも場所がわかる
       continue;
     }
     const showRes = full.has(kk);   // 視界レベル2のマスでは資源は見えない
@@ -1045,9 +1213,30 @@ function draw() {
       ctx.fillText('≈', x, y);
     }
     if (sel && isBase(c)) drawHouse(x, y - size*0.05, size*0.38);   // 拠点候補・選んだ拠点: 家のマーク
+    if (trapShown(kk)) drawTrap(x - size*0.32, y + size*0.34, size*0.26, COLORS[traps[kk]]);   // 🪤 罠
     const pq = PL().find(q => last[q] === c && alive[q]);   // ♟ 現在地（白枠のマス）にプレイヤーのコマ
     if (pq && !selecting) drawPawn(x, y + size*0.08, size*0.42, COLORS[pq]);
   }
+  if (MT && !over && !selecting && last[turn] && (scoutMode || trapMode)) {   // 偵察・罠の場所を選んでいる間: 選べるマスを薄く光らせる
+    ctx.save();
+    ctx.fillStyle = trapMode ? 'rgba(240,180,41,0.30)' : 'rgba(94,200,255,0.20)';
+    for (const c of modeCells()) { const p = toPixel(c.q, c.r); hexPath(p.x, p.y, size - 3); ctx.fill(); }
+    ctx.restore();
+  }
+  if (scoutPrev) {   // 偵察する範囲の下見（確認中）
+    ctx.save(); ctx.lineWidth = 3; ctx.strokeStyle = '#5ec8ff'; ctx.fillStyle = 'rgba(94,200,255,0.35)';
+    for (const kk of scoutPrev) { const c = cells.get(kk); if (!c) continue; const p = toPixel(c.q, c.r); hexPath(p.x, p.y, size - 3); ctx.fill(); ctx.stroke(); }
+    ctx.restore();
+  }
+}
+function drawTrap(x, y, r, col) {   // 🪤 罠: 地面に刺した3本の杭（縁どりは仕掛けた人の色）
+  ctx.save(); ctx.translate(x, y); ctx.scale(r, r); ctx.lineJoin = 'round';
+  ctx.beginPath();
+  for (const dx of [-0.55, 0, 0.55]) { ctx.moveTo(dx - 0.24, 0.5); ctx.lineTo(dx, -0.55); ctx.lineTo(dx + 0.24, 0.5); ctx.closePath(); }
+  ctx.lineWidth = 0.34; ctx.strokeStyle = '#fff'; ctx.stroke();
+  ctx.fillStyle = '#5b3a1e'; ctx.fill();
+  ctx.lineWidth = 0.14; ctx.strokeStyle = col || '#000'; ctx.stroke();
+  ctx.restore();
 }
 function buildHeader() {   // 人数に合わせて、上のプレイヤー欄を作り直す
   const h = document.getElementById('hdr'), cmp = NP > 2;
@@ -1080,8 +1269,8 @@ function render() {
     const pe = document.getElementById('pl'+p), on = !over && turn === p;
     pe.classList.toggle('active', on); pe.classList.toggle('out', !alive[p]); pe.style.borderColor = on ? COLORS[p] : '';
   }
-  document.getElementById('wrap').className = 'ph' + ((round - 1) % 4);   // 時間帯ごとの背景
-  document.getElementById('dayBox').innerHTML = (isDay() ? '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#e6a100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>' : '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#7a86d6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>') + '<span>' + phase() + '</span>';
+  document.getElementById('wrap').className = 'ph' + phaseIdx();   // 時間帯ごとの背景
+  document.getElementById('dayBox').innerHTML = (isDay() ? '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#e6a100" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></svg>' : '<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#7a86d6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>') + '<span>' + phase() + (PHASE_LEN > 1 ? ' ' + phaseStep() + '/' + PHASE_LEN : '') + '</span>';
   const msgEl = document.getElementById('msg');
   msgEl.textContent = '';
   const badge = document.createElement('span');   // ラウンド数バッジ：背景は今のターンの陣営の色
@@ -1092,6 +1281,8 @@ function render() {
   st.textContent = msg.replace(/R\d+\/\d+（[朝昼夕夜]）\s*/, '');
   st.style.color = over && winner ? COLORS[winner] : '';
   document.getElementById('end').disabled = over || selecting || cpuT;
+  villageHint();
+  document.getElementById('scoutBtn').classList.toggle('on', !!scoutMode); document.getElementById('toolBtn').classList.toggle('on', !!trapMode);
   draw();
 }
 
@@ -1104,7 +1295,7 @@ canvas.addEventListener('mousemove', e => {
 });
 canvas.addEventListener('mouseleave', () => { hover = null; draw(); });
 let lpFired = false;
-canvas.addEventListener('click', e => { if (lpFired) { lpFired = false; return; } const c = cellAt(e); if (c) act(c); });
+canvas.addEventListener('click', e => { if (lpFired) { lpFired = false; return; } const c = cellAt(e); if (!c) return; if (scoutMode || trapMode) modePick(c); else act(c); });
 {   // 自分の村を長押し（約0.6秒）で、壊して資源を回収
   let lpT = null, lpStart = null;
   const lpCancel = () => { clearTimeout(lpT); lpT = null; };
@@ -1128,11 +1319,11 @@ document.getElementById('end').addEventListener('click', () => { if (!over && !b
 document.getElementById('gateBtn').addEventListener('click', () => { viewer = turn; render(); popupQ.push(...pending[turn].splice(0)); showPopup(); });
 document.getElementById('dayBox').addEventListener('click', () => {
   const names = ['朝','昼','夕','夜'], bgs = ['linear-gradient(180deg,#9fd3f3,#ffc080)','linear-gradient(180deg,#fff,#ffe14d)','linear-gradient(180deg,#5a3a8f,#ff9d4d)','linear-gradient(180deg,#05060f,#1a2260)'];
-  const cur = (round - 1) % 4;
+  const cur = phaseIdx();
   const fire = skills[turn] && skills[turn].fire;
   const rows = names.map((n,i) => { const day = i < 2; const act = day ? 2 : (fire ? 2 : 1);
     return `<div class="row${i === cur ? ' now' : ''}"><div class="sw" style="background:${bgs[i]}"></div><div class="nm">${n}</div><div class="ds">${day ? '昼間' : '夜間'}・行動回数${act}${day ? '・視界は通常' : (fire ? '・視界は通常（火の発見）' : '・視界が狭まる')}${i === cur ? '　← 現在' : ''}</div></div>`; }).join('');
-  document.getElementById('cycleBox').innerHTML = '<h2 style="margin:0 0 4px;font-size:16px">時間帯のサイクル</h2><div class="ds" style="margin-bottom:10px">1ラウンドごとに 朝→昼→夕→夜 と進み、4ラウンドで繰り返します。</div>' + rows + '<div style="text-align:right;margin-top:8px"><button id="cycleClose">閉じる</button></div>';
+  document.getElementById('cycleBox').innerHTML = '<h2 style="margin:0 0 4px;font-size:16px">時間帯のサイクル</h2><div class="ds" style="margin-bottom:10px">1ラウンドごとに 朝→昼→夕→夜 と進み、4ラウンドで1日が終わります。</div>' + rows + '<div style="text-align:right;margin-top:8px"><button id="cycleClose">閉じる</button></div>';
   document.getElementById('cycleClose').addEventListener('click', () => document.getElementById('cycle').classList.remove('open'));
   document.getElementById('cycle').classList.add('open');
 });
@@ -1152,6 +1343,9 @@ function checkUnlocks(p, c) {   // 新石器スキルの解放条件
   if (c && c.t === 'm' && skills[p].stone) unlock(p, '研磨の技術', 'polish');   // 打製石器の後に山を占領
   if (skills[p].farm && skills[p].herd && villageCount(p) >= 1) unlock(p, '集落の礎', 'settle');   // 農耕・牧畜を習得し、村を建設
   if (skills[p].pottery) unlock(p, '炎が生む滋養', 'cook');   // 土器の作製を習得
+  if (skills[p].stone) unlock(p, '狩りの知恵', 'trap');   // 打製石器の加工を習得
+  if (skills[p].lang) unlock(p, '土地の名づけ', 'survey');   // 言語の獲得を習得 → 地形の熟知（偵察: 7マスの塊）
+  if ([...cells.values()].some(x => x.o === p && x.t === 'm')) unlock(p, '高みからの眺め', 'summit');   // 山を領地にする → 山頂の瞰視（偵察: 一直線）
   if (skills[p].fire && [...cells.values()].some(x => x.o === p && x.t === 'm')) unlock(p, '形を成す粘土', 'pottery');   // 火の発見を習得し、山を領地にする
 }
 function showPopup() {
@@ -1198,9 +1392,9 @@ document.getElementById('gmCancel').addEventListener('click', () => gmModal.clas
   for (const ev of ['pointerleave', 'pointercancel']) rb.addEventListener(ev, () => { clearTimeout(rt); rt = null; });
   rb.addEventListener('contextmenu', e => e.preventDefault());
 }
-document.getElementById('resetNo').addEventListener('click', () => document.getElementById('confirmReset').classList.remove('open'));
+document.getElementById('resetNo').addEventListener('click', () => { document.getElementById('confirmReset').classList.remove('open'); if (scoutPrev) { scoutPrev = null; draw(); } });
 document.getElementById('resetAlt').addEventListener('click', () => { document.getElementById('confirmReset').classList.remove('open'); const f = confirmAlt; confirmAlt = null; if (f) f(); });
-document.getElementById('resetYes').addEventListener('click', () => { document.getElementById('confirmReset').classList.remove('open'); const f = confirmFn; confirmFn = null; if (f) f(); });
+document.getElementById('resetYes').addEventListener('click', () => { document.getElementById('confirmReset').classList.remove('open'); const f = confirmFn; confirmFn = null; if (f) f(); if (scoutPrev) { scoutPrev = null; draw(); } });
 const sEl = {mount: document.getElementById('sMount'), water: document.getElementById('sWater'), res: document.getElementById('sRes'), forest: document.getElementById('sForest'), rounds: document.getElementById('sRounds'), np: document.getElementById('sNP')};
 function showSetLabels() { document.getElementById('vMount').textContent = sEl.mount.value + '%'; document.getElementById('vWater').textContent = sEl.water.value + '%'; document.getElementById('vRes').textContent = sEl.res.value + '%'; document.getElementById('vForest').textContent = sEl.forest.value + '%'; }
 function fillSettings(v) { sEl.mount.value = v.mount; sEl.water.value = v.water; sEl.res.value = v.res; sEl.forest.value = v.forest; sEl.rounds.value = v.rounds; if (v.np) sEl.np.value = v.np; showSetLabels(); }
@@ -1344,6 +1538,8 @@ const SFX = (() => {
     craft:    t => { noise(t, 0.05, 1800, 0.45); noise(t + 0.12, 0.05, 1800, 0.45); tone(t + 0.22, hz(69), 0.25, 'triangle', 0.2); },   // 作製・修繕: コツコツ
     turn:     t => { dr(() => tone(t, 170, 0.2, 'sine', 0.45, 80)); tone(t + 0.14, hz(67), 0.35, 'triangle', 0.15); },                // 手番交代
     base:     t => dr(() => { tone(t, 140, 0.3, 'sine', 0.8, 50); noise(t, 0.08, 700, 0.2); }),                                        // 拠点決定: ドン
+    trap:     t => { noise(t, 0.05, 2600, 0.6, 'highpass'); dr(() => tone(t + 0.03, 210, 0.25, 'square', 0.25, 70)); noise(t + 0.05, 0.3, 500, 0.4, 'lowpass'); },   // 罠の作動: バチン
+    scout:    t => arp(t, [79, 86, 91], 0.07, 0.4, 'sine', 0.18),                                                          // 偵察: 澄んだ上昇音
     fanfare:  t => { arp(t, [60, 64, 67, 72], 0.14, 0.7, 'triangle', 0.3); dr(() => tone(t + 0.6, 90, 0.5, 'sine', 0.7, 45)); }        // ゲーム終了
   };
   return {
@@ -1375,6 +1571,8 @@ const SFX = (() => {
   });
   wrap('buildVillage', (orig, a) => { const had = a[0].village; orig.apply(null, a); if (!had && a[0].village) SFX.play('build'); });
   wrap('demolishVillage', (orig, a) => { const had = a[0].village; orig.apply(null, a); if (had && !a[0].village) SFX.play('demolish'); });
+  wrap('scout', (orig, a) => { const p = turn, n = (scoutV[p] || []).length; orig.apply(null, a); if ((scoutV[p] || []).length > n) SFX.play('scout'); });
+  wrap('setTrap', (orig, a) => { const n = Object.keys(traps).length; orig.apply(null, a); if (Object.keys(traps).length > n) SFX.play('craft'); });
   wrap('pray', (orig, a) => { const b = bless[turn]; orig.apply(null, a); if (bless[turn] > b) SFX.play('pray'); });
   wrap('pickBase', (orig, a) => { const o0 = a[0].o; orig.apply(null, a); if (o0 === 0 && a[0].o !== 0) SFX.play('base'); });
   wrap('switchTurn', (orig, a) => { const t0 = turn; orig.apply(null, a); if (!over && turn !== t0) SFX.play('turn'); });
@@ -1576,10 +1774,13 @@ document.getElementById('helpClose').addEventListener('click', () => help.classL
 help.addEventListener('click', e => { if (e.target === help) help.classList.remove('open'); });
 // スキルツリー（資源ポイントで習得。習得は自分のターン中にアクションを使わず行える）
 const isOpen = (k, p) => !k.lock || (k.lock === 'fire' ? fireOpen[p] : k.lock === 'stone' ? stoneOpen[p] : k.lock === 'lang' ? langOpen[p] : xOpen[k.lock][p]);
-const COND = {"fire": "山に隣接する資源マスを初めて回収する（山火事の痕跡）", "lang": "①火の発見後に夜を終える（火を囲む夜） ②他のプレイヤーと領地が隣り合う（未知の存在との出会い） ③自領が10マスに到達（部族社会の発展）", "stone": "資源ポイントが2以上になる（打撃の共鳴）", "farm": "磨製石器の加工を習得し、水域に面した平地を領地にする（大地の開墾）", "herd": "2マス以上の森の獣に勝つ（獣の馴化）", "polish": "打製石器の加工を習得したあと、山を領地にする（研磨の技術）", "pottery": "火の発見を習得し、山を領地にする（形を成す粘土）", "cook": "土器の作製を習得する（炎が生む滋養）", "settle": "農耕の確立と牧畜の開始を習得し、村を1つ建設する（集落の礎）", "faith": "言語の獲得を習得したあと、周囲6マスに山・水域・森の3種類以上の地形がある場所で命の糧を捧げる（静寂の儀式）"};   // GM用: 解放条件
+const COND = {"fire": "山に隣接する資源マスを初めて回収する（山火事の痕跡）", "lang": "①火の発見後に夜を終える（火を囲む夜） ②他のプレイヤーと領地が隣り合う（未知の存在との出会い） ③自領が10マスに到達（部族社会の発展）", "stone": "資源ポイントが2以上になる（打撃の共鳴）", "farm": "磨製石器の加工を習得し、水域に面した平地を領地にする（大地の開墾）", "herd": "2マス以上の森の獣に勝つ（獣の馴化）", "polish": "打製石器の加工を習得したあと、山を領地にする（研磨の技術）", "pottery": "火の発見を習得し、山を領地にする（形を成す粘土）", "cook": "土器の作製を習得する（炎が生む滋養）", "settle": "農耕の確立と牧畜の開始を習得し、村を1つ建設する（集落の礎）", "faith": "言語の獲得を習得したあと、周囲6マスに山・水域・森の3種類以上の地形がある場所で命の糧を捧げる（静寂の儀式）", "trap": "打製石器の加工を習得する（狩りの知恵）", "survey": "言語の獲得を習得する（土地の名づけ）", "summit": "山を領地にする（高みからの眺め）"};   // GM用: 解放条件
 const SKILLS = [{id:'fire', name:'火の発見', cost:1, spCost:1, lock:'fire', desc:'夜間（夕・夜）の行動回数+1。夜間の視界の低下と戦力-1がなくなる。'},
   {id:'lang', name:'言語の獲得', cost:0, spCost:1, lock:'lang', desc:'道でつながった半径2マス以内の、未回収の資源マスをタップして、1回の行動と食料1で回収できる（通常は今いるマスだけ）。移動できるマスは、タップで回収か移動かを選べる。'},
   {id:'stone', name:'打製石器の加工', cost:1, spCost:1, lock:'stone', desc:'習得すると打製石器が手に入る。ツール（⛏）で「使用」するたびに、そのターンの獣との戦闘の戦力+1。使うとゲージが半分減り、2回使うと壊れる。'},
+  {id:'survey', name:'地形の熟知', cost:1, spCost:1, lock:'survey', desc:'🔭偵察で、現在地から2〜3マス離れたマスを中心に、7マスの塊の霧を晴らせる（使うたびに行動回数1・食料1。見えるのはそのターンの間だけ）。'},
+  {id:'summit', name:'山頂の瞰視', cost:1, spCost:1, lock:'summit', desc:'自分の領地の山マスにいるとき、🔭偵察で、選んだ方向へまっすぐ6マスの霧を晴らせる（使うたびに行動回数1・食料1。見えるのはそのターンの間だけ）。'},
+  {id:'trap', name:'罠の工夫', cost:1, spCost:1, lock:'trap', desc:'ツール（⛏）から罠を仕掛けられる（資源1・行動回数1、1人3つまで）。自分の領地か、現在地の隣の空きマスに置け、相手が入ると食料-2・そのターンの行動終了。罠は仕掛けた人にしか見えない。'},
   {id:'farm', name:'農耕の確立', cost:2, spCost:1, foodCost:1, lock:'farm', desc:'昼間（朝・昼）の食料+1。'},
   {id:'herd', name:'牧畜の開始', cost:1, spCost:1, foodCost:1, lock:'herd', desc:'夜間（夕・夜）の食料+1。山を開放する行動が2→1になる。'},
   {id:'polish', name:'磨製石器の加工', cost:2, spCost:1, lock:'polish', desc:'習得すると磨製石器が手に入る。ツール（⛏）で「使用」するたびに、そのターンの対人戦（相手のマスへの戦闘）の戦力+1。使うとゲージが半分減り、2回使うと壊れる。'},
@@ -1629,12 +1830,19 @@ function renderTools() {   // ツールボタン（⛏）: 石器の使用・作
     const sub = `${state}<br>${t.target}の戦力 +${boost[t.id][p]}（このターンの使用分）`;
     html += row(t.name + gaugeBar(g), sub, (broken ? '' : bt('use', t.id, fixed[t.id][p] ? '使用する（修繕したターンは不可）' : '使用する（戦力+1）', ok && !fixed[t.id][p] && (gm || g > 0))) + (g === 1 ? bt('repair', t.id, '修繕（資源1）', ok && rp[p] >= 1) : '') + (broken ? bt('craft', t.id, `作製（資源${t.cost}・行動回数${t.act}）`, ok && !lock[t.id][p] && rp[p] >= t.cost && actions >= t.act) : ''));
   }
+  html += row('村 🏠', `建てた数 ${villageCount(p)}/${VILLAGE_MAX}。建て方: 自分の領地のマス（現在地や道）をタップします。資源${VILLAGE_RES}・食料${VILLAGE_FOOD}（所持: 資源 ${gm ? '∞' : rp[p]} ／ 食料 ${gm ? '∞' : sp[p]}）。既存の拠点・村のマスと、その隣には建てられません。村は長押しで壊せます。`, '');
+  if (skills[p].trap) html += row('罠 🪤', `仕掛けた数 ${trapCount(p)}/${TRAP_MAX}。自分の領地か、現在地の隣の空きマスに仕掛けます。相手が入ると、食料-${TRAP_FOOD_DMG}とそのターンの行動終了（罠はなくなります）。`, bt('trap', 'set', trapCount(p) >= TRAP_MAX ? `上限です（${TRAP_MAX}つまで）` : `仕掛ける場所を選ぶ（資源${TRAP_RES}・行動回数${TRAP_ACT}）`, ok && canAffordTrap(p)));
   if (skills[p].pottery) html += row('土器', pot[p] >= 3 ? '上限に達しました（3/3）' : `貯蔵上限 ${gm ? '∞' : spCap(p)} → ${gm ? '∞' : spCap(p) + 1}（${pot[p]}/3）`, bt('pot', 'pottery', '作製（資源2）', ok && pot[p] < 3 && (gm || rp[p] >= 2)));
-  body.innerHTML = head + (html || '<div style="color:var(--muted)">使えるツールがありません。スキルを習得すると増えます。</div>');
+  body.innerHTML = head + html;   // 「村」の欄は常に出る
 }
 document.getElementById('toolBody').addEventListener('click', e => {
   const b = e.target.closest ? e.target.closest('button[data-tool]') : null; if (!b || over || busy || selecting) return;
   const [kind, id] = b.dataset.tool.split(':'), p = turn, T = TOOLS.find(x => x.id === id);
+  if (kind === 'trap') {   // 罠: 盤面で仕掛ける場所を選ぶ
+    if (!canAffordTrap(p)) return;
+    toolPanel.classList.remove('open'); scoutMode = null; scoutPrev = null; trapMode = true;
+    msg = '🪤 罠を仕掛けるマスをタップしてください（自分の領地か、現在地の隣の空きマス。やめるときは⛏）'; render(); return;
+  }
   if (kind === 'pot') {
     if (!skills[p].pottery || pot[p] >= 3 || (!gm && rp[p] < 2)) return;
     if (!gm) rp[p] -= 2; pot[p] += 1; msg = `${name(p)} が土器を作製！食料の貯蔵上限 ${spCap(p)}`;
@@ -1656,7 +1864,34 @@ document.getElementById('toolBody').addEventListener('click', e => {
   } else return;
   render(); renderTools();
 });
-document.getElementById('toolBtn').addEventListener('click', () => { if (busy || over || selecting) return; renderTools(); toolPanel.classList.add('open'); });
+document.getElementById('toolBtn').addEventListener('click', () => {
+  if (trapMode) { trapMode = false; msg = '罠を仕掛けるのをやめました'; render(); return; }   // 場所選び中に押すと取り消し
+  if (busy || over || selecting) return; renderTools(); toolPanel.classList.add('open');
+});
+{   // 🔭 偵察ボタン → 遠見／見通しを選ぶ → 盤面で場所・方向を選ぶ → 確認
+  const panel = document.getElementById('scout');
+  document.getElementById('scoutBtn').addEventListener('click', () => {
+    if (scoutMode) { scoutMode = null; scoutPrev = null; msg = '偵察をやめました'; render(); return; }   // 場所選び中に押すと取り消し
+    if (busy || over || selecting || !myTurn() || !started[turn] || !last[turn]) return;
+    const p = turn;
+    if (!skills[p].survey && !skills[p].summit) { msg = '🔭 偵察は、スキル「地形の熟知」か「山頂の瞰視」を習得すると使えます（右上のスキル一覧）'; render(); return; }
+    if (!canScout(p)) { msg = `偵察には、行動回数${SCOUT_ACT}と食料${SCOUT_FOOD}が必要です`; render(); return; }
+    document.getElementById('scoutHead').textContent = `${name(p)}　行動回数 ${gm ? '∞' : actions} ／ 食料 ${gm ? '∞' : sp[p]}　（偵察は行動回数${SCOUT_ACT}・食料${SCOUT_FOOD}。晴らしたマスが見えるのは、このターンの間だけです。森のマスにいる相手は見えません）`;
+    const hb = panel.querySelector('[data-scout="hex"]'), lb = panel.querySelector('[data-scout="line"]');
+    hb.disabled = !scoutModeOk(p, 'hex'); lb.disabled = !scoutModeOk(p, 'line');
+    document.getElementById('scoutHexSub').textContent = skills[p].survey ? `現在地から${SCOUT_MIN}〜${SCOUT_RANGE}マス離れたマスを中心に、その周り6マスを含む7マスの霧を晴らします。` : '🔒 スキル「地形の熟知」を習得すると使えます。';
+    document.getElementById('scoutLineSub').textContent = !skills[p].summit ? '🔒 スキル「山頂の瞰視」を習得すると使えます。' : onOwnMountain(p) ? `この山から、タップした方向へまっすぐ${SCOUT_LINE}マスの霧を晴らします。` : '自分の領地の山マス（▲）にいるときだけ使えます。';
+    panel.classList.add('open');
+  });
+  panel.addEventListener('click', e => {
+    if (e.target === panel || e.target.id === 'scoutClose') { panel.classList.remove('open'); return; }
+    const b = e.target.closest('button[data-scout]'); if (!b) return;
+    panel.classList.remove('open'); if (busy || !canScout(turn) || !scoutModeOk(turn, b.dataset.scout)) return;
+    trapMode = false; scoutPrev = null; scoutMode = b.dataset.scout;
+    msg = scoutMode === 'hex' ? `🔭 地形の熟知: 中心にするマス（現在地から${SCOUT_MIN}〜${SCOUT_RANGE}マス）をタップしてください（やめるときは🔭）` : '🔭 山頂の瞰視: 見たい方向のマスをタップしてください（やめるときは🔭）';
+    render();
+  });
+}
 document.getElementById('toolClose').addEventListener('click', () => toolPanel.classList.remove('open'));
 toolPanel.addEventListener('click', e => { if (e.target === toolPanel) toolPanel.classList.remove('open'); });
 document.getElementById('prayBtn').addEventListener('click', () => {
@@ -1816,7 +2051,7 @@ const ONL = (() => {
   let G = null, P = [];   // ホストだけが持つ、部屋の正本（G: 部屋の状態 / P: 参加者）
   let applying = false, ver = 0, lastSent = '', authTurn = 0, lastOut = null;
   let backup = null, myName = '', myCol = 0, nameTimer = null, busyUI = false, nameSynced = false;
-  let retryT = null, netMsg = '', hostGone = false, beatT = null, heard = 0;
+  let retryT = null, netMsg = '', hostGone = false, beatT = null, heard = 0, hostGM = false;   // hostGM: GMモードでルームを作った（昼の全体表示を切り替えられる）
   const safeSeg = v => String(v).replace(/[^A-Za-z0-9_\-]/g, '_').slice(0, 40);
   const cleanName = v => String(v || '').replace(/[<>&"'`]/g, '').trim().slice(0, 8);
   const normName = v => v.normalize('NFKC').toLowerCase().replace(/\s+/g, '');
@@ -1844,8 +2079,8 @@ const ONL = (() => {
     const cs = raw.cells;
     const S = deepClean({...raw, cells: ''});
     const np = S.NP; if (!Number.isInteger(np) || np < 2 || np > 6) throw new Error('NP');
-    const R = RADIUS_BY_NP[np], n = 3 * R * (R + 1) + 1;
-    if (typeof cs !== 'string' || cs.length !== n * 3 || !new RegExp(`^(?:[0-${np}][a-z][0-9a-v]){${n}}$`).test(cs)) throw new Error('cells');
+    const R = RADIUS_BY_NP[np] + COAST_MAX, n = 3 * R * (R + 1) + 1;   // 輪郭がランダムなので、外側に COAST_MAX マス広い六角形で持つ（マスがない所は xxx）
+    if (typeof cs !== 'string' || cs.length !== n * 3 || !new RegExp(`^(?:xxx|[0-${np}][a-z][0-9a-v]){${n}}$`).test(cs) || cs.replace(/xxx/g, '').length < 3 * 20) throw new Error('cells');
     S.cells = cs;
     const isInt = (v, lo, hi) => Number.isInteger(v) && v >= lo && v <= hi;
     if (!isInt(S.MAX_ROUNDS, 1, 999) || !isInt(S.turn, 1, np) || !isInt(S.round, 0, 1000)) throw new Error('turn');
@@ -1869,6 +2104,10 @@ const ONL = (() => {
       if (!Array.isArray(S.pending[p])) throw new Error('pending');
       S.pending[p] = S.pending[p].slice(0, 50).filter(x => x && typeof x === 'object').map(x => ({t: String(x.t ?? ''), s: String(x.s ?? '')}));
     }
+    const tr = Array.isArray(S.traps) ? S.traps : [];   // 罠 [[キー, 席], …]（オブジェクトのキーにはマスのキーを使えないため配列で受け取る）
+    S.traps = {}; for (const e of tr.slice(0, 6 * TRAP_MAX)) if (Array.isArray(e) && typeof e[0] === 'string' && keyRe.test(e[0]) && Number.isInteger(e[1]) && e[1] >= 1 && e[1] <= np) S.traps[e[0]] = e[1];
+    const sc = S.scout && typeof S.scout === 'object' && !Array.isArray(S.scout) ? S.scout : {};   // 偵察 {席: [{c: [キー…], u: ラウンド}]}
+    S.scout = {}; for (const p of ps) S.scout[p] = (Array.isArray(sc[p]) ? sc[p] : []).slice(-8).filter(e => e && Array.isArray(e.c) && Number.isInteger(e.u)).map(e => ({c: e.c.filter(k => typeof k === 'string' && keyRe.test(k)).slice(0, 8), u: e.u}));
     S.over = !!S.over; S.selecting = !!S.selecting;
     if (typeof S.msg !== 'string') S.msg = '';
     if (S.result !== null && S.result !== undefined && typeof S.result !== 'object') S.result = null;
@@ -1879,7 +2118,7 @@ const ONL = (() => {
     if (!d || typeof d !== 'object' || !['lobby', 'play', 'closed'].includes(d.phase)) return null;
     const np = Math.max(2, Math.min(6, parseInt(d.np) || 2));
     const seats = {}; if (d.seats && typeof d.seats === 'object') for (let p = 1; p <= 6; p++) if (typeof d.seats[p] === 'string' && d.seats[p]) seats[p] = safeSeg(d.seats[p]);
-    return {host: safeSeg(d.host || ''), np, rounds: Math.max(1, Math.min(999, parseInt(d.rounds) || ROUNDS_BY_NP[np])), phase: d.phase, seats, dv: d.dv !== false, spec: d.spec !== false,
+    return {host: safeSeg(d.host || ''), np, rounds: Math.max(1, Math.min(999, parseInt(d.rounds) || ROUNDS_BY_NP[np])), phase: d.phase, seats, dv: d.dv === true, spec: d.spec !== false,
       v: Number.isFinite(+d.v) ? +d.v : 0, s: typeof d.s === 'string' && d.s.length <= MAX_S ? d.s : ''};
   }
   const cleanPlayers = list => Array.isArray(list) ? list.slice(0, 12).filter(x => x && typeof x === 'object' && typeof x.uid === 'string')
@@ -1931,7 +2170,7 @@ const ONL = (() => {
     if (c && !$('onCode').value) $('onCode').value = c;
     menuState(); box.classList.add('open');
   }
-  async function withBusy(f) { if (busyUI) return; busyUI = true; menuState(); try { await f(); } catch (e) { teardown(); setErr(errText(e)); } finally { busyUI = false; menuState(); } }
+  async function withBusy(f) { if (busyUI) return; hostGM = gm; if (gm) setGM(false); busyUI = true; menuState(); /* オンライン対戦にはGMモードを持ち込まない（GMだったことだけ覚えておく） */ try { await f(); } catch (e) { teardown(); setErr(errText(e)); } finally { busyUI = false; menuState(); } }
 
   // PeerJS の接続口を開く（id を省くと、ランダムなIDになる）
   async function newPeer(id) {
@@ -1969,7 +2208,7 @@ const ONL = (() => {
     let p = null, c = '';
     for (let i = 0; i < 5 && !p; i++) { c = genCode(); try { p = await newPeer(PFX + c); } catch (e) { if (e.type !== 'unavailable-id') throw e; } }
     if (!p) throw {type: 'unavailable-id'};
-    becomeHost(p, c, {host: uid, np, rounds: ROUNDS_BY_NP[np], phase: 'lobby', v: 0, s: '', seats: {}, dv: dayVision, spec: true}, []);
+    becomeHost(p, c, {host: uid, np, rounds: ROUNDS_BY_NP[np], phase: 'lobby', v: 0, s: '', seats: {}, dv: hostGM ? dayVision : false, spec: true}, []);   // 昼の全体表示: 初期値はオフ（GMでルームを作ったときだけ、端末の設定を使う）
   });
   // IDを入力して参加する
   const join = () => withBusy(async () => {
@@ -2253,7 +2492,7 @@ const ONL = (() => {
     setErr2(netMsg || (dup ? `「${myName}」はほかの参加者と同じ名前です。別の名前にしてください` : ''));
     $('onHostOpts').style.display = isHost ? '' : 'none'; $('onMine').style.display = watching ? 'none' : '';
     if (isHost) {
-      $('onSetDV').checked = !!gameDoc.dv; $('onSetSpec').checked = gameDoc.spec !== false;
+      $('onSetDV').checked = !!gameDoc.dv; $('onSetDV').disabled = !hostGM; $('onSetSpec').checked = gameDoc.spec !== false;
       if (document.activeElement !== $('onSetNP')) $('onSetNP').value = np;
       if (document.activeElement !== $('onSetRounds')) $('onSetRounds').value = gameDoc.rounds;
     }
@@ -2279,7 +2518,7 @@ const ONL = (() => {
       leave(false).then(() => { open(); setErr('ホストがルームを閉じました'); });
       return;
     }
-    gameDoc = d; isHost = d.host === uid; dayVision = d.dv !== false;   // 昼の全体表示は、ホストが決めた部屋の設定
+    gameDoc = d; isHost = d.host === uid; dayVision = d.dv === true;   // 昼の全体表示は、ホストが決めた部屋の設定
     if (d.phase === 'lobby') { renderLobby(); return; }
     if (d.phase !== 'play') return;
     const seat = watching ? 0 : +(Object.keys(d.seats || {}).find(k => d.seats[k] === uid) || 0);
@@ -2300,12 +2539,16 @@ const ONL = (() => {
 
   // 盤面の状態 ⇔ 文字列
   function exportState() {
-    let cs = '';   // 1マス3文字: 所有者・地形・フラグ（森/元の森/資源/回収済み/村）
-    for (const c of cells.values()) cs += String(c.o) + c.t + ((c.forest ? 1 : 0) | (c.f0 ? 2 : 0) | (c.res ? 4 : 0) | (c.harv ? 8 : 0) | (c.village ? 16 : 0)).toString(36);
+    let cs = '';   // 1マス3文字: 所有者・地形・フラグ（森/元の森/資源/回収済み/村）。輪郭の外（マスがない所）は xxx
+    const RB = RADIUS + COAST_MAX;
+    for (let q = -RB; q <= RB; q++) for (let r = -RB; r <= RB; r++) if (Math.abs(q + r) <= RB) {
+      const c = cells.get(key(q, r));
+      cs += c ? String(c.o) + c.t + ((c.forest ? 1 : 0) | (c.f0 ? 2 : 0) | (c.res ? 4 : 0) | (c.harv ? 8 : 0) | (c.village ? 16 : 0)).toString(36) : 'xxx';
+    }
     const k = c => c ? key(c.q, c.r) : null;
     return {NP, MAX_ROUNDS, SET, PNAME, PCOL, cells: cs, last: per(p => k(last[p])), baseCell: per(p => k(baseCell[p])),
       sp, rp, pw, skills, started, bless, pot, boost, tool, lock, fixed, langOpen, fireOpen, stoneOpen, xOpen, pending, alive,
-      turn, round, actions, over, winner, msg, selecting, result: RESULT.exportState()};
+      turn, round, actions, over, winner, msg, selecting, traps: Object.entries(traps), scout: scoutV, result: RESULT.exportState()};
   }
   function applyState(S, first) {
     const prevTurn = first ? 0 : turn, prevOver = !first && over, sig0 = JSON.stringify([NP, PNAME, PCOL]);
@@ -2314,19 +2557,21 @@ const ONL = (() => {
       clearTimeout(timer);
       NP = S.NP; MAX_ROUNDS = S.MAX_ROUNDS; SET = S.SET; RADIUS = RADIUS_BY_NP[NP] || 8; BASES = calcBases();
       PNAME = S.PNAME || {}; PCOL = {...DEF_COL, ...(S.PCOL || {})}; applyColors();
-      cells = new Map(); let i = 0;
-      for (let q = -RADIUS; q <= RADIUS; q++) for (let r = -RADIUS; r <= RADIUS; r++) if (Math.abs(q + r) <= RADIUS) {
+      cells = new Map(); let i = 0; const RB = RADIUS + COAST_MAX;
+      for (let q = -RB; q <= RB; q++) for (let r = -RB; r <= RB; r++) if (Math.abs(q + r) <= RB) {
         const e = S.cells.substr(i * 3, 3), f = parseInt(e[2], 36) || 0; i++;
+        if (e === 'xxx') continue;   // 輪郭の外
         cells.set(key(q, r), {q, r, o: +e[0] || 0, t: e[1] || 'p', forest: !!(f & 1), f0: !!(f & 2), res: !!(f & 4), harv: !!(f & 8), village: !!(f & 16)});
       }
       const g = k => k ? cells.get(k) || null : null;
       last = per(p => g(S.last[p])); baseCell = {}; for (const p of PL()) { const b = g(S.baseCell[p]); if (b) baseCell[p] = b; }
-      ({sp, rp, pw, skills, started, bless, pot, boost, tool, lock, fixed, langOpen, fireOpen, stoneOpen, xOpen, pending, alive, turn, round, actions, over, winner, msg, selecting} = S);
+      ({sp, rp, pw, skills, started, bless, pot, boost, tool, lock, fixed, langOpen, fireOpen, stoneOpen, xOpen, pending, alive, turn, round, actions, over, winner, msg, selecting, traps} = S);
+      scoutV = S.scout; if (prevTurn !== turn) { scoutMode = null; scoutPrev = null; trapMode = false; }
       viewer = turn; hover = null; authTurn = turn; busy = !myTurn();
       RESULT.importState(S.result);
       if (!over) RESULT.close();
       if (!myTurn()) for (const id of ['confirmReset', 'tree', 'tools']) $(id).classList.remove('open');
-      if (first || sig0 !== JSON.stringify([NP, PNAME, PCOL])) buildHeader();
+      if (first || sig0 !== JSON.stringify([NP, PNAME, PCOL])) buildHeader(); else if (S.selecting) resize();   // 輪郭が変わったら、盤面の大きさを合わせ直す
       render();
     } finally { applying = false; }
     if (!over && !selecting && turn === ONLINE.seat && (first || prevTurn !== turn)) {   // 自分の番になった: 届いていたお知らせを表示
@@ -2414,7 +2659,7 @@ const ONL = (() => {
   });
   $('onColors').addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if (!b || b.disabled) return; myCol = +b.dataset.k; renderLobby(); saveMe({col: myCol}); });
   $('onSetNP').addEventListener('change', () => { const np = Math.max(2, Math.min(6, parseInt($('onSetNP').value) || 2)); if (isHost && G && G.phase === 'lobby') { G.np = np; G.rounds = ROUNDS_BY_NP[np]; hostPush(true, false); } });
-  $('onSetDV').addEventListener('change', () => { if (isHost && G && G.phase === 'lobby') { G.dv = $('onSetDV').checked; hostPush(true, false); } });
+  $('onSetDV').addEventListener('change', () => { if (!hostGM) { $('onSetDV').checked = !!(G && G.dv); return; } if (isHost && G && G.phase === 'lobby') { G.dv = $('onSetDV').checked; hostPush(true, false); } });
   $('onSetSpec').addEventListener('change', () => { if (isHost && G && G.phase === 'lobby') { G.spec = $('onSetSpec').checked; hostPush(true, false); } });
   $('onWatch').addEventListener('click', watch);
   $('onSetRounds').addEventListener('change', () => { const r = Math.max(1, Math.min(999, parseInt($('onSetRounds').value) || 0)); if (r && isHost && G && G.phase === 'lobby') { G.rounds = r; hostPush(true, false); } });
@@ -2475,7 +2720,7 @@ const AI = (() => {
   const NOISE = {1: 7, 2: 1.5, 3: 0.3};
   const rnd = L => Math.random() * NOISE[L];
   // 画面に出ているダイアログ・設定画面があるあいだは待つ（人間が結果を読めるように）
-  const paused = () => !$('title').classList.contains('hide') || ['notice', 'confirmReset', 'setup', 'online', 'settings', 'gmModal', 'help', 'cycle'].some(id => { const e = $(id); return e && e.classList.contains('open'); }) || (typeof document !== 'undefined' && document.hidden);
+  const paused = () => !$('title').classList.contains('hide') || ['notice', 'confirmReset', 'setup', 'online', 'settings', 'gmModal', 'help', 'cycle', 'scout'].some(id => { const e = $(id); return e && e.classList.contains('open'); }) || (typeof document !== 'undefined' && document.hidden);
   const vision = V => visionOf(V);
   const open = (n, p) => n.t !== 's' && (n.o === 0 || isEnemy(n.o, p));   // 進めるかもしれないマス
   function frontDist(p) {   // 自領の中を歩いて、外に出られるマスまでの距離（自領の各マス → 歩数）
@@ -2498,18 +2743,28 @@ const AI = (() => {
     return best;
   }
   // ===== スキル・村・土器（成長の計画） =====
-  const PLAN = ['fire', 'lang', 'stone', 'herd', 'pottery', 'polish', 'farm', 'V', 'cook', 'settle', 'P', 'faith', 'V', 'P', 'P', 'V'];
+  const PLAN = ['fire', 'lang', 'stone', 'herd', 'trap', 'pottery', 'polish', 'T', 'farm', 'V', 'cook', 'settle', 'P', 'faith', 'V', 'T', 'P', 'P', 'V'];   // T: 罠を仕掛ける
   const vMax = (p, L) => skills[p].settle ? (L === 1 ? 1 : 3) : (L === 1 ? 1 : 1 + (skills[p].farm && skills[p].herd ? 1 : 0));   // 定住の暮らしがないうちは、村で食料が減るので控えめに
-  const villageSpot = p => { const c = last[p]; return c && c.o === p && !c.village && c !== baseCell[p] && baseDist(p, c) >= 3 ? c : null; };
+  const villageSpot = p => { const c = last[p]; return c && c.o === p && !c.village && c !== baseCell[p] && baseDist(p, c) >= 3 && villageSpotOk(c) ? c : null; };   // 既存の拠点・村の隣には建てない
+  function trapSpot(p) {   // 罠の場所: 相手の領地に面した自分のマス、なければ拠点の隣の自分のマス
+    const mine = [...cells.values()].filter(c => canTrapAt(c, p) && c.o === p);
+    const front = mine.filter(c => nbrs(c).some(n => isEnemy(n.o, p))), home = mine.filter(c => baseCell[p] && hexDist(c, baseCell[p]) === 1);
+    const pool = front.length ? front : home; return pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
+  }
   function grow(p, L) {   // 計画の順に、払えるものを1つ実行する（強いAIほど、先の目標のために資源を取っておく）
     if (L === 1 && Math.random() < 0.5) return false;
-    let reserve = 0, nv = 0, np2 = 0;
+    let reserve = 0, nv = 0, np2 = 0, nt = 0;
     for (const it of PLAN) {
       if (it === 'V') {
         nv++; if (villageCount(p) >= nv || nv > vMax(p, L)) continue;
         if (VILLAGE_MAX <= villageCount(p)) continue;
         if (rp[p] - reserve >= VILLAGE_RES && sp[p] >= VILLAGE_FOOD + 1) { const c = villageSpot(p); if (c) { buildVillage(c); return true; } }
         if (L >= 2) reserve += VILLAGE_RES; continue;
+      }
+      if (it === 'T') {   // 罠（ふつう以上のAI）: 計画の位置ごとに1つずつ
+        nt++; if (L === 1 || !skills[p].trap || trapCount(p) >= nt) continue;
+        if (rp[p] - reserve >= TRAP_RES && actions > TRAP_ACT) { const c = trapSpot(p); if (c) { setTrap(c); return true; } }
+        continue;
       }
       if (it === 'P') {
         np2++; if (!skills[p].pottery || pot[p] >= np2) continue;
@@ -2651,10 +2906,15 @@ const AI = (() => {
 {   // 設定: 昼はマップ全体が見える
   const $ = id => document.getElementById(id);
   $('settingsBtn').addEventListener('click', () => {
-    $('sDayVis').checked = dayVision; $('sDayVis').disabled = !!ONLINE;
-    $('setDayNote').textContent = ONLINE ? 'オンライン対戦では、ホストが決めた部屋の設定が使われます（待合室で変更できます）。' : '夜（夕・夜）は、通常どおり視界が狭まります。';
+    $('sDayVis').checked = dayVision; $('sDayVis').disabled = !!ONLINE || !gm;   // GMモードのときだけ切り替えられる
+    $('setDayNote').textContent = ONLINE ? 'オンライン対戦では、ホストが決めた部屋の設定が使われます。'
+      : gm ? 'オンにすると、昼（朝・昼）は盤面全体が見えます。夜（夕・夜）は通常の視界です。この設定は端末に保存されます。'
+      : `いまは${dayVision ? 'オン' : 'オフ'}です（初期値はオフ）。切り替えはGMモードのときだけできます。`;
   });
-  $('sDayVis').addEventListener('change', () => { if (ONLINE) return; dayVision = $('sDayVis').checked; try { localStorage.setItem('hexDayVision', dayVision ? '1' : '0'); } catch (e) {} render(); });
+  $('sDayVis').addEventListener('change', () => {
+    if (ONLINE || !gm) { $('sDayVis').checked = dayVision; return; }   // 念のため: GM以外の変更は受け付けない
+    dayVision = $('sDayVis').checked; try { localStorage.setItem('hexDayVision2', dayVision ? '1' : '0'); } catch (e) {} render();
+  });
 }
 
 // 想定外のエラーが起きても、ゲームが止まったままにならないようにする
