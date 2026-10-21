@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<!-- セキュリティ設定: 読み込める外部ファイルと通信先を、PeerJS とその接続サーバーだけに絞る -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdn.jsdelivr.net/npm/peerjs@1.5.4/; style-src 'unsafe-inline'; img-src data: blob:; connect-src https://0.peerjs.com wss://0.peerjs.com https://*.metered.live https://*.workers.dev; base-uri 'none'; form-action 'none'">
+<!-- セキュリティ設定: 外部のファイルは読み込まない。通信先は、中継サーバー（Cloudflare Workers, *.workers.dev）だけ -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; connect-src https://*.workers.dev wss://*.workers.dev; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#f3ede1" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#15110c" media="(prefers-color-scheme: dark)">
@@ -125,7 +125,8 @@
   #confirmBox .btns { display:flex; gap:10px; justify-content:center; margin-top:14px; }
   #rules, #treeBox, #toolBox, #scoutBox { position:relative; max-width:480px; max-height:80%; overflow-y:auto; box-sizing:border-box; padding:16px 18px; font-size:14px; color:var(--fg); background:var(--bar); border:1px solid var(--border); border-radius:14px; line-height:1.7; }
   #rules h2, #treeBox h2, #toolBox h2, #scoutBox h2 { margin:0 0 8px; font-size:16px; }
-  body.spec #scoutBtn, body.spec #toolBtn, body.spec #prayBtn, body.spec #treeBtn, body.spec #end, body.spec #gmBtn { display:none !important; }
+  body.spec #scoutBtn, body.spec #toolBtn, body.spec #prayBtn, body.spec #treeBtn, body.spec #end { display:none !important; }
+  body.rp #scoutBtn, body.rp #toolBtn, body.rp #prayBtn, body.rp #treeBtn, body.rp #end, body.rp #gmBtn, body.rp #resultBtn, body.rp #reset, body.rp #helpBtn { display:none !important; }
   #gate { position:fixed; inset:0; z-index:30; display:none; align-items:center; justify-content:center; text-align:center; padding:24px; background:var(--bg); }
   #gate.open { display:flex; }
   #gateTitle { font-size:26px; font-weight:800; margin-bottom:8px; }
@@ -250,9 +251,24 @@
   #onColors .sw { width:24px; height:24px; }
   #onColors button.on { border:2px solid var(--fg); background:var(--bar); }
   #onColors button:disabled { opacity:.25; cursor:default; }
-  #onHostOpts .onRow { align-items:center; }
-  #onHostOpts select, #onHostOpts input { width:90px; }
+  #onOpts .onRow { align-items:center; }
+  #onOpts select, #onOpts input { width:90px; }
   #onBox .btns { display:flex; gap:8px; justify-content:space-between; margin-top:16px; }
+  #onCont { display:flex; flex-wrap:wrap; gap:6px; }
+  #onCont button { display:flex; flex-direction:column; align-items:center; padding:6px 12px; font-weight:800; letter-spacing:.15em; }
+  #onCont small { font-size:10px; font-weight:400; letter-spacing:0; color:var(--muted); }
+  #onSit { margin-top:10px; width:100%; }
+  #netLine { padding:3px 12px; font-size:11px; color:var(--muted); background:var(--bar); border-bottom:1px solid var(--border); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  #devView { font:inherit; font-size:13px; padding:4px 6px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--fg); max-width:110px; }
+  #rpBar { padding:6px 10px calc(6px + env(safe-area-inset-bottom,0px)); background:var(--bar); border-top:1px solid var(--border); }
+  #rpBar .rpRow { display:flex; align-items:center; gap:6px; }
+  #rpBar .rpRow + .rpRow { margin-top:6px; }
+  #rpBar button { padding:6px 10px; font-size:13px; }
+  #rpRange { flex:1; min-width:0; }
+  #rpPos { font-size:12px; font-weight:700; min-width:64px; }
+  #rpViewSel { flex:1; min-width:0; font:inherit; font-size:13px; padding:4px 6px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--fg); }
+  #rsBtns { flex-wrap:wrap; }
+  #rsReplay { flex-basis:100% !important; }
 
   /* ===== 洗練レイヤー: 色・書体・影・動きを整える（配置・大きさは変えない） ===== */
   :root { --serif:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif; --ease:cubic-bezier(.2,.8,.2,1); --accent:#d99a1f; --shadow:0 1px 2px rgba(60,40,10,.10),0 6px 18px rgba(60,40,10,.12); }
@@ -303,9 +319,14 @@
 </head>
 <body>
 <header id="hdr"></header>
-<div id="bar"><div id="msg"></div><button id="settingsBtn">⚙️ 設定</button><button id="end">⏭ ターン終了</button><span id="onlineTag" style="display:none"></span><button id="resultBtn" style="display:none">🏆 結果</button><button id="reset">🔄 リセット</button></div>
+<div id="bar"><div id="msg"></div><button id="settingsBtn">⚙️ 設定</button><button id="end">⏭ ターン終了</button><span id="onlineTag" style="display:none" role="button" title="オンライン対戦の接続"></span><select id="devView" style="display:none" aria-label="表示する視点（Devモードの観戦）"></select><button id="resignBtn" style="display:none">🏳 投了</button><button id="resultBtn" style="display:none">🏆 結果</button><button id="reset">🔄 リセット</button></div>
+<div id="netLine" style="display:none"></div>
 <div id="wrap"><canvas id="c"></canvas><div id="dayBox"></div><button id="gmBtn">Dev</button><button id="treeBtn" aria-label="スキル一覧"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 28V21C22 19.5 25.5 16.5 25.5 11.5C25.5 6.5 21.5 3 16 3C10.5 3 6.5 7 6.5 12C6.5 13.5 7 14.5 7.8 15.5L5.5 19.5L7.8 20.5V24.5C7.8 26 9 27 10.5 27H13.5C15 27 16.2 26 16.2 24.5"/><path d="M11.5 12C10 10.5 11 8 13 8C13.5 6.5 16 6 17 7.5C18.5 6.8 20.5 8 20 9.8C21.5 10.5 21.5 13 19.8 13.5C19.5 15 17.5 15.8 16.2 15C15 16 12.8 15.7 12.5 14.2C11.3 14.2 10.6 13 11.5 12z"/><path d="M16 15.5C16 17.5 15 18 15 20.5"/><path d="M13.8 10.4C14.8 9.8 15.9 10.2 16.4 11.2"/><path d="M17.6 9.6C18.6 10 18.9 11.1 18.5 12"/></svg></button><button id="prayBtn" aria-label="命の糧"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 10.8C15.2 10 14 10.3 13.4 11.3L10.6 17.2C10 18.4 9.9 19.4 10.1 20.6"/><path d="M13.6 23.4L14.6 22.6C15.6 22 16 21.2 16 20V12.5"/><path d="M8.2 23L10.6 20.6L13.6 23.6L11.2 26z"/><path d="M12.6 19.2L13.6 14.3C13.8 13.3 15.2 13 15.6 14"/><path d="M 16 10.8 C 16.8 10 18 10.3 18.6 11.3 L 21.4 17.2 C 22 18.4 22.1 19.4 21.9 20.6"/><path d="M 18.4 23.4 L 17.4 22.6 C 16.4 22 16 21.2 16 20 V12.5"/><path d="M 23.8 23 L 21.4 20.6 L 18.4 23.6 L 20.8 26 z"/><path d="M 19.4 19.2 L 18.4 14.3 C 18.2 13.3 16.8 13 16.4 14"/><path d="M16.0 9.0L16.0 6.5"/><path d="M12.4 8.8L11.2 6.6"/><path d="M8.8 10.8L6.6 9.6"/><path d="M6.5 15.0L4.0 15.0"/><path d="M19.6 8.8L20.8 6.6"/><path d="M23.2 10.8L25.4 9.6"/><path d="M25.5 15.0L28.0 15.0"/></svg></button><button id="scoutBtn" aria-label="偵察"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16C6.5 10 11 7 16 7C21 7 25.5 10 29 16C25.5 22 21 25 16 25C11 25 6.5 22 3 16z"/><circle cx="16" cy="16" r="4.5"/><circle cx="16" cy="16" r="1.4" fill="currentColor"/><path d="M16 2.5V4.5M7 5L8.3 6.6M25 5L23.7 6.6"/></svg></button><button id="toolBtn" aria-label="クラフト"><svg viewBox="60 60 900 900" overflow="visible" fill="none" stroke="currentColor" stroke-width="44" stroke-linejoin="round" stroke-linecap="round"><g style="fill:var(--bar)"><path d="M207 790L650 347L705 392L257 840A35 35 0 0 1 207 790Z"/><path d="M487 183C590 180 680 215 730 258L668 310C620 270 560 225 487 183Z"/><path d="M792 325C845 395 870 470 862 563C840 505 790 430 745 382Z"/><path d="M757 242L807 293L712 400L645 335Z"/><path d="M170 218C265 198 335 208 370 237L440 311L400 403L350 447L262 488L185 410C150 330 155 260 170 218Z"/><path d="M287 335L355 358L712 716L655 754L316 413Z"/><path d="M712 716L775 732L800 757L707 848L682 822L668 765L655 754Z"/></g><path d="M383 455L407 432M642 725L668 700"/></svg></button></div>
 <div id="status"></div>
+<div id="rpBar" style="display:none">
+  <div class="rpRow"><button id="rpFirst" aria-label="最初へ">⏮</button><button id="rpPrev" aria-label="1手戻る">◀</button><input type="range" id="rpRange" min="0" max="0" value="0" aria-label="手数"><button id="rpNext" aria-label="1手進む">▶</button><button id="rpLast" aria-label="最後へ">⏭</button></div>
+  <div class="rpRow"><span id="rpPos"></span><select id="rpViewSel" aria-label="視点"></select><button id="rpCopy">棋譜をコピー</button><button id="rpClose">閉じる</button></div>
+</div>
 <div id="gate"><div><div id="gateTitle"></div><div id="gateSub"></div><button id="gateBtn">ターンを開始</button></div></div>
 <div id="tree"><div id="treeBox"><h2>スキル一覧</h2><div id="treeBody"></div><div style="text-align:right;margin-top:12px"><button id="treeClose">閉じる</button></div></div></div>
 <div id="tools"><div id="toolBox"><h2>クラフト</h2><div id="toolBody"></div><div style="text-align:right;margin-top:12px"><button id="toolClose">閉じる</button></div></div></div>
@@ -322,7 +343,7 @@
     <h3>領地の推移</h3><div id="rsChart"></div><div id="rsLegend"></div>
     <h3>記録</h3><div id="rsStats"></div>
     <div id="rsNote">獣：獣に勝った回数（戦闘の勝ちに含みます） ／ 回収：資源を回収した回数 ／ 村：建設した回数 ／ 最大：領地が最も多かったときのマス数</div>
-    <div id="rsBtns"><button id="rsBoard">盤面を見る</button><button id="rsTitle">タイトルへ</button><button id="rsAgain">もう一度</button></div>
+    <div id="rsBtns"><button id="rsBoard">盤面を見る</button><button id="rsTitle">タイトルへ</button><button id="rsAgain">もう一度</button><button id="rsReplay" style="display:none">🎞 振り返り（最初から再生）</button></div>
   </div>
 </div></div>
 <div id="settings"><div id="settingsBox">
@@ -406,7 +427,7 @@
 <li>拠点・村と現在地（白枠）は、周囲まで広く見えます。</li>
 <li>それ以外の自領は、そのマスだけが見えます。</li>
 <li>見えないマスは、輪郭だけが表示されます。</li>
-<li>☀️ 設定の「昼（朝・昼）はマップ全体が見える」は、初期値はオフです（ページを開くたびにオフから始まります）。切り替えはDevモードのときだけできます。オンのときは昼の間、盤面全体が見えます（夜と拠点選びの間は対象外）。オンライン対戦では、Devモードでルームを作ったホストだけが変えられます。</li>
+<li>☀️ 設定の「昼（朝・昼）はマップ全体が見える」は、初期値はオフです（ページを開くたびにオフから始まります）。切り替えはDevモードのときだけできます。オンのときは昼の間、盤面全体が見えます（夜と拠点選びの間は対象外）。オンライン対戦では使えません（常にオフ）。</li>
 <li>🔭 偵察のスキルを習得すると、離れた場所の霧をそのターンの間だけ晴らせます（下の「偵察」を参照）。</li>
 <li>夜間は視界が狭まります（火の発見で無効）。神秘の探究を習得すると、視界が広がります。</li>
 <li>ゲーム終了後は、盤面全体が見えます。</li>
@@ -503,14 +524,16 @@
 </ul></div></details>
 <details><summary>オンライン対戦 🌐</summary><div class="sec"><ul>
 <li>タイトル画面の「オンライン対戦」で、離れた場所の人ともインターネット経由で遊べます。ログインは不要です。</li>
-<li>ホストが「ルームを作成」すると、4文字のルームIDが出ます。ほかの人は、同じページを開いてIDを入力するか、招待リンクを開きます。</li>
-<li>通信は中継サーバー（TURN）を経由するため、対戦相手にあなたのIPアドレスは見えません。ホストの端末が部屋の進行役なので、ホストは対戦が終わるまでページを開いたままにしてください。</li>
-<li>参加者は自分の名前と色を決めます。人数がそろうと、ホストが対戦を始められます。参加した順にP1、P2…になります。</li>
-<li>盤面は自分の視界だけが表示され、確認画面はありません。自分の番以外は操作できません。</li>
-<li>通信が切れても自動でつなぎ直します。ページを閉じた場合は、同じ端末・同じブラウザで同じIDを入力すると、自分の席に戻れます（ホストも同じIDで入り直すと対戦を再開できます）。</li>
-<li>👁 <b>観戦</b>：タイトル画面の「観戦」（またはオンライン画面）でルームIDを入れると、席を取らずに、ほかの人の対戦を盤面全体を見ながら眺められます（操作はできません）。ホストは待合室で観戦を許可しないこともできます。観戦者には全員の情報が見えるため、対戦中のプレイヤーは観戦に入らないでください。</li>
-<li>終了後の「もう一度」は、ホストだけが押せます（同じメンバーで新しいマップになります）。</li>
-<li>オンライン対戦中は、Devモードとチュートリアルは使えません。</li>
+<li>だれかが「ルームを作成」すると、4文字のルームIDが出ます。ほかの人は、同じページを開いてIDを入力するか、招待リンクを開きます。</li>
+<li>通信は中継サーバーを経由するため、対戦相手にあなたのIPアドレスは見えません。盤面の正本はサーバーが持つので、ルームを作った人がページを閉じても対局は続きます。</li>
+<li>参加者は名前と色を決めて「席に着く」を押します。席がそろうと、席にいる人なら誰でも「対局開始」を押せます。出番（P1、P2…）は、開始のときにランダムで決まります。</li>
+<li>盤面は自分の視界だけが表示され、確認画面はありません。自分の番以外は操作できません。操作はサーバーが確かめてから反映します（待ったはありません）。</li>
+<li>🏳 投了：上の「投了」で、いつでも投了できます（拠点選びの間を除く）。投了した人は脱落し、残りが1人になると、その人の勝ちです。</li>
+<li>通信が切れても自動でつなぎ直します。ページを閉じた場合は、同じ端末・同じブラウザで、オンライン対戦の「続きの対局」（または同じID）から自分の席に戻れます。</li>
+<li>👁 <b>観戦</b>：タイトル画面の「観戦」（またはオンライン画面）でルームIDを入れると、席を取らずに対局を眺められます（操作はできません）。観戦者に見えるのは公開情報（プレイヤー欄の数字やお知らせ）だけで、盤面は霧のままです。Devモードの暗証番号を入れると、盤面全体と、各プレイヤーの視点を切り替えて見られます。待合室で観戦を許可しないこともできます。</li>
+<li>🎞 <b>振り返り</b>：終局後、結果画面の「振り返り」で、最初から1手ずつ再生できます（全員の情報が公開されます）。全体か、各プレイヤーの視点を選べ、棋譜をコピーできます。</li>
+<li>終局後の「もう一局」は、席にいた人なら誰でも押せます（同じメンバーで新しいマップ、出番もあらためてランダム）。抜けた人がいるときは待合室に戻ります。</li>
+<li>オンライン対戦中は、チュートリアルは使えません。Devモードは観戦のときだけ使えます。</li>
 </ul></div></details>
 <details><summary>操作と設定</summary><div class="sec"><ul>
 <li>1台の端末を交代で使います。手番が替わると確認画面で盤面を隠します。</li>
@@ -535,51 +558,36 @@
 <div id="online"><div id="onBox">
   <div id="onMenu">
     <h2>オンライン対戦</h2>
-    <div class="onNote" id="onAvail" style="white-space:pre-line">それぞれの端末から同じ部屋に入って対戦します。</div>
+    <div class="onNote" id="onAvail" style="white-space:pre-line">それぞれの端末から同じルームに入って対戦します。</div>
+    <div id="onContWrap" style="display:none"><span class="lbl">続きの対局（自分の席に戻る）</span><div id="onCont"></div></div>
     <span class="lbl">ルームを作成（ID発行）</span>
     <div class="onRow"><select id="onNP"><option value="2">2人</option><option value="3">3人</option><option value="4">4人</option><option value="5">5人</option><option value="6">6人</option></select><button id="onCreate" class="onMain" style="flex:1">ルームを作成</button></div>
     <span class="lbl">IDを入力して参加・観戦</span>
     <div class="onRow"><input id="onCode" maxlength="4" placeholder="ルームID" autocomplete="off" autocapitalize="characters"><button id="onJoin" class="onMain">参加</button><button id="onWatch">👁 観戦</button></div>
-    <div class="onNote">「観戦」は、ほかの人の対戦を、盤面全体を見ながら眺めます（操作はできません）。ホストが観戦を許可しているルームだけ見られます。</div>
+    <div class="onNote">「観戦」は、席を取らずに対局を眺めます（操作はできません）。観戦者に見えるのは公開情報だけで、盤面は霧のままです（Devモードの暗証番号があれば、盤面全体と各プレイヤーの視点を切り替えて見られます）。</div>
     <div id="onErr" aria-live="polite"></div>
     <div class="btns"><button id="onClose">タイトルへ</button></div>
   </div>
   <div id="onLobby" style="display:none">
     <div class="onCodeLbl">ルームID</div><div id="onCodeBig"></div>
     <div class="onIdRow"><button id="onCopyId">IDをコピー</button><button id="onShareLink">招待リンクを送る</button></div>
-    <div class="onNote">一緒に遊ぶ人に、このページとルームIDを伝えてください。</div>
-    <div class="onNote" id="onHostNote">あなたがホストです。対戦が終わるまで、このページを閉じないでください。</div>
+    <div class="onNote">一緒に遊ぶ人に、このページとルームIDを伝えてください。🔒 通信は中継サーバーを経由するため、対戦相手にあなたのIPアドレスは見えません。</div>
     <span class="lbl">参加者 <span id="onCount"></span></span><div id="onList"></div>
-    <div id="onMine"><label class="lbl" for="onName">あなたの名前（8文字まで）</label><input id="onName" maxlength="8" autocomplete="off">
-    <span class="lbl">あなたの色</span><div id="onColors"></div></div>
-    <div id="onHostOpts"><span class="lbl">対戦の設定（ホストのみ）</span><div class="onRow"><select id="onSetNP"><option value="2">2人</option><option value="3">3人</option><option value="4">4人</option><option value="5">5人</option><option value="6">6人</option></select><span>ラウンド</span><input type="number" id="onSetRounds" min="1" max="999"></div>
-      <label class="onRow" style="gap:8px;margin-top:8px"><input type="checkbox" id="onSetDV"> ☀️ 昼（朝・昼）はマップ全体が見える（Devでルームを作ったときのみ変更可）</label>
-      <label class="onRow" style="gap:8px;margin-top:4px"><input type="checkbox" id="onSetSpec"> 👁 観戦を許可する（観戦者には盤面全体が見えます）</label></div>
+    <div id="onMine" style="display:none"><label class="lbl" for="onName">あなたの名前（8文字まで）</label><input id="onName" maxlength="8" autocomplete="off">
+    <span class="lbl">あなたの色</span><div id="onColors"></div><button id="onSit">席に着く</button></div>
+    <div id="onOpts" style="display:none"><span class="lbl">対戦の設定（席に着いている人なら誰でも変えられます）</span><div class="onRow"><select id="onSetNP"><option value="2">2人</option><option value="3">3人</option><option value="4">4人</option><option value="5">5人</option><option value="6">6人</option></select><span>ラウンド</span><input type="number" id="onSetRounds" min="1" max="999"></div>
+      <label class="onRow" style="gap:8px;margin-top:8px"><input type="checkbox" id="onSetSpec"> 👁 観戦を許可する（観戦者には公開情報だけが見えます）</label></div>
     <div id="onWait" class="onNote" style="margin-top:12px"></div>
     <div id="onErr2" aria-live="polite"></div>
-    <div class="btns"><button id="onLeave">退出</button><button id="onStart" class="onMain">対戦を始める</button></div>
+    <div class="btns"><button id="onLeave">退出</button><button id="onStart" class="onMain">対局開始</button></div>
   </div>
 </div></div>
-<!-- P2P通信ライブラリ（PeerJS）。端末どうしをつなぐための無料の公開サーバーも、このライブラリが用意しています -->
-<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
-// ===== オンライン対戦の中継（TURN）サーバー設定 ===========================================
-// 対戦相手に自分のIPアドレスが見えないよう、通信はすべて TURN サーバーを経由させる。
-// 次の A・B のどちらか一方を設定する（両方あれば A を優先）。どちらも空だと、オンライン対戦は使えない。
-const TURN_CONFIG = {
-  // A. TURN の接続情報（iceServers）を返すURL
-  //    ・Metered（Open Relay）: ダッシュボードの「TURN Credential」の API Key を使ったURL
-  //      例 'https://あなたのアプリ名.metered.live/api/v1/turn/credentials?apiKey=XXXXXXXX'
-  //    ・Cloudflare などで自作した、短時間だけ有効な接続情報を返すURL
-  credentialUrl: '',
-  // B. 接続情報を直接書く場合（例）[{urls: 'turn:global.relay.metered.ca:443', username: '...', credential: '...'}]
-  iceServers: [   // Metered（アプリ名 hexarea2026・日本の中継サーバー）の接続情報
-    {urls: ['turn:jp.relay.metered.ca:80', 'turn:jp.relay.metered.ca:80?transport=tcp', 'turn:jp.relay.metered.ca:443', 'turns:jp.relay.metered.ca:443?transport=tcp'],
-     username: '98ad301042aeae59d4f74d98', credential: 'XYx3IUMtCqL0qCv2'}
-  ],
-  // true: TURN 経由の通信だけを使う（IPアドレスを相手に見せない）。false にすると直接通信も使う（非推奨）
-  relayOnly: true
-};
+// ===== オンライン対戦の中継サーバー（Cloudflare Workers）のアドレス =================================
+// ・各プレイヤーは、この中継サーバーとだけ WebSocket でつながる（端末どうしは直接つながらないので、相手にIPアドレスは見えない）。
+// ・秘密の値ではない（公開してよい）。空 '' にすると、オンライン対戦の画面で「使えない理由」を表示する。
+// ・サーバー側のファイル（index.js・wrangler.jsonc）は、別のリポジトリ hexarea-server に置く。
+const SERVER_URL = 'https://hexarea-server.jh0ndo3.workers.dev';
 // ======================================================================================
 const RADIUS_BY_NP = {2:7, 3:7, 4:8, 5:8, 6:9};   // 人数ごとのマップ半径（1人あたり約45〜85マス）
 const ROUNDS_BY_NP = {2:100, 3:68, 4:64, 5:52, 6:56};   // 人数ごとのラウンド数の初期値（1人あたりのマス数×約1.2を、4の倍数に）
@@ -634,11 +642,13 @@ let CPU = {};
 try { const sv = JSON.parse(localStorage.getItem('hexCpu') || 'null'); if (sv && typeof sv === 'object') for (const k in sv) { const q = +k, v = +sv[k]; if (q >= 1 && q <= 6 && v >= 1 && v <= 3) CPU[q] = v; } } catch (e) {}
 const saveCpu = () => { try { localStorage.setItem('hexCpu', JSON.stringify(CPU)); } catch (e) {} };
 const tutOn = () => { try { return TUT.on || TUT.starting; } catch (e) { return false; } };
-const spectating = () => !!(ONLINE && ONLINE.spec && ONLINE.playing);   // 観戦者（オンライン対戦の部屋を、盤面全体を見ながら眺める人）
+const spectating = () => !!(ONLINE && ONLINE.spec && ONLINE.playing);   // 観戦者（オンライン対戦の部屋を、席を取らずに眺める人。終局後の振り返りもこの扱い）
+const specAll = () => spectating() && ONLINE.view === 'all';   // 観戦者の「全体」表示（Devモードの観戦者と、終局後の振り返りだけ。サーバーが全体の情報を送ったときに限る）
+const specPub = () => spectating() && ONLINE.view !== 'all' && !(ONLINE.view > 0);   // 観戦者の通常表示: 公開情報だけ（盤面は霧のまま）
 const isCPU = p => !ONLINE && p >= 1 && p <= NP && !!CPU[p] && !tutOn();
 const humansAlive = () => PL().filter(q => !isCPU(q) && alive[q]).length;
 const humanSeat = () => (viewer && !isCPU(viewer) && alive[viewer]) ? viewer : (PL().find(q => !isCPU(q) && alive[q]) || viewer || turn);   // AIの番のときに盤面を見る人
-const viewP = () => onPlay() ? (ONLINE.spec ? turn : ONLINE.seat) : isCPU(turn) ? humanSeat() : turn;   // 盤面を見るプレイヤー（オンラインでは自分の席。AIの番では人間の席）
+const viewP = () => onPlay() ? (ONLINE.spec ? (ONLINE.view > 0 ? ONLINE.view : ONLINE.view === 'all' ? turn : 0) : ONLINE.seat) : isCPU(turn) ? humanSeat() : turn;   // 盤面を見るプレイヤー（オンラインでは自分の席。観戦者は、選んだプレイヤーの視点。公開情報だけのときは 0）
 const myTurn = () => onPlay() ? ONLINE.seat === turn : !isCPU(turn);
 let langOpen = per(false), fireOpen = per(false), stoneOpen = per(false), pending = per(() => []), popupQ = [], gmBackup = null, xOpen = {};   // xOpen: 新石器スキルの解放状態
 const XIDS = ['farm','herd','polish','pottery','faith','cook','settle','trap','survey','summit']; const resetX = () => { for (const k of XIDS) xOpen[k] = per(false); }; resetX(); let baseCell = {}, retPick = {}, tieStay = false, vNew = {}, resT = {};   // vNew: 建てたばかり（次の自分の番まで拠点扱いでない）の村 {マスのキー: 1} ／ resT: 回収した資源マスの復活 {マスのキー: [回収した回数, 復活するラウンド]}
@@ -921,7 +931,18 @@ function eliminate(o) {   // 脱落: 残りの領地（現在地・村）は空�
   for (const k in traps) if (traps[k] === o) delete traps[k];   // 脱落した人の罠は消える
   last[o] = null; pending[o] = []; retPick[o] = null;
 }
-function switchTurn(note) {
+function resign(p) {   // 投了（オンライン対戦）: その人は脱落する（拠点選びの間はできない）。残りが1人になれば、その人の勝ち
+  // ※ルールの処理は、サーバー（hexarea-server の index.js）にも同じものがある。変えるときは両方を同じに直すこと
+  if (over || selecting || !isPlayer(p) || !alive[p]) return false;
+  const wasTurn = p === turn;
+  eliminate(p);
+  msg = `🏳 ${name(p)}が投了した`;
+  const rest = PL().filter(q => alive[q]);
+  if (rest.length === 1) { finish(rest[0], `${name(p)}が投了`); return true; }
+  if (wasTurn) { switchTurn(`🏳 ${name(p)}が投了した。`); advance(); }
+  return true;
+}
+function switchTurn(note) {   // ※ルールの処理（init〜endTurn、unlock・checkUnlocks、learnSkill、クラフト、resign）は、サーバー（index.js）にも同じものがある。ルールを変えるときは両方を同じに直すこと
   if (retPick[turn]) retPick[turn] = null;   // 帰還する拠点を選ばずに番を終えたときは、仮に置かれた拠点のまま
   if (!selecting && !over && skills[turn].fire && phase() === '夜') unlock(turn, '火を囲む夜');   // 火の発見後に夜を終える
   scoutMode = null; scoutPrev = null; trapMode = false; villageMode = false;
@@ -1278,17 +1299,18 @@ function draw() {
   //   // 視界レベル: 1=そのマスのみ ／ 2=周囲1マスの地形も ／ 3=周囲1マスすべて ／ 4以降は半径が1ずつ増える
   const disk = (set, sc, n) => { for (let dq = -n; dq <= n; dq++) for (let dr = Math.max(-n, -dq - n); dr <= Math.min(n, -dq + n); dr++) set.add(key(sc.q + dq, sc.r + dr)); };
   const sel = selecting && !over, V = viewP(), MT = myTurn();   // V: 視点のプレイヤー ／ MT: 自分が操作できるか
-  if (over || gm || spectating() || fullDay() || ((onPlay() || isCPU(turn)) && !alive[V])) for (const kk of cells.keys()) full.add(kk);
+  if (over || gm || specAll() || fullDay() || (V && (onPlay() || isCPU(turn)) && !alive[V])) for (const kk of cells.keys()) full.add(kk);
   else if (sel) { for (const sc of cells.values()) if (isBase(sc)) disk(full, sc, 2); }   // 拠点選び中は候補6か所の半径2マスが見える
+  else if (!V) {}   // 観戦者（公開情報だけ）: 盤面は霧のまま
   else {
     for (const sc of cells.values()) {
       if (sc.o === V || sc === last[V]) { full.add(key(sc.q, sc.r)); const lv = visLevel(sc, V); if (lv === 2) disk(nores, sc, 1); else if (lv >= 3) disk(full, sc, lv - 2); }
     }
     for (const kk of scoutSet(V)) if (!full.has(kk) && !nores.has(kk)) { full.add(kk); scoutOnly.add(kk); }   // 🔭 偵察で晴らしたマス（そのターンの間だけ）
   }
-  const seeAllTraps = over || gm || spectating(), scouted = seeAllTraps ? null : scoutSet(V);
+  const seeAllTraps = over || gm || specAll(), scouted = seeAllTraps ? null : scoutSet(V);
   const trapShown = kk => traps[kk] && (seeAllTraps || traps[kk] === V || scouted.has(kk));   // 罠は仕掛けた本人だけに見える（偵察したマスでは、相手の罠も見つかる）
-  if (!over && !selecting && round === 1) for (const q of PL()) {   // 1ターン目だけ: 2人は先手が後手の拠点の半径2マスを見られる ／ 3人以上は、先にターンを行ったプレイヤーの拠点のマス（色）だけ見える
+  if (V && !over && !selecting && round === 1) for (const q of PL()) {   // 1ターン目だけ: 2人は先手が後手の拠点の半径2マスを見られる ／ 3人以上は、先にターンを行ったプレイヤーの拠点のマス（色）だけ見える
     const b = baseCell[q]; if (q === V || !alive[q] || !b || b.o !== q) continue;
     if (multi()) { if (q < V) full.add(key(b.q, b.r)); }
     else if (q > V) disk(full, b, 2);
@@ -1528,9 +1550,10 @@ async function tryGM() {
     const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('hexjintori:' + v));
     ok = [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('') === GM_PIN_HASH;
   } catch (e) { gmErr.textContent = '照合に失敗しました'; return; }
-  if (ok && !ONLINE) { gmModal.classList.remove('open'); setGM(true); } else { gmErr.textContent = '暗証番号が違います'; gmPin.value = ''; }
+  if (ok && ONLINE) { gmModal.classList.remove('open'); ONL.dev(v); }   // オンラインの観戦者: 暗証番号をサーバーでも確かめてから、盤面全体を受け取る
+  else if (ok) { gmModal.classList.remove('open'); setGM(true); } else { gmErr.textContent = '暗証番号が違います'; gmPin.value = ''; }
 }
-gmBtn.addEventListener('click', () => { if (ONLINE) return; if (gm) { setGM(false); return; } gmPin.value = ''; gmErr.textContent = ''; gmModal.classList.add('open'); setTimeout(() => gmPin.focus(), 50); });
+gmBtn.addEventListener('click', () => { if (ONLINE) { if (!ONLINE.spec) return; if (ONL.devOn()) { ONL.dev(null); return; } } else if (gm) { setGM(false); return; } gmPin.value = ''; gmErr.textContent = ''; gmModal.classList.add('open'); setTimeout(() => gmPin.focus(), 50); });
 document.getElementById('gmOk').addEventListener('click', tryGM);
 gmPin.addEventListener('keydown', e => { if (e.key === 'Enter') tryGM(); });
 document.getElementById('gmCancel').addEventListener('click', () => gmModal.classList.remove('open'));
@@ -2211,68 +2234,59 @@ const RESULT = (() => {
   };
 })();
 
-// オンライン対戦（P2P）: PeerJS で端末どうしを直接つなぐ
-// ホストの端末が部屋の状態を持ち、参加者の端末とデータをやり取りする（ホストが中継役）
-// 手番のプレイヤーの端末だけが状態を送り、ほかの端末はそれを受け取って表示する
+// ===== オンライン対戦（中継サーバー方式: Cloudflare Workers + Durable Objects） =====
+// ・この端末は、中継サーバー（SERVER_URL）とだけ WebSocket でつながる。端末どうしは直接つながらないので、相手にIPアドレスは見えない。
+// ・部屋の状態と、隠された情報（霧の中のマス・相手の罠・スキルなど）は、サーバーだけが持つ（正本）。
+//   サーバーは、プレイヤーには「公開情報＋その人だけの情報」を、観戦者には公開情報だけを送ってくる。
+// ・自分の番の操作は、内容（例: このマスをタップ）だけを送り、サーバーがルールで確かめて反映した盤面を待つ（この端末で盤面を勝手に進めない）。
+// ・終局後は、サーバーから最初の盤面と全員の操作の記録を受け取り、この端末のルール（ゲーム本体の関数）で最初から再生して振り返る。
+// ・ゲーム本体の関数（act・modePick・pray・learnSkill・endTurn など）は名前を変えずに、外から包んで使う。ゲーム本体と同じ変数名は、ここでは使わない。
+// ・ルールを変えるときは、ゲーム本体と、サーバー（hexarea-server の index.js）の両方を同じに直すこと。
 const ONL = (() => {
   const $ = id => document.getElementById(id), box = $('online');
   const CODE_CH = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';   // 見間違えやすい I・O・0・1 は使わない
+  const ROOM_RE = /^[A-HJ-NP-Z2-9]{4}$/, CELL_RE = /^-?\d{1,2},-?\d{1,2}$/, MID_RE = /^[ms][a-z0-9]{2,11}$/;
+  const PING_MS = 15000, DEAD_MS = 40000, MAX_IN = 600000;   // 15秒ごとに ping ／ 40秒何も届かなければつなぎ直す ／ 受け取る1通の上限（文字数）
   const DEF_COL = {1:0, 2:1, 3:2, 4:3, 5:4, 6:5};
-  const PFX = 'hexjintori-v1-';   // PeerJS の公開サーバー上で、ほかのアプリと ID がぶつからないようにする接頭辞
-  const STUN = [{urls: 'stun:stun.l.google.com:19302'}];
-  // TURN の接続情報を取りそろえる（取得できたら、このページを開いている間は使い回す）
-  let iceCache = null;
-  async function fetchIce() {
-    let list = Array.isArray(TURN_CONFIG.iceServers) ? TURN_CONFIG.iceServers : [];
-    if (TURN_CONFIG.credentialUrl) {
-      const ac = new AbortController(), t = setTimeout(() => ac.abort(), 8000);
-      try {
-        const r = await fetch(TURN_CONFIG.credentialUrl, {signal: ac.signal, credentials: 'omit', referrerPolicy: 'no-referrer'});
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        const j = await r.json();
-        const v = Array.isArray(j) ? j : j && j.iceServers;   // 配列でも {iceServers: …} でも受け付ける
-        list = Array.isArray(v) ? v : v ? [v] : [];
-      } catch (e) { console.warn('TURN の接続情報を取得できません', e); throw {type: 'relay-fetch'}; }
-      finally { clearTimeout(t); }
-    }
-    // 形を確かめて、TURN（turn: / turns:）の項目だけを残す
-    const ok = u => typeof u === 'string' && /^turns?:/.test(u);
-    const turns = list.filter(s => s && typeof s === 'object').map(s => {
-      const urls = (Array.isArray(s.urls) ? s.urls : [s.urls]).filter(ok);
-      return urls.length && typeof s.username === 'string' && typeof s.credential === 'string' ? {urls, username: s.username, credential: s.credential} : null;
-    }).filter(Boolean);
-    if (!turns.length) throw {type: TURN_CONFIG.credentialUrl ? 'relay-fetch' : 'relay-none'};
-    return turns;
+  const OP_KINDS = new Set(['tap', 'mode', 'demolish', 'pray', 'learn', 'tool', 'end', 'resign']);
+  let sock = null, roomCode = '', asSpec = false, myTok = '', myMid = '', roomInfo = null, liveS = null, liveVer = 0, mySeat = 0;
+  let opSeq = 0, opWait = 0, opWaitT = null, opLast = null, heardAt = 0, pingAt = 0, retryT = null, retryN = 0, netNote = '';
+  let createLeft = 0, createNP = 2, welcomed = false, quitting = false, uiBusy = false, myName = '', myCol = 0, nameT = null;
+  let devKey = '', devGranted = false, devView = 'all', stuckT = null, syncAt = 0, backupCfg = null, pubInfo = null, shownGid = -1, firstTries = 0;
+  let layoutKey = '';
+  let rpOn = false, rpRun = false, rpFast = false, rpAsk = null, rpData = null, rpIdx = 0, rpMsgs = [], rpCk = [], rpView = 'all', rpWant = false;
+
+  // ---- 端末に保存するもの ----
+  const lsGet = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
+  const lsSet = (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const ssGet = k => { try { return JSON.parse(sessionStorage.getItem(k) || 'null'); } catch (e) { return null; } };
+  const ssSet = (k, v) => { try { if (v == null) sessionStorage.removeItem(k); else sessionStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+  const rnd = n => { const b = new Uint8Array(n); crypto.getRandomValues(b); return b; };
+  const genCode = () => [...rnd(4)].map(x => CODE_CH[x % CODE_CH.length]).join('');
+  const newTok = () => btoa(String.fromCharCode(...rnd(18))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');   // 24文字の合言葉（ほかの人には送らない）
+  function tokFor(c) { const all = lsGet('hexTok') || {}; const e = all[c]; return e && typeof e.t === 'string' && /^[A-Za-z0-9_-]{16,48}$/.test(e.t) ? e.t : ''; }
+  function keepTok(c, t) {   // 合言葉はルームごとに保存（古いものは消す）
+    const all = lsGet('hexTok') || {}; all[c] = {t, at: Date.now()};
+    const ks = Object.keys(all).filter(k => ROOM_RE.test(k) && all[k] && Date.now() - (+all[k].at || 0) < 14 * 864e5).sort((a, b) => all[b].at - all[a].at).slice(0, 30);
+    lsSet('hexTok', Object.fromEntries(ks.map(k => [k, all[k]])));
   }
-  async function peerOptions() {
-    let turns = [];
-    if (!iceCache) iceCache = fetchIce().catch(e => { iceCache = null; throw e; });   // 失敗したら次回やり直す
-    try { turns = await iceCache; }
-    catch (e) { if (TURN_CONFIG.relayOnly) throw e; }   // 中継必須なら、直接通信には切り替えない
-    const config = TURN_CONFIG.relayOnly
-      ? {iceServers: turns, iceTransportPolicy: 'relay'}   // 自分の端末から出す接続先の候補を、TURN の中継アドレスだけにする
-      : {iceServers: [...STUN, ...turns]};
-    return {debug: 0, config};
-  }
-  let peer = null, conn = null, conns = new Map(), connWait = null;   // conn: 参加者→ホスト / conns: ホストが持つ参加者ごとの接続
-  let uid = null, freshUid = false, adopted = false, watching = false, savedUid = null;   // watching: 観戦者として入っている
-  let code = '', isHost = false, gameDoc = null, players = [], onlineSet = new Set();
-  let G = null, P = [];   // ホストだけが持つ、部屋の正本（G: 部屋の状態 / P: 参加者）
-  let applying = false, ver = 0, lastSent = '', authTurn = 0, lastOut = null;
-  let backup = null, myName = '', myCol = 0, nameTimer = null, busyUI = false, nameSynced = false;
-  let retryT = null, netMsg = '', hostGone = false, beatT = null, heard = 0, hostGM = false;   // hostGM: Devモードでルームを作った（昼の全体表示を切り替えられる）
-  const safeSeg = v => String(v).replace(/[^A-Za-z0-9_\-]/g, '_').slice(0, 40);
-  const cleanName = v => String(v || '').replace(/[<>&"'`]/g, '').trim().slice(0, 8);
+  function rooms() { const v = lsGet('hexRooms'); return Array.isArray(v) ? v.filter(x => x && ROOM_RE.test(x.c) && Date.now() - (+x.at || 0) < 7 * 864e5).slice(0, 10) : []; }
+  function keepRoom(c) { lsSet('hexRooms', [{c, at: Date.now()}, ...rooms().filter(x => x.c !== c)].slice(0, 10)); }
+  function forgetRoom(c) { lsSet('hexRooms', rooms().filter(x => x.c !== c)); }
+  const cleanText = (t, n = 600) => String(t == null ? '' : t).replace(/[<>&"'`]/g, '').slice(0, n);
+  const cleanName = v => String(v == null ? '' : v).replace(/[<>&"'`]/g, '').trim().slice(0, 8);
   const normName = v => v.normalize('NFKC').toLowerCase().replace(/\s+/g, '');
-  const MAX_S = 300000;   // 1回に受け取る盤面データの上限（文字数）
   const clampCol = v => { v = parseInt(v); return v >= 0 && v < PALETTE.length ? v : 0; };
+  const setErr = t => { $('onErr').textContent = t || ''; };
+  const setErr2 = t => { $('onErr2').textContent = t || ''; };
+
+  // ---- 受け取ったデータの検査 ----
   const BAD_KEY = new Set(['__proto__', 'constructor', 'prototype']);
-  // 受け取ったデータの中身を確かめる: 数値・真偽値・文字列・配列・オブジェクト以外や、HTMLとして解釈される文字を取り除く
-  function deepClean(v, d = 0) {
+  function deepClean(v, d = 0) {   // 数値・真偽値・文字列・配列・オブジェクト以外や、HTMLとして解釈される文字を取り除く
     if (d > 8) throw new Error('too deep');
     if (v === null || typeof v === 'boolean') return v;
     if (typeof v === 'number') { if (!Number.isFinite(v)) throw new Error('bad number'); return v; }
-    if (typeof v === 'string') return v.replace(/[<>&"'`]/g, '').slice(0, 500);
+    if (typeof v === 'string') return v.replace(/[<>&"'`]/g, '').slice(0, 600);
     if (Array.isArray(v)) { if (v.length > 5000) throw new Error('too long'); return v.map(x => deepClean(x, d + 1)); }
     if (typeof v === 'object') {
       const ks = Object.keys(v); if (ks.length > 500) throw new Error('too many keys');
@@ -2282,11 +2296,11 @@ const ONL = (() => {
     }
     throw new Error('bad type');
   }
-  // 盤面の状態として正しい形かを確かめる。おかしければ例外を投げる（呼び出し側で受け取りを中止する）
+  // 盤面の形を確かめる。足りない項目は既定値で補い、おかしいものがあれば例外を投げる（呼び出し側で捨てて、サーバーに取り直しを頼む）
   function validateState(raw) {
     if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('state');
-    const cs = raw.cells;
-    const S = deepClean({...raw, cells: ''});
+    const cs = raw.cells, keyed = ['vNew', 'resT', 'traps'];   // マスのキー（例 3,-2）を中身に持つ配列は、deepClean のキーの検査の外で確かめる
+    const S = deepClean({...raw, cells: '', vNew: [], resT: [], traps: []});
     const np = S.NP; if (!Number.isInteger(np) || np < 2 || np > 6) throw new Error('NP');
     const R = RADIUS_BY_NP[np] + COAST_MAX, n = 3 * R * (R + 1) + 1;   // 輪郭がランダムなので、外側に COAST_MAX マス広い六角形で持つ（マスがない所は xxx）
     if (typeof cs !== 'string' || cs.length !== n * 3 || !new RegExp(`^(?:xxx|[0-${np}][a-z][0-9a-v]){${n}}$`).test(cs) || cs.replace(/xxx/g, '').length < 3 * 20) throw new Error('cells');
@@ -2301,632 +2315,601 @@ const ONL = (() => {
     S.PNAME = {}; for (const p of ps) { const v = cleanName(PN[p]); if (v) S.PNAME[p] = v; }
     const PC = S.PCOL && typeof S.PCOL === 'object' ? S.PCOL : {};
     S.PCOL = {}; for (const p of ps) S.PCOL[p] = clampCol(PC[p] ?? DEF_COL[p]);
-    const perOk = o => o && typeof o === 'object' && !Array.isArray(o) && ps.every(p => p in o);
-    for (const k of ['sp', 'rp', 'pw', 'bless', 'pot']) if (!perOk(S[k]) || ps.some(p => typeof S[k][p] !== 'number')) throw new Error(k);
-    for (const k of ['skills', 'started', 'alive', 'langOpen', 'fireOpen', 'stoneOpen', 'pending', 'last', 'baseCell']) if (!perOk(S[k])) throw new Error(k);
-    for (const k of ['boost', 'tool', 'lock', 'fixed']) if (!S[k] || !perOk(S[k].stone) || !perOk(S[k].polish)) throw new Error(k);
-    if (!S.xOpen || XIDS.some(k => !perOk(S.xOpen[k]))) throw new Error('xOpen');
-    const keyRe = /^-?\d{1,2},-?\d{1,2}$/;
-    for (const p of ps) {
-      if (!S.skills[p] || typeof S.skills[p] !== 'object') throw new Error('skills');
-      for (const k of ['last', 'baseCell']) if (S[k][p] !== null && !(typeof S[k][p] === 'string' && keyRe.test(S[k][p]))) throw new Error(k);
-      if (!Array.isArray(S.pending[p])) throw new Error('pending');
-      S.pending[p] = S.pending[p].slice(0, 50).filter(x => x && typeof x === 'object').map(x => ({t: String(x.t ?? ''), s: String(x.s ?? '')}));
-    }
-    const rk = S.retPick && typeof S.retPick === 'object' && !Array.isArray(S.retPick) ? S.retPick : {};   // 強制帰還の候補 {席: [キー…] または null}（古い保存データには無いので、無ければ空）
-    S.retPick = {}; for (const p of ps) { const a = Array.isArray(rk[p]) ? rk[p].filter(k => typeof k === 'string' && keyRe.test(k)).slice(0, 6) : []; S.retPick[p] = a.length ? a : null; }
-    S.vNew = {}; for (const k of (Array.isArray(raw.vNew) ? raw.vNew : []).slice(0, 40)) if (typeof k === 'string' && keyRe.test(k)) S.vNew[k] = 1;   // 建てたばかりの村（古い保存データには無いので、無ければ空）
-    S.resT = {}; for (const e of (Array.isArray(raw.resT) ? raw.resT : []).slice(0, 2000)) if (Array.isArray(e) && typeof e[0] === 'string' && keyRe.test(e[0]) && Number.isInteger(e[1]) && e[1] >= 1 && e[1] <= 1000 && Number.isInteger(e[2]) && e[2] >= 0 && e[2] <= 5000) S.resT[e[0]] = [e[1], e[2]];   // 回収した資源マスの復活
-    const tr = Array.isArray(S.traps) ? S.traps : [];   // 罠 [[キー, 席], …]（オブジェクトのキーにはマスのキーを使えないため配列で受け取る）
-    S.traps = {}; for (const e of tr.slice(0, 6 * TRAP_MAX)) if (Array.isArray(e) && typeof e[0] === 'string' && keyRe.test(e[0]) && Number.isInteger(e[1]) && e[1] >= 1 && e[1] <= np) S.traps[e[0]] = e[1];
-    const sc = S.scout && typeof S.scout === 'object' && !Array.isArray(S.scout) ? S.scout : {};   // 偵察 {席: [{c: [キー…], u: ラウンド}]}
-    S.scout = {}; for (const p of ps) S.scout[p] = (Array.isArray(sc[p]) ? sc[p] : []).slice(-8).filter(e => e && Array.isArray(e.c) && Number.isInteger(e.u)).map(e => ({c: e.c.filter(k => typeof k === 'string' && keyRe.test(k)).slice(0, 8), u: e.u}));
-    S.over = !!S.over; S.selecting = !!S.selecting;
+    const perOf = (o, ok, def) => {   // プレイヤーごとの値: 足りなければ既定値。型が違えば例外
+      const src = o && typeof o === 'object' && !Array.isArray(o) ? o : {}, out = {};
+      for (const p of ps) { if (!(p in src) || src[p] === undefined) out[p] = typeof def === 'function' ? def() : def; else if (ok(src[p])) out[p] = src[p]; else throw new Error('per'); }
+      return out;
+    };
+    const num = v => typeof v === 'number', bool = v => typeof v === 'boolean', obj = v => !!v && typeof v === 'object' && !Array.isArray(v);
+    const keyOrNull = v => v === null || (typeof v === 'string' && CELL_RE.test(v));
+    S.sp = perOf(S.sp, num, 0); S.rp = perOf(S.rp, num, 0); S.pw = perOf(S.pw, num, 1); S.bless = perOf(S.bless, num, 0); S.pot = perOf(S.pot, num, 0);
+    S.skills = perOf(S.skills, obj, () => ({})); S.started = perOf(S.started, bool, false); S.alive = perOf(S.alive, bool, true);
+    for (const k of ['langOpen', 'fireOpen', 'stoneOpen']) S[k] = perOf(S[k], bool, false);
+    for (const k of ['boost', 'tool', 'lock', 'fixed']) { const o = obj(S[k]) ? S[k] : {}; S[k] = {stone: perOf(o.stone, num, 0), polish: perOf(o.polish, num, 0)}; if (k === 'fixed') S[k].cook = perOf(o.cook, num, 0); }   // 古いデータに fixed.cook がなくても補う
+    const xo = obj(S.xOpen) ? S.xOpen : {}; S.xOpen = {}; for (const k of XIDS) S.xOpen[k] = perOf(xo[k], bool, false);
+    S.last = perOf(S.last, keyOrNull, null); S.baseCell = perOf(S.baseCell, keyOrNull, null);
+    const rk = obj(S.retPick) ? S.retPick : {};   // 強制帰還の候補 {席: [キー…] または null}
+    S.retPick = {}; for (const p of ps) { const a = Array.isArray(rk[p]) ? rk[p].filter(k => typeof k === 'string' && CELL_RE.test(k)).slice(0, 6) : []; S.retPick[p] = a.length ? a : null; }
+    S.vNew = {}; for (const k of (Array.isArray(raw.vNew) ? raw.vNew : []).slice(0, 40)) if (typeof k === 'string' && CELL_RE.test(k)) S.vNew[k] = 1;
+    S.resT = {}; for (const e of (Array.isArray(raw.resT) ? raw.resT : []).slice(0, 2000)) if (Array.isArray(e) && typeof e[0] === 'string' && CELL_RE.test(e[0]) && isInt(e[1], 1, 1000) && isInt(e[2], 0, 5000)) S.resT[e[0]] = [e[1], e[2]];
+    S.traps = {}; for (const e of (Array.isArray(raw.traps) ? raw.traps : []).slice(0, 6 * TRAP_MAX)) if (Array.isArray(e) && typeof e[0] === 'string' && CELL_RE.test(e[0]) && isInt(e[1], 1, np)) S.traps[e[0]] = e[1];
+    const sc = obj(S.scout) ? S.scout : {};   // 偵察 {席: [{c: [キー…], u: ラウンド}]}
+    S.scout = {}; for (const p of ps) S.scout[p] = (Array.isArray(sc[p]) ? sc[p] : []).slice(-8).filter(e => e && Array.isArray(e.c) && Number.isInteger(e.u)).map(e => ({c: e.c.filter(k => typeof k === 'string' && CELL_RE.test(k)).slice(0, 8), u: e.u}));
+    S.over = !!S.over; S.selecting = !!S.selecting; S.tieStay = !!S.tieStay; S.stuck = !!S.stuck;
+    S.winner = isInt(S.winner, 0, np) ? S.winner : 0;
     if (typeof S.msg !== 'string') S.msg = '';
-    if (S.result !== null && S.result !== undefined && typeof S.result !== 'object') S.result = null;
+    S.me = isInt(S.me, 0, np) ? S.me : 0; S.gid = isInt(S.gid, 0, 1e9) ? S.gid : 0;
+    S.pub = obj(S.pub) ? perOf(S.pub, v => obj(v) && ['cn', 'inc', 'cap', 'pw'].every(k => num(v[k])) && (num(v.ac) || v.ac === '-'), null) : null;
+    S.notes = (Array.isArray(S.notes) ? S.notes : []).slice(-40).filter(x => obj(x) && isInt(x.i, 1, 1e9)).map(x => ({i: x.i, t: String(x.t ?? ''), s: String(x.s ?? '')}));
+    if (S.result != null) {   // 対戦結果（終局後だけ）
+      const r = obj(S.result) ? S.result : {};
+      const st = perOf(r.stats, v => obj(v) && ['win', 'draw', 'lose', 'beast', 'harv', 'built', 'out', 'outSeq'].every(k => num(v[k])), () => ({win: 0, draw: 0, lose: 0, beast: 0, harv: 0, built: 0, out: 0, outSeq: 0}));
+      const hist = (Array.isArray(r.hist) ? r.hist : []).slice(0, 1100).filter(h => obj(h) && isInt(h.r, 0, 1000) && obj(h.n)).map(h => ({r: h.r, n: Object.fromEntries(ps.map(p => [p, num(h.n[p]) ? h.n[p] : 0]))}));
+      S.result = {stats: st, hist, why: typeof r.why === 'string' ? r.why : '', outSeq: isInt(r.outSeq, 0, 10) ? r.outSeq : 0};
+    } else S.result = null;
     return S;
   }
-  // validateState で整えた盤面を、通信用の形（vNew・resT・traps は配列）に戻す。オブジェクトのまま配ると、座標のキー（例 3,-2）を deepClean が受け付けず、全員が盤面を捨ててしまう
-  function toWire(S) {
-    return {...S, vNew: Object.keys(S.vNew || {}), resT: Object.entries(S.resT || {}).map(([k, e]) => [k, e[0], e[1]]), traps: Object.entries(S.traps || {})};
+  // 部屋の情報を、決まった形に整える（おかしければ null）
+  function cleanRoom(m) {
+    if (!m || typeof m !== 'object' || !ROOM_RE.test(m.code) || !['lobby', 'play'].includes(m.phase)) return null;
+    const np = Number.isInteger(m.np) && m.np >= 2 && m.np <= 6 ? m.np : 0; if (!np) return null;
+    const members = (Array.isArray(m.members) ? m.members : []).slice(0, 12).filter(x => x && typeof x === 'object' && typeof x.id === 'string' && MID_RE.test(x.id))
+      .map(x => ({id: x.id, name: cleanName(x.name), col: clampCol(x.col), seated: x.seated === true, on: x.on === true}));
+    const seats = {}; if (m.seats && typeof m.seats === 'object') for (let p = 1; p <= np; p++) if (typeof m.seats[p] === 'string' && MID_RE.test(m.seats[p])) seats[p] = m.seats[p];
+    return {code: m.code, phase: m.phase, np, rounds: Number.isInteger(m.rounds) && m.rounds >= 1 && m.rounds <= 999 ? m.rounds : ROUNDS_BY_NP[np], spec: m.spec !== false,
+      gid: Number.isInteger(m.gid) ? m.gid : 0, members, seats, specN: Number.isInteger(m.specN) && m.specN >= 0 ? Math.min(m.specN, 99) : 0,
+      you: typeof m.you === 'string' && MID_RE.test(m.you) ? m.you : '', role: m.role === 'spec' ? 'spec' : 'player'};
   }
-  // 部屋の情報・参加者の一覧を、決まった形に整える
-  function cleanGame(d) {
-    if (!d || typeof d !== 'object' || !['lobby', 'play', 'closed'].includes(d.phase)) return null;
-    const np = Math.max(2, Math.min(6, parseInt(d.np) || 2));
-    const seats = {}; if (d.seats && typeof d.seats === 'object') for (let p = 1; p <= 6; p++) if (typeof d.seats[p] === 'string' && d.seats[p]) seats[p] = safeSeg(d.seats[p]);
-    return {host: safeSeg(d.host || ''), np, rounds: Math.max(1, Math.min(999, parseInt(d.rounds) || ROUNDS_BY_NP[np])), phase: d.phase, seats, dv: d.dv === true, spec: d.spec !== false,
-      v: Number.isFinite(+d.v) ? +d.v : 0, s: typeof d.s === 'string' && d.s.length <= MAX_S ? d.s : ''};
+  // 終局後の記録の操作を確かめる（サーバーの cleanOp と同じ形）
+  function cleanOp(o) {
+    if (!o || typeof o !== 'object' || !OP_KINDS.has(o.a)) return null;
+    const r = {a: o.a};
+    if (o.ch !== undefined) { if (o.ch !== 'yes' && o.ch !== 'alt') return null; r.ch = o.ch; }
+    if (['tap', 'mode', 'demolish'].includes(o.a)) { if (typeof o.k !== 'string' || !CELL_RE.test(o.k)) return null; r.k = o.k; }
+    if (o.a === 'mode') { if (!['village', 'trap', 'hex', 'line'].includes(o.m)) return null; r.m = o.m; }
+    if (o.a === 'learn') { if (!SKILLS.some(k => k.id === o.id)) return null; r.id = o.id; }
+    if (o.a === 'tool') { if (!['cook', 'pot', 'use', 'repair', 'craft'].includes(o.kind) || !['stone', 'polish', 'boil', 'pottery'].includes(o.id)) return null; r.kind = o.kind; r.id = o.id; }
+    return r;
   }
-  const cleanPlayers = list => Array.isArray(list) ? list.slice(0, 12).filter(x => x && typeof x === 'object' && typeof x.uid === 'string')
-    .map(x => ({uid: safeSeg(x.uid), name: cleanName(x.name), col: clampCol(x.col), at: Number.isFinite(+x.at) ? +x.at : 0})) : [];
-  const setErr = t => { $('onErr').textContent = t || ''; };
-  const setErr2 = t => { $('onErr2').textContent = t || ''; };
-  const send = (cn, m) => { try { if (cn && cn.open) cn.send(m); } catch (e) {} };
-  const seatOf = u => G ? +(Object.keys(G.seats || {}).find(k => G.seats[k] === u) || 0) : 0;
-  const genCode = () => Array.from({length: 4}, () => CODE_CH[Math.floor(Math.random() * CODE_CH.length)]).join('');
-  const lsGet = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } };
-  const lsSet = (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 
-  // 端末（タブ）ごとのID。ページを再読み込みしても同じIDで席に戻れる
-  try { uid = sessionStorage.getItem('hexUid'); } catch (e) {}
-  if (!uid) { uid = 'u' + Math.random().toString(36).slice(2, 12); freshUid = true; try { sessionStorage.setItem('hexUid', uid); } catch (e) {} }
-  const setUid = u => { uid = u; try { sessionStorage.setItem('hexUid', u); } catch (e) {} };
+  // ---- 通信 ----
+  const ready = () => !!SERVER_URL && /^https:\/\/[^\s/]+/.test(SERVER_URL);
+  const wsUrl = c => SERVER_URL.replace(/\/+$/, '').replace(/^https:/, 'wss:') + '/ws?room=' + c;
+  function connect() {
+    clearTimeout(retryT); retryT = null;
+    if (!roomCode || quitting) return;
+    dropSock();
+    let s; try { s = new WebSocket(wsUrl(roomCode)); } catch (e) { lost(); return; }
+    sock = s; heardAt = Date.now(); pingAt = Date.now();
+    s.onopen = () => { if (sock !== s) return; heardAt = Date.now(); sendRaw({t: 'hello', tok: myTok, spec: asSpec, create: createLeft > 0, np: createNP, name: myName, col: myCol}); };
+    s.onmessage = ev => {
+      if (sock !== s) return;
+      heardAt = Date.now(); const d = ev.data;
+      if (d === 'pong' || typeof d !== 'string' || d.length > MAX_IN) return;
+      let m; try { m = JSON.parse(d); } catch (e) { return; }
+      try { recv(m); } catch (e) { console.error(e); askSync(); }
+    };
+    s.onclose = () => { if (sock !== s) return; sock = null; lost(); };
+    s.onerror = () => {};
+    refreshNet();
+  }
+  function dropSock() { const s = sock; sock = null; if (s) { try { s.onopen = s.onmessage = s.onclose = s.onerror = null; s.close(); } catch (e) {} } }
+  function sendRaw(m) { if (sock && sock.readyState === 1) { try { sock.send(JSON.stringify(m)); return true; } catch (e) {} } return false; }
+  function lost() {   // 切れた: 少し待ってからつなぎ直す（1・2・4・8・15秒…）
+    if (!roomCode || quitting) return;
+    if (!welcomed && ++firstTries >= 3) { quitWith('サーバーにつながりませんでした。インターネット接続を確かめて、しばらくしてからお試しください'); return; }
+    netNote = 'retry'; if (opWait) endWait();
+    clearTimeout(retryT); retryT = setTimeout(connect, Math.min(15000, 1000 * Math.pow(2, retryN++)));
+    refreshNet();
+  }
+  function reconnectNow() { if (!roomCode || quitting) return; retryN = 0; connect(); }
+  setInterval(() => {   // 生存確認: 15秒ごとに ping、40秒何も届かなければつなぎ直す
+    if (!roomCode || !sock || sock.readyState !== 1) return;
+    const now = Date.now();
+    if (now - heardAt > DEAD_MS) { dropSock(); lost(); return; }
+    if (now - pingAt >= PING_MS) { pingAt = now; try { sock.send('ping'); } catch (e) {} }
+  }, 5000);
+  document.addEventListener('visibilitychange', () => {   // スマホで画面に戻ってきたとき: すぐに確かめる
+    if (document.visibilityState !== 'visible' || !roomCode) return;
+    if (!sock || sock.readyState > 1) { reconnectNow(); return; }
+    const t0 = Date.now(); pingAt = t0; try { sock.send('ping'); } catch (e) {}
+    setTimeout(() => { if (roomCode && heardAt < t0) { dropSock(); reconnectNow(); } }, 5000);
+  });
+  window.addEventListener('online', () => { if (roomCode && (!sock || sock.readyState > 1)) reconnectNow(); });
+  function askSync() { if (Date.now() - syncAt < 2000) return; syncAt = Date.now(); sendRaw({t: 'sync'}); }
 
-  const ERR = {
-    'unavailable-id': 'そのルームIDはすでに使われています。もう一度お試しください',
-    'peer-unavailable': 'ルームが見つかりません。IDを確かめるか、ホストが画面を開いているか確認してください',
-    'network': '接続サーバーにつながりません。インターネット接続を確認してください',
-    'server-error': '接続サーバーにつながりません。しばらくしてからお試しください',
-    'socket-error': '接続サーバーにつながりません。インターネット接続を確認してください',
-    'socket-closed': '接続サーバーとの通信が切れました',
-    'browser-incompatible': 'このブラウザはP2P通信（WebRTC）に対応していません',
-    'webrtc': '中継サーバー経由でつなげませんでした。ネットワークを変えるか、しばらくしてからお試しください',
-    'relay-none': 'オンライン対戦の準備ができていません。ページの設置者が、中継サーバー（TURN）を設定する必要があります',
-    'relay-fetch': '中継サーバー（TURN）の接続情報を取得できませんでした。しばらくしてからお試しください',
-    'timeout': '接続に時間がかかりすぎました。ネットワークを変えるか、もう一度お試しください',
-    'nolib': '通信ライブラリ（PeerJS）を読み込めませんでした。インターネット接続を確認して、ページを開き直してください',
-    'playing': 'このルームはすでに対戦中です',
-    'full': 'このルームは満員です',
-    'closed': 'ホストとの接続が切れました',
-    'nospec': 'このルームは観戦を許可していません',
-    'offline': 'インターネットに接続されていません。接続を確認してください'
-  };
-  const errText = e => ERR[e && e.type] || '通信に失敗しました。もう一度お試しください';
+  // ---- 受信 ----
+  function recv(m) {
+    if (!m || typeof m !== 'object' || typeof m.t !== 'string') return;
+    const myQ = Number.isInteger(m.q) && m.q > 0 && m.q === opWait;
+    switch (m.t) {
+      case 'welcome': onWelcome(m); break;
+      case 'err': onErr(String(m.e || '')); break;
+      case 'room': { const r = cleanRoom(m); if (r) onRoom(r); else askSync(); break; }
+      case 'st': onState(m, myQ); break;
+      case 'ask': if (myQ) { endWait(); showAsk(m); } break;
+      case 'hint': if (myQ) { endWait(); if (scoutPrev) scoutPrev = null; if (onPlay() && typeof m.text === 'string' && m.text) msg = cleanText(m.text); if (onPlay()) render(); } break;
+      case 'no': if (myQ) { endWait(); if (scoutPrev) scoutPrev = null; if (onPlay()) render(); } else if (m.e === 'seats') setErr2('席がいっぱいです'); else if (m.e === 'rep') { rpWant = false; } break;
+      case 'rep': onReplay(m); break;
+      case 'dev': onDev(m); break;
+      case 'kicked': quitWith('このルームを別の画面（タブ・端末）で開いたため、ここでの接続を終えました'); break;
+    }
+  }
+  function onWelcome(m) {
+    welcomed = true; retryN = 0; firstTries = 0; netNote = ''; createLeft = 0;
+    myMid = typeof m.id === 'string' && MID_RE.test(m.id) ? m.id : '';
+    if (!asSpec) keepTok(roomCode, myTok);
+    ssSet('hexCur', {c: roomCode, s: asSpec});
+    if (opWait) endWait();
+    if (asSpec && devKey) sendRaw({t: 'dev', pin: devKey});
+    refreshNet();
+  }
+  function onErr(e) {
+    if (e === 'exists' && createLeft > 1) { createLeft--; roomCode = genCode(); myTok = newTok(); if (ONLINE) ONLINE.code = roomCode; connect(); return; }   // 同じIDのルームがあった: 別のIDで作り直す
+    const T = {noroom: 'ルームが見つかりません。IDを確かめてください（7日間使われなかったルームは消えます）', exists: 'ルームを作れませんでした。もう一度お試しください',
+      playing: 'このルームはすでに対局中です（観戦はできます）', full: 'このルームは満員です', nospec: 'このルームは観戦を許可していません', bad: '通信に失敗しました。もう一度お試しください'};
+    if (e === 'noroom' || e === 'playing') forgetRoom(roomCode);
+    quitWith(T[e] || T.bad);
+  }
+  function onRoom(r) {
+    const was = roomInfo; roomInfo = r;
+    if (r.you) myMid = r.you;
+    const me = r.members.find(x => x.id === myMid);
+    if (me && (!was || !nameSynced())) { myName = me.name; myCol = me.col; $('onName').value = myName; }
+    if (r.phase === 'lobby') {
+      if (onPlay()) { closeReplay(true); ONLINE.playing = false; RESULT.close(); liveS = null; pubInfo = null; }   // もう一局のときに人がそろわなかった: 待合室に戻る
+      if (!asSpec) forgetRoom(roomCode);
+      renderLobby();
+    } else {
+      if (!asSpec && mySeatIn(r)) keepRoom(roomCode);
+      if (onPlay()) render(); else renderLobby();
+    }
+  }
+  let nameEdited = false; const nameSynced = () => nameEdited;
+  const mySeatIn = r => +(Object.keys(r.seats || {}).find(k => r.seats[k] === myMid) || 0);
+  function onState(m, myQ) {
+    const v = +m.v; if (!Number.isFinite(v)) return;
+    if (myQ) endWait();
+    if (v < liveVer) return;
+    let S; try { S = validateState(m.s); } catch (e) { console.warn('受け取った盤面が不正です', e); askSync(); return; }
+    liveVer = v; liveS = S;
+    if (myQ && opLast && opLast.a === 'mode') { villageMode = false; trapMode = false; scoutMode = null; }
+    if (myQ) scoutPrev = null;
+    if (rpOn) return;   // 振り返りの再生中は、閉じたときに反映する
+    const first = !onPlay();
+    mySeat = asSpec ? 0 : S.me;
+    ONLINE = {code: roomCode, seat: mySeat, playing: true, spec: asSpec, view: asSpec ? (devGranted ? devView : 0) : 0};
+    box.classList.remove('open'); $('title').classList.add('hide'); $('setup').classList.remove('open');
+    try { applyView(S, first, myQ ? m.fx : null, false); }
+    catch (e) { console.error(e); askSync(); }
+  }
+  // 受け取った盤面を、ゲーム本体の変数に書き込む（振り返りの再生でも使う）
+  function putState(S) {
+    clearTimeout(timer);
+    NP = S.NP; MAX_ROUNDS = S.MAX_ROUNDS; SET = S.SET; RADIUS = RADIUS_BY_NP[NP] || 8; BASES = calcBases();
+    PNAME = S.PNAME || {}; PCOL = {...DEF_COL, ...(S.PCOL || {})}; applyColors();
+    cells = new Map(); let i = 0; const RB = RADIUS + COAST_MAX;
+    for (let q = -RB; q <= RB; q++) for (let r = -RB; r <= RB; r++) if (Math.abs(q + r) <= RB) {
+      const e = S.cells.substr(i * 3, 3), f = parseInt(e[2], 36) || 0; i++;
+      if (e === 'xxx') continue;   // 輪郭の外
+      cells.set(key(q, r), {q, r, o: +e[0] || 0, t: e[1] || 'p', forest: !!(f & 1), f0: !!(f & 2), res: !!(f & 4), harv: !!(f & 8), village: !!(f & 16)});
+    }
+    const g = k => k ? cells.get(k) || null : null;
+    last = per(p => g(S.last[p])); baseCell = {}; for (const p of PL()) { const b = g(S.baseCell[p]); if (b) baseCell[p] = b; }
+    const cp = v => JSON.parse(JSON.stringify(v));
+    sp = cp(S.sp); rp = cp(S.rp); pw = cp(S.pw); skills = cp(S.skills); started = cp(S.started); bless = cp(S.bless); pot = cp(S.pot);
+    boost = cp(S.boost); tool = cp(S.tool); lock = cp(S.lock); fixed = cp(S.fixed); langOpen = cp(S.langOpen); fireOpen = cp(S.fireOpen); stoneOpen = cp(S.stoneOpen); xOpen = cp(S.xOpen);
+    alive = cp(S.alive); retPick = cp(S.retPick); traps = cp(S.traps); vNew = cp(S.vNew); resT = cp(S.resT); scoutV = cp(S.scout);
+    turn = S.turn; round = S.round; actions = S.actions; over = S.over; winner = S.winner; msg = S.msg; selecting = S.selecting; tieStay = S.tieStay;
+    pending = per(() => []); popupQ = [];
+  }
+  function applyView(S, first, fx, quiet) {
+    const prevTurn = first ? 0 : turn, prevOver = !first && over, sig0 = JSON.stringify([NP, PNAME, PCOL]), newGame = S.gid !== shownGid;
+    if (newGame) { villageTold = {}; RESULT.close(); first = true; }
+    putState(S); shownGid = S.gid; pubInfo = S.pub;
+    RESULT.importState(S.result || {});
+    if (prevTurn !== turn) { scoutMode = null; scoutPrev = null; trapMode = false; villageMode = false; }
+    viewer = turn; hover = null; busy = !myTurn() || !!opWait;
+    if (!myTurn()) for (const id of ['confirmReset', 'tree', 'tools', 'scout']) $(id).classList.remove('open');
+    if (first || sig0 !== JSON.stringify([NP, PNAME, PCOL])) buildHeader(); else if (S.selecting) resize();
+    render();
+    if (myTurn()) { if ($('tools').classList.contains('open')) renderTools(); if (tree.classList.contains('open')) renderTree(); }
+    if (quiet) return;
+    if (fx && Array.isArray(fx)) for (const n of fx.slice(0, 4)) if (typeof n === 'string' && /^[a-z]{2,10}$/.test(n)) SFX.play(n);
+    if (!asSpec && mySeat) {   // 自分あてのお知らせ（まだ見ていないものだけ）
+      const k = roomCode + ':' + S.gid + ':' + mySeat, seen = ssGet('hexSeen') || {}, s0 = +seen[k] || 0;
+      const fresh = S.notes.filter(x => x.i > s0);
+      if (fresh.length) { popupQ.push(...fresh.map(x => ({t: x.t, s: x.s}))); seen[k] = Math.max(...fresh.map(x => x.i)); ssSet('hexSeen', seen); showPopup(); }
+    }
+    if (!first && !over && turn === mySeat && prevTurn !== turn) SFX.play('turn');
+    clearTimeout(stuckT);
+    if (S.stuck && myTurn() && !over && !selecting && !opWait) {   // 行動できなくなった: 1秒後にターン終了の確認を出す
+      const v0 = liveVer; busy = true;
+      stuckT = setTimeout(() => { if (liveVer !== v0 || !onPlay() || rpOn || !myTurn() || over || opWait) return; busy = false; if (!$('confirmReset').classList.contains('open')) ask(`${name(turn)}は行動できなくなりました。<br>ターンを終了しますか？`, 'ターン終了', endTurn); }, 1000);
+    }
+    if (over && !prevOver) { if (!first) SFX.play('fanfare'); RESULT.schedule(first ? 300 : 1400); }
+  }
+  function showAsk(m) {   // サーバーからの確認（戦闘・拠点の決定など）。「はい」で同じ操作に返事を付けて送り直す
+    const base = opLast; if (!base) return;
+    const text = esc(String(m.text || '')).replace(/&lt;br&gt;/g, '<br>');   // 改行（<br>）だけを残し、ほかは文字として表示する
+    const alt = m.alt ? cleanText(m.alt, 20) : '';
+    ask(text, cleanText(m.yes, 20) || 'はい', () => sendOp({...base, ch: 'yes'}), alt || undefined, alt ? () => sendOp({...base, ch: 'alt'}) : undefined);
+  }
+  // 自分の番の操作を送る（返事が来るまで、ほかの操作は受け付けない）
+  function sendOp(o) {
+    if (!onPlay() || ONLINE.spec || rpOn) return;
+    if (o.a !== 'resign' && !myTurn()) return;
+    if (opWait) return;
+    if (!sock || sock.readyState !== 1) { msg = '⚠ 通信が切れています。つながるまでお待ちください'; render(); return; }
+    if (!o.ch) opLast = o;
+    opWait = ++opSeq; busy = true;
+    sendRaw({t: 'op', q: opWait, o});
+    clearTimeout(opWaitT); opWaitT = setTimeout(() => { if (opWait) { endWait(); syncAt = 0; askSync(); } }, 10000);
+    render();
+  }
+  function endWait() { opWait = 0; clearTimeout(opWaitT); busy = onPlay() ? !myTurn() : false; }
 
+  // ---- ゲーム本体の関数を包む（オンライン対戦中は、操作を送るだけにする）----
+  const wrapFn = (nm, f) => { const orig = window[nm]; window[nm] = function (...a) { return f(orig, a); }; };
+  const live = () => onPlay() && !rpRun;
+  const canSend = () => !ONLINE.spec && !rpOn && myTurn() && !busy && !over;
+  wrapFn('act', (orig, a) => { if (!live()) return orig.apply(null, a); const c = a[0]; if (c && canSend()) sendOp({a: 'tap', k: key(c.q, c.r)}); });
+  wrapFn('modePick', (orig, a) => {
+    if (!live()) return orig.apply(null, a);
+    const c = a[0]; if (!c || !canSend() || selecting) return;
+    const m = villageMode ? 'village' : trapMode ? 'trap' : scoutMode; if (!m) return;
+    if (m === 'hex' || m === 'line') { const ks = scoutCells(m, c); if (ks.length) { scoutPrev = ks; draw(); } }   // 偵察する範囲の下見
+    sendOp({a: 'mode', m, k: key(c.q, c.r)});
+  });
+  wrapFn('demolishVillage', (orig, a) => { if (!live()) return orig.apply(null, a); const c = a[0]; if (c && canSend()) sendOp({a: 'demolish', k: key(c.q, c.r)}); });
+  wrapFn('pray', (orig, a) => { if (!live()) return orig.apply(null, a); if (canSend()) sendOp({a: 'pray'}); });
+  wrapFn('learnSkill', (orig, a) => { if (!live()) return orig.apply(null, a); if (canSend()) sendOp({a: 'learn', id: String(a[0])}); return false; });
+  wrapFn('endTurn', (orig, a) => { if (!live()) return orig.apply(null, a); if (canSend() || (myTurn() && !opWait && !over && !ONLINE.spec)) sendOp({a: 'end'}); });
+  wrapFn('ask', (orig, a) => { if (rpRun) { rpAsk = {fn: a[2], alt: a[4] || null}; return; } return orig.apply(null, a); });   // 再生中は確認を出さずに覚えておく
+  wrapFn('draw', (orig, a) => { if (rpFast) return; return orig.apply(null, a); });
+  wrapFn('renderTree', (orig, a) => { if (rpFast) return; return orig.apply(null, a); });
+  wrapFn('showPopup', (orig, a) => { if (rpFast || rpOn) return; return orig.apply(null, a); });   // 再生中は、お知らせを出さない
+  wrapFn('renderTools', (orig, a) => { if (rpFast) return; return orig.apply(null, a); });
+  $('toolBody').addEventListener('click', e => {   // クラフトのボタン: 村・罠は場所選びに切り替えるだけ。ほかは操作として送る
+    if (!live()) return;
+    const b = e.target.closest ? e.target.closest('button[data-tool]') : null; if (!b) return;
+    const [kind, id] = String(b.dataset.tool).split(':');
+    if (kind === 'village' || kind === 'trap') return;
+    e.stopPropagation(); e.preventDefault();
+    if (!b.disabled && canSend()) sendOp({a: 'tool', kind, id});
+  }, true);
+
+  // ---- メニュー（ルームの作成・参加・観戦・続きの対局）----
   function menuState() {
-    const ok = !!window.Peer;
-    $('onCreate').disabled = !ok || busyUI; $('onJoin').disabled = !ok || busyUI; $('onWatch').disabled = !ok || busyUI;
-    $('onAvail').textContent = !ok ? ERR.nolib
-      : 'インターネット経由で、それぞれの端末から同じルームに入って対戦します。ルームを作った人がホストになります。'
-        + (TURN_CONFIG.relayOnly ? '\n🔒 通信は中継サーバーを経由するため、対戦相手にあなたのIPアドレスは見えません。' : '\n⚠ 端末どうしが直接通信するため、対戦相手にIPアドレスが見える場合があります。');
+    const ok = ready();
+    for (const id of ['onCreate', 'onJoin', 'onWatch']) $(id).disabled = !ok || uiBusy;
+    $('onAvail').textContent = ok
+      ? 'インターネット経由で、それぞれの端末から同じルームに入って対戦します。ログインは不要です。\n🔒 通信は中継サーバーを経由するため、対戦相手にあなたのIPアドレスは見えません。'
+      : 'オンライン対戦は、いまは使えません。\n理由: 中継サーバーのアドレスが設定されていません。ページを置いた人が、index.html の先頭にある SERVER_URL に、公開したサーバーのアドレス（https://〜.workers.dev）を入れる必要があります。';
+    const list = rooms();
+    $('onContWrap').style.display = ok && list.length ? '' : 'none';
+    $('onCont').innerHTML = list.map(x => `<button data-c="${x.c}">${x.c}<small>${new Date(x.at).toLocaleString('ja-JP', {month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'})}</small></button>`).join('');
   }
-  function open() {
-    setErr(''); $('onMenu').style.display = ''; $('onLobby').style.display = 'none';
-    const sv = lsGet('hexOnline'), sh = lsGet('hexHost'), c = (sv && sv.code) || (sh && sh.code);
-    if (c && !$('onCode').value) $('onCode').value = c;
-    menuState(); box.classList.add('open');
+  function open() { setErr(''); $('onMenu').style.display = ''; $('onLobby').style.display = 'none'; menuState(); box.classList.add('open'); $('title').classList.add('hide'); }
+  function enter(c, spec) {   // ルームに入る準備（ゲーム本体の設定は、退出したときに戻す）
+    roomCode = c; asSpec = !!spec; quitting = false; welcomed = false; firstTries = 0; retryN = 0; liveVer = 0; liveS = null; roomInfo = null; pubInfo = null; shownGid = -1;
+    mySeat = 0; opWait = 0; netNote = ''; nameEdited = false; rpData = null; rpWant = false;
+    if (!backupCfg) backupCfg = {NP, MAX_ROUNDS, PNAME: {...PNAME}, PCOL: {...PCOL}};
+    const wasDev = gm; if (gm) setGM(false);   // オンライン対戦にはDevモードを持ち込まない（観戦でだけ、サーバーで確かめて使う）
+    if (!(asSpec && wasDev)) devKey = '';
+    devGranted = false;
+    myName = cleanName(backupCfg.PNAME[1] || ''); myCol = clampCol(backupCfg.PCOL[1] ?? 0); $('onName').value = myName;
+    ONLINE = {code: c, seat: 0, playing: false, spec: asSpec, view: 0};
+    $('onMenu').style.display = 'none'; $('onLobby').style.display = ''; $('onCodeBig').textContent = c; $('onList').innerHTML = '<div class="onNote">接続しています…</div>';
+    $('onMine').style.display = 'none'; $('onOpts').style.display = 'none'; $('onStart').style.display = 'none'; $('onWait').textContent = ''; setErr2('');
+    box.classList.add('open'); $('title').classList.add('hide');
+    connect();
   }
-  async function withBusy(f) { if (busyUI) return; hostGM = gm; if (gm) setGM(false); busyUI = true; menuState(); /* オンライン対戦にはDevモードを持ち込まない（GMだったことだけ覚えておく） */ try { await f(); } catch (e) { teardown(); setErr(errText(e)); } finally { busyUI = false; menuState(); } }
-
-  // PeerJS の接続口を開く（id を省くと、ランダムなIDになる）
-  async function newPeer(id) {
-    if (!window.Peer) throw {type: 'nolib'};
-    const opt = await peerOptions();
-    return new Promise((res, rej) => {
-      let p, done = false;
-      try { p = id ? new Peer(id, opt) : new Peer(opt); } catch (e) { rej({type: 'browser-incompatible'}); return; }
-      const t = setTimeout(() => fin({type: 'timeout'}), 15000);
-      function fin(e) {
-        if (done) return; done = true; clearTimeout(t);
-        if (e) { try { p.destroy(); } catch (_) {} rej(e); } else res(p);
-      }
-      p.on('open', () => fin());
-      p.on('error', e => {
-        if (!done) { fin(e); return; }
-        if (p !== peer) return;
-        if (connWait) { connWait(e); return; }   // 参加しようとしたルームが見つからないときなど
-        if (isHost && ['network', 'server-error', 'socket-error', 'socket-closed'].includes(e && e.type)) {   // 接続サーバーとの通信が不安定（対戦中の通信は続く）
-          if (!netMsg) { netMsg = '接続サーバーとの通信が不安定です。新しい参加者が入れないことがあります'; refresh(); }
-        }
-      });
-      p.on('open', () => { if (done && p === peer && isHost && netMsg.startsWith('接続サーバー')) { netMsg = ''; refresh(); } });
-      p.on('disconnected', () => {   // 接続サーバーとの通信が切れた（端末どうしの通信は続く）。新しい参加を受けるため、つなぎ直す
-        if (p === peer && !p.destroyed) setTimeout(() => { try { if (p === peer && p.disconnected && !p.destroyed) p.reconnect(); } catch (e) {} }, 2000);
-      });
-    });
-  }
-
-  // ルームを作る（ID発行）
-  const create = () => withBusy(async () => {
-    setErr('');
-    if (navigator.onLine === false) throw {type: 'offline'};
-    const np = +$('onNP').value || 2;
-    let p = null, c = '';
-    for (let i = 0; i < 5 && !p; i++) { c = genCode(); try { p = await newPeer(PFX + c); } catch (e) { if (e.type !== 'unavailable-id') throw e; } }
-    if (!p) throw {type: 'unavailable-id'};
-    becomeHost(p, c, {host: uid, np, rounds: ROUNDS_BY_NP[np], phase: 'lobby', v: 0, s: '', seats: {}, dv: hostGM ? dayVision : false, spec: true}, []);   // 昼の全体表示: 初期値はオフ（Devでルームを作ったときだけ、端末の設定を使う）
-  });
-  // IDを入力して参加する
-  const join = () => withBusy(async () => {
-    setErr('');
-    if (navigator.onLine === false) throw {type: 'offline'};
-    const c = $('onCode').value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-    if (c.length !== 4) { setErr('ルームIDは4文字です'); return; }
-    const sv = lsGet('hexOnline'), sh = lsGet('hexHost');
-    adopted = false;
-    if (freshUid && sv && sv.code === c && sv.uid && sv.uid !== uid) { setUid(sv.uid); adopted = true; }   // 別のタブから入り直したとき、前の席を引き継ぐ
-    peer = await newPeer();
-    enterLocal(c);
-    try { await connectHost(); }
-    catch (e) {
-      if (e.type === 'dup' && adopted) {   // 引き継ごうとした席は、別のタブで使用中だった
-        setUid('u' + Math.random().toString(36).slice(2, 12)); adopted = false; ONLINE.uid = uid;
-        await connectHost(); return;
-      }
-      if (e.type === 'peer-unavailable' && sh && sh.code === c && sh.G) {   // 自分がホストだったルーム: 保存した状態から開き直す
-        teardown(); await rehost(sh); return;
-      }
-      throw e;
-    }
-    lsSet('hexOnline', {code: c, uid});
-  });
-  // 観戦: 席を取らずに部屋へ入り、盤面全体を眺める（操作はできない）
-  const watch = () => withBusy(async () => {
-    setErr('');
-    if (navigator.onLine === false) throw {type: 'offline'};
-    const c = $('onCode').value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-    if (c.length !== 4) { setErr('ルームIDは4文字です'); return; }
-    if (!watching) savedUid = uid;
-    watching = true; uid = 's' + Math.random().toString(36).slice(2, 12); adopted = false;   // 観戦者のIDは毎回新しく作る（席とは別）
-    peer = await newPeer();
-    enterLocal(c);
-    await connectHost();
-  });
-  async function rehost(sh) {
-    const g = cleanGame(sh.G);
-    if (!g || (g.s && (() => { try { validateState(JSON.parse(g.s)); return false; } catch (e) { return true; } })())) { lsSet('hexHost', null); throw {type: 'peer-unavailable'}; }   // 保存データが壊れていたら使わない
-    sh = {...sh, G: g, P: cleanPlayers(sh.P)};
-    let p = null, last = null;
-    for (let i = 0; i < 4 && !p; i++) {
-      try { p = await newPeer(PFX + sh.code); } catch (e) { last = e; if (e.type !== 'unavailable-id') break; await new Promise(r => setTimeout(r, 1500)); }
-    }
-    if (!p) throw last || {type: 'timeout'};
-    setUid(sh.uid || uid);
-    becomeHost(p, sh.code, sh.G, sh.P || []);
-  }
-
-  function enterLocal(c) {
-    code = c; gameDoc = null; players = []; onlineSet = new Set(); ver = 0; lastSent = ''; authTurn = 0; lastOut = null;
-    hostGone = false; netMsg = ''; nameSynced = false; clearTimeout(retryT);
-    clearInterval(beatT); beatT = setInterval(beat, 4000); heard = Date.now();
-    if (!backup) backup = {NP, MAX_ROUNDS, PNAME: {...PNAME}, PCOL: {...PCOL}};
-    ONLINE = {code: c, seat: 0, uid, playing: false, spec: watching};
-    myName = cleanName(backup.PNAME[1] || ''); myCol = backup.PCOL[1] ?? 0; $('onName').value = myName;
+  function create() { if (!ready() || uiBusy) return; setErr(''); createNP = Math.max(2, Math.min(6, +$('onNP').value || 2)); createLeft = 5; myTok = newTok(); enter(genCode(), false); }
+  function join(cc, spec) {
+    if (!ready() || uiBusy) return; setErr('');
+    const c = String(cc || $('onCode').value).toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (!ROOM_RE.test(c)) { setErr(c.length === 4 ? 'ルームIDに使えない文字があります（I・O・0・1 は使いません）' : 'ルームIDは4文字です'); return; }
+    createLeft = 0; myTok = spec ? newTok() : (tokFor(c) || newTok());   // 観戦者は毎回新しい合言葉（席とは別）
+    enter(c, spec);
   }
   function teardown() {
-    clearTimeout(retryT); clearTimeout(nameTimer); clearInterval(beatT);
-    const p = peer, cs = [...conns.values(), conn];
-    peer = null; conn = null; conns = new Map(); connWait = null;
-    setTimeout(() => { for (const cn of cs) try { if (cn) cn.close(); } catch (e) {} try { if (p) p.destroy(); } catch (e) {} }, 300);   // 最後の連絡を送り切ってから閉じる
-    if (watching) { uid = savedUid || uid; watching = false; }
-    dayVision = loadDV(); document.body.classList.remove('spec');
-    code = ''; gameDoc = null; players = []; onlineSet = new Set(); isHost = false; G = null; P = []; ONLINE = null; busy = false; netMsg = '';
-    if (backup) { NP = backup.NP; MAX_ROUNDS = backup.MAX_ROUNDS; PNAME = backup.PNAME; PCOL = backup.PCOL; applyColors(); backup = null; }
+    quitting = true; clearTimeout(retryT); clearTimeout(opWaitT); clearTimeout(stuckT); clearTimeout(nameT); dropSock();
+    closeReplay(true);
+    roomCode = ''; roomInfo = null; liveS = null; liveVer = 0; ONLINE = null; busy = false; opWait = 0; netNote = ''; pubInfo = null; devGranted = false; mySeat = 0;
+    document.body.classList.remove('spec', 'rp');
+    ssSet('hexCur', null);
+    if (backupCfg) { NP = backupCfg.NP; MAX_ROUNDS = backupCfg.MAX_ROUNDS; PNAME = backupCfg.PNAME; PCOL = backupCfg.PCOL; applyColors(); backupCfg = null; }
   }
-  async function leave(showTitle = true) {
-    const lobby = !gameDoc || gameDoc.phase === 'lobby';
-    if (isHost) {
-      if (lobby) { for (const cn of conns.values()) send(cn, {t: 'closed'}); lsSet('hexHost', null); }
-      else if (over) { for (const cn of conns.values()) send(cn, {t: 'hostleft'}); lsSet('hexHost', null); }
-      // 対戦の途中なら状態を残しておき、同じIDで入り直すと再開できる
-    } else {
-      send(conn, {t: 'bye'});
-      if ((lobby || over) && !watching) lsSet('hexOnline', null);
-    }
+  function quitWith(text) { const c = roomCode; teardown(); RESULT.close(); init(); open(); setErr(text); if (c) $('onCode').value = c; }
+  function leave(showTitle = true) {
+    const lobby = !roomInfo || roomInfo.phase === 'lobby';
+    if (roomCode && (lobby || over || asSpec) && !asSpec) forgetRoom(roomCode);
+    sendRaw({t: 'bye'});
     teardown();
     RESULT.close(); box.classList.remove('open');
     init();
     if (showTitle) $('title').classList.remove('hide');
+    return Promise.resolve();
   }
-  const leaveMsg = () => watching ? '観戦をやめて、タイトルに戻りますか？' : isHost && !over
-    ? 'オンライン対戦から退出しますか？<br>あなたはホストです。退出すると、あなたが同じIDで入り直すまで対戦が止まります。'
-    : 'オンライン対戦から退出しますか？<br>同じIDを入力すると、あとで自分の席に戻れます。';
+  const leaveMsg = () => asSpec ? '観戦をやめて、タイトルに戻りますか？'
+    : onPlay() && !over ? 'オンライン対戦から退出しますか？<br>あとでオンライン対戦の「続きの対局」から、自分の席に戻れます。退出している間、あなたの番になると対局が止まります。'
+    : 'オンライン対戦から退出しますか？';
 
-  // 生存確認: 通信が黙って途切れたとき（スマホのスリープなど）にも気づけるよう、4秒ごとに合図を送り合う
-  function beat() {
-    const now = Date.now();
-    if (isHost) {
-      for (const cn of [...conns.values()]) {
-        if (now - (cn.heard || 0) > 14000) { hostDrop(cn); try { cn.close(); } catch (e) {} }
-        else send(cn, {t: 'ping'});
-      }
-    } else if (conn) {
-      if (now - heard > 14000) { const cn = conn; lostHost(); try { cn.close(); } catch (e) {} }
-      else send(conn, {t: 'ping'});
-    }
-  }
-
-  // ===== ホストの処理 =====
-  function becomeHost(p, c, g, savedP) {
-    peer = p; isHost = true; enterLocal(c);
-    G = g; P = savedP;
-    if (G.phase === 'lobby' && !P.some(x => x.uid === uid)) P.push({uid, name: myName, col: myCol, at: Date.now()});
-    p.on('connection', cn => {
-      cn.on('data', m => { try { hostRecv(cn, m); } catch (err) { console.error(err); } });
-      cn.on('close', () => hostDrop(cn));
-      cn.on('error', () => hostDrop(cn));
-    });
-    hostPush(true, true);
-  }
-  function saveHost() { if (isHost && G) lsSet('hexHost', {code, uid, G, P}); }
-  function hostPush(game, plist, force) {   // 部屋の状態を全員に配り、自分の画面にも反映する
-    if (!G) return;
-    saveHost();
-    const on = [uid, ...conns.keys()];
-    for (const cn of conns.values()) { if (plist) send(cn, {t: 'players', list: P, on}); if (game) send(cn, {t: 'game', d: G}); }
-    if (plist) recvPlayers(P, on);
-    if (game) onGame({...G});
-  }
-  function hostDrop(cn) {
-    if (!G || !cn.uid || conns.get(cn.uid) !== cn) return;
-    conns.delete(cn.uid);
-    if (G.phase === 'lobby') P = P.filter(x => x.uid !== cn.uid);   // 待合室で接続が切れた人は、一覧から外す
-    hostPush(false, true);
-  }
-  function hostRecv(cn, m) {
-    if (!G || !m || typeof m !== 'object') return;
-    const now = Date.now(); cn.heard = now;
-    if (now - (cn.win || 0) > 1000) { cn.win = now; cn.cnt = 0; }   // 送信が多すぎる相手は無視し、さらに続けば切断する
-    if (++cn.cnt > 30) { if (cn.cnt > 120) { hostDrop(cn); try { cn.close(); } catch (e) {} } return; }
-    if (m.t === 'ping') { send(cn, {t: 'pong'}); return; }
-    if (m.t === 'sync') { if (cn.uid && conns.get(cn.uid) === cn) send(cn, {t: 'game', d: G, force: true}); return; }
-    if (m.t === 'hello' && m.spec) {   // 観戦者: 席を取らずに、部屋の状態だけを受け取る
-      const su = safeSeg(m.uid || '');
-      if (G.spec === false) { send(cn, {t: 'err', e: 'nospec'}); setTimeout(() => { try { cn.close(); } catch (e) {} }, 500); return; }
-      if (!su || su === uid || P.some(x => x.uid === su) || Object.values(G.seats || {}).includes(su)) { send(cn, {t: 'dup'}); return; }
-      const old = conns.get(su);
-      if (!old && [...conns.values()].filter(x => x.spec).length >= 8) { send(cn, {t: 'err', e: 'full'}); setTimeout(() => { try { cn.close(); } catch (e) {} }, 500); return; }
-      if (old && old !== cn) { try { old.close(); } catch (e) {} }
-      cn.uid = su; cn.spec = true; conns.set(su, cn);
-      send(cn, {t: 'welcome'}); hostPush(false, true); send(cn, {t: 'game', d: G});
-      return;
-    }
-    if (m.t === 'hello') {
-      const u = safeSeg(m.uid || '');
-      if (!u || u === uid) { send(cn, {t: 'dup'}); return; }
-      const old = conns.get(u);
-      if (old && old !== cn && old.open) {
-        if (m.adopt) { send(cn, {t: 'dup'}); return; }
-        try { old.close(); } catch (e) {}   // 同じ人が入り直した: 古い接続を切る
-      }
-      if (G.phase === 'play' && !seatOf(u)) { send(cn, {t: 'err', e: 'playing'}); setTimeout(() => { try { cn.close(); } catch (e) {} }, 500); return; }
-      if (G.phase === 'lobby' && !P.some(x => x.uid === u) && P.length >= 12) { send(cn, {t: 'err', e: 'full'}); setTimeout(() => { try { cn.close(); } catch (e) {} }, 500); return; }
-      cn.uid = u; conns.set(u, cn);
-      if (G.phase === 'lobby' && !P.some(x => x.uid === u)) P.push({uid: u, name: cleanName(m.name), col: clampCol(m.col), at: Date.now()});
-      send(cn, {t: 'welcome'});
-      hostPush(false, true);
-      send(cn, {t: 'game', d: G});
-      return;
-    }
-    if (!cn.uid || conns.get(cn.uid) !== cn) return;
-    if (m.t === 'me') {
-      const pl = P.find(x => x.uid === cn.uid);
-      if (pl && G.phase === 'lobby') { if ('name' in m) pl.name = cleanName(m.name); if ('col' in m) pl.col = clampCol(m.col); hostPush(false, true); }
-    } else if (m.t === 'state') {
-      const seat = seatOf(cn.uid);
-      if (G.phase !== 'play' || !seat || typeof m.s !== 'string' || m.s.length > MAX_S || !Number.isFinite(+m.v)) return;
-      let cur = {}, next = null; try { cur = JSON.parse(G.s || '{}'); } catch (e) {}
-      try { next = validateState(JSON.parse(m.s)); } catch (e) { next = null; }   // 形のおかしい盤面は受け付けない
-      if (next) { next.PNAME = cur.PNAME || next.PNAME; next.PCOL = cur.PCOL || next.PCOL; next.MAX_ROUNDS = cur.MAX_ROUNDS || next.MAX_ROUNDS; }   // 名前・色・ラウンド数は対戦中に変えさせない
-      if (next && next.NP === cur.NP && +m.v > +G.v && cur.turn === seat) { G.v = +m.v; G.s = JSON.stringify(toWire(next)); hostPush(true, false); }   // 手番の人からの送信だけを受け付ける
-      else send(cn, {t: 'game', d: G, force: true});   // 食い違ったら、正本で上書きしてもらう
-    } else if (m.t === 'bye') {
-      conns.delete(cn.uid);
-      if (G.phase === 'lobby') P = P.filter(x => x.uid !== cn.uid);
-      hostPush(false, true);
-      setTimeout(() => { try { cn.close(); } catch (e) {} }, 300);
-    }
-  }
-
-  // ===== 参加者の処理 =====
-  function connectHost() {
-    return new Promise((res, rej) => {
-      if (!peer || peer.destroyed) { rej({type: 'closed'}); return; }
-      if (peer.disconnected) { try { peer.reconnect(); } catch (e) {} }
-      let cn, done = false;
-      try { cn = peer.connect(PFX + code, {reliable: true, serialization: 'json'}); } catch (e) { rej({type: 'closed'}); return; }
-      const t = setTimeout(() => fin({type: 'timeout'}), 15000);
-      function fin(e) {
-        if (done) return; done = true; clearTimeout(t); if (connWait === fin) connWait = null;
-        if (e) { try { cn.close(); } catch (_) {} rej(e); } else res();
-      }
-      connWait = fin;
-      cn.on('open', () => send(cn, {t: 'hello', uid, adopt: adopted, name: myName, col: myCol, spec: watching}));
-      cn.on('data', m => {
-        if (!m || typeof m !== 'object') return;
-        if (conn === cn || !done) heard = Date.now();
-        if (m.t === 'ping' || m.t === 'pong') { if (m.t === 'ping') send(cn, {t: 'pong'}); return; }
-        if (!done) {
-          if (m.t === 'welcome') { conn = cn; heard = Date.now(); fin(); if (lastOut) send(cn, {t: 'state', ...lastOut}); }   // 切断中に送れなかった操作を送り直す
-          else if (m.t === 'dup') fin({type: 'dup'});
-          else if (m.t === 'err') fin({type: m.e});
-          return;
-        }
-        if (conn === cn) { try { clientRecv(m); } catch (err) { console.error(err); resync(); } }
-      });
-      const lost = () => { if (!done) fin({type: 'closed'}); else if (conn === cn) lostHost(); };
-      cn.on('close', lost); cn.on('error', lost);
-    });
-  }
-  function clientRecv(m) {
-    if (m.t === 'players') recvPlayers(cleanPlayers(m.list), Array.isArray(m.on) ? m.on.filter(x => typeof x === 'string').slice(0, 20) : []);
-    else if (m.t === 'game') { const d = cleanGame(m.d); if (!d) return; if (m.force) ver = Math.min(ver, d.v - 1); onGame(d); }
-    else if (m.t === 'closed') onGame({phase: 'closed'});
-    else if (m.t === 'hostleft') { hostGone = true; netMsg = 'ホストが退出しました'; conn = null; refresh(); }
-  }
-  function lostHost() {
-    conn = null;
-    if (!code || hostGone) return;
-    netMsg = 'ホストとの接続が切れました。つなぎ直しています…'; refresh();
-    clearTimeout(retryT); retryT = setTimeout(retry, 2500);
-  }
-  async function retry() {
-    if (!code || isHost || conn) return;
-    try {
-      if (!peer || peer.destroyed) peer = await newPeer();
-      await connectHost();
-      netMsg = ''; refresh();
-    } catch (e) {
-      if (e.type === 'playing' || e.type === 'full') { leave(false).then(() => { open(); setErr(errText(e)); }); return; }
-      if (code) { clearTimeout(retryT); retryT = setTimeout(retry, 4000); }
-    }
-  }
-  let syncT = 0;
-  function resync() {   // ホストに最新の盤面をもう一度送ってもらう（続けて呼ばれても2秒に1回まで）
-    if (isHost || !conn || Date.now() - syncT < 2000) return;
-    syncT = Date.now(); ver = 0; send(conn, {t: 'sync'});
-  }
-  function refresh() { if (onPlay()) render(); else if (gameDoc && gameDoc.phase === 'lobby') renderLobby(); }
-
-  // ===== 共通: 受け取った状態を反映する =====
-  function recvPlayers(list, on) {
-    players = list.map(x => ({...x})).sort((a, b) => (a.at || 0) - (b.at || 0));
-    onlineSet = new Set(on);
-    if (!nameSynced) {
-      const me = players.find(x => x.uid === uid);
-      if (me) { myName = cleanName(me.name); myCol = +me.col || 0; $('onName').value = myName; nameSynced = true; }
-    }
-    renderLobby();
-    if (onPlay()) render();
-  }
-
-  // 待合室
+  // ---- 待合室 ----
   function renderLobby() {
-    if (!gameDoc || gameDoc.phase !== 'lobby') return;
+    const r = roomInfo; if (!r || r.phase !== 'lobby' && !(r.phase === 'play' && !onPlay())) return;
     $('onMenu').style.display = 'none'; $('onLobby').style.display = '';
     box.classList.add('open'); $('title').classList.add('hide');
-    const np = gameDoc.np;
-    $('onCodeBig').textContent = code;
+    $('onCodeBig').textContent = r.code;
     $('onShareLink').style.display = location.protocol.startsWith('http') ? '' : 'none';
-    $('onHostNote').style.display = isHost ? '' : 'none';
-    $('onCount').textContent = `${Math.min(players.length, np)} / ${np}人`;
-    $('onHostNote').style.display = isHost ? '' : 'none';
-    $('onList').innerHTML = players.map((pl, i) => {
-      const col = (PALETTE[pl.col] || PALETTE[0]).c;
-      const tags = [i < np ? 'P' + (i + 1) : '満員のため待機', pl.uid === gameDoc.host ? 'ホスト' : '', pl.uid === uid ? 'あなた' : ''].filter(Boolean).join('・');
-      return `<div class="onP${i >= np ? ' wait' : ''}"><span class="sw" style="background:${col}"></span><span class="nm">${esc(cleanName(pl.name) || '（名前なし）')}</span><span class="tag">${tags}</span></div>`;
-    }).join('') || '<div class="onNote">読み込み中…</div>';
-    const others = players.filter(x => x.uid !== uid);
-    const taken = new Set(others.map(x => +x.col));
-    const mine = players.find(x => x.uid === uid);
-    if (mine && others.some(x => +x.col === myCol && (x.at || 0) <= (mine.at || 0))) {   // 先に入った人と色が重なったら、空いている色に替える
-      myCol = PALETTE.findIndex((_, k) => !taken.has(k)); saveMe({col: myCol});
+    const seated = r.members.filter(x => x.seated), me = r.members.find(x => x.id === myMid), meSeated = !!(me && me.seated);
+    $('onCount').textContent = `着席 ${seated.length} / ${r.np}人` + (r.specN ? `　👁 観戦 ${r.specN}人` : '');
+    const list = [...r.members].sort((a, b) => (b.seated - a.seated));
+    $('onList').innerHTML = list.map(x => {
+      const col = (PALETTE[x.col] || PALETTE[0]).c;
+      const tags = [x.seated ? '着席' : '待機', x.id === myMid ? 'あなた' : '', x.on ? '' : '📵 接続なし'].filter(Boolean).join('・');
+      return `<div class="onP${x.seated ? '' : ' wait'}"><span class="sw" style="background:${col}"></span><span class="nm">${esc(x.name || '（名前なし）')}</span><span class="tag">${tags}</span></div>`;
+    }).join('') || '<div class="onNote">まだ誰もいません</div>';
+    const player = !asSpec && !!me;
+    $('onMine').style.display = player ? '' : 'none';
+    if (player) {
+      const taken = new Set(r.members.filter(x => x.id !== myMid).map(x => x.col));
+      $('onColors').innerHTML = PALETTE.map((c, k) => `<button data-k="${k}" class="${k === myCol ? 'on' : ''}" ${taken.has(k) ? 'disabled' : ''}><span class="sw" style="background:${c.c}"></span>${c.n}</button>`).join('');
+      $('onName').style.borderColor = (PALETTE[myCol] || PALETTE[0]).c;
+      $('onSit').textContent = meSeated ? '席を立つ（観戦せずに待つ）' : '席に着く';
+      $('onSit').disabled = !meSeated && seated.length >= r.np;
     }
-    $('onColors').innerHTML = PALETTE.map((c, k) => `<button data-k="${k}" class="${k === myCol ? 'on' : ''}" ${taken.has(k) ? 'disabled' : ''}><span class="sw" style="background:${c.c}"></span>${c.n}</button>`).join('');
-    $('onName').style.borderColor = (PALETTE[myCol] || PALETTE[0]).c;
-    const dup = myName && others.some(x => cleanName(x.name) && normName(cleanName(x.name)) === normName(myName));
-    setErr2(netMsg || (dup ? `「${myName}」はほかの参加者と同じ名前です。別の名前にしてください` : ''));
-    $('onHostOpts').style.display = isHost ? '' : 'none'; $('onMine').style.display = watching ? 'none' : '';
-    if (isHost) {
-      $('onSetDV').checked = !!gameDoc.dv; $('onSetDV').disabled = !hostGM; $('onSetSpec').checked = gameDoc.spec !== false;
-      if (document.activeElement !== $('onSetNP')) $('onSetNP').value = np;
-      if (document.activeElement !== $('onSetRounds')) $('onSetRounds').value = gameDoc.rounds;
-    }
-    const short = np - players.length;
-    const dvNote = gameDoc.dv ? '昼はマップ全体が見えます' : '視界は通常のルールです';
-    $('onWait').textContent = isHost ? (short > 0 ? `あと${short}人の参加を待っています。` : '人数がそろいました。対戦を始められます。')
-                                     : watching ? `👁 観戦中です。対戦が始まると、盤面が表示されます（${np}人対戦・${gameDoc.rounds}ラウンド・${dvNote}）。`
-                                     : `ホストが対戦を始めるのを待っています（${np}人対戦・${gameDoc.rounds}ラウンド・${dvNote}）。`;
-    $('onStart').style.display = isHost ? '' : 'none';
-    $('onStart').disabled = short > 0 || busyUI;
+    $('onOpts').style.display = player ? '' : 'none';
+    for (const id of ['onSetNP', 'onSetRounds', 'onSetSpec']) $(id).disabled = !meSeated;
+    if (document.activeElement !== $('onSetNP')) $('onSetNP').value = r.np;
+    if (document.activeElement !== $('onSetRounds')) $('onSetRounds').value = r.rounds;
+    $('onSetSpec').checked = r.spec;
+    const dup = player && myName && r.members.some(x => x.id !== myMid && x.seated && x.name && normName(x.name) === normName(myName));
+    setErr2(netText(true) || (dup ? `「${myName}」はほかの参加者と同じ名前です。別の名前にしてください（そのまま始めると番号が付きます）` : ''));
+    const short = r.np - seated.length;
+    $('onWait').textContent = asSpec ? `👁 観戦中です。対局が始まると表示されます（${r.np}人対戦・${r.rounds}ラウンド）。観戦者に見えるのは公開情報だけです（盤面は霧のまま）。`
+      : !meSeated ? '席に着くと対局に参加できます。席がいっぱいのときは、空くのを待ってください。'
+      : short > 0 ? `あと${short}人の着席を待っています。` : '人数がそろいました。席にいる人なら誰でも「対局開始」を押せます。出番（P1〜）は、開始のときにランダムで決まります。';
+    $('onStart').style.display = player ? '' : 'none';
+    $('onStart').disabled = !meSeated || short !== 0 || !sock || sock.readyState !== 1;
   }
-  function saveMe(patch) {
-    if (!code) return;
-    if (isHost) { const pl = P.find(x => x.uid === uid); if (pl) { Object.assign(pl, patch); hostPush(false, true); } }
-    else send(conn, {t: 'me', ...patch});
-  }
+  const saveMe = patch => sendRaw({t: 'me', ...patch});
 
-  // 部屋の状態の変化を受け取る
-  function onGame(d) {
-    if (!code) return;
-    if (d) { d = cleanGame(d); if (!d) return; }   // 形のおかしいデータは無視する
-    if (!d || d.phase === 'closed') {
-      leave(false).then(() => { open(); setErr('ホストがルームを閉じました'); });
-      return;
-    }
-    gameDoc = d; isHost = d.host === uid; dayVision = d.dv === true;   // 昼の全体表示は、ホストが決めた部屋の設定
-    if (d.phase === 'lobby') { renderLobby(); return; }
-    if (d.phase !== 'play') return;
-    const seat = watching ? 0 : +(Object.keys(d.seats || {}).find(k => d.seats[k] === uid) || 0);
-    if (!seat && !watching) { leave(false).then(() => { open(); setErr('対戦が始まりましたが、定員のため参加できませんでした'); }); return; }
-    if (!(+d.v > ver) || !d.s) return;   // 自分の送信や古いデータは無視する
-    let S; try { S = validateState(JSON.parse(d.s)); } catch (e) { console.warn('受け取った盤面が不正です', e); if (!isHost) resync(); return; }
-    if (!S.PCOL || +seat > S.NP) return;
-    const prevVer = ver; ver = +d.v; lastSent = d.s;
-    const first = !onPlay();
-    ONLINE = {code, seat, uid, playing: true, spec: watching};
-    box.classList.remove('open'); $('title').classList.add('hide'); $('setup').classList.remove('open');
-    try { applyState(S, first); }
-    catch (e) {   // 反映の途中で失敗した: 最新の盤面を取り直す
-      console.error(e); applying = false; ver = Math.min(prevVer, ver - 1);
-      if (!isHost) resync(); else { msg = '⚠ 盤面の反映でエラーが起きました'; try { render(); } catch (_) {} }
-    }
+  // ---- 振り返り（終局後に、最初から再生する）----
+  function openReplay() {
+    if (!onPlay() || !over || rpOn) return;
+    if (rpData && rpData.gid === shownGid) { startReplay(); return; }
+    rpWant = true; sendRaw({t: 'rep'}); msg = '🎞 振り返りの記録を受け取っています…'; render();
   }
-
-  // 盤面の状態 ⇔ 文字列
-  function exportState() {
-    let cs = '';   // 1マス3文字: 所有者・地形・フラグ（森/元の森/資源/回収済み/村）。輪郭の外（マスがない所）は xxx
-    const RB = RADIUS + COAST_MAX;
+  function onReplay(m) {
+    if (!rpWant || !onPlay() || !over) return;
+    rpWant = false;
+    let S0, log;
+    try {
+      S0 = validateState(m.init);
+      if (!Array.isArray(m.log) || m.log.length > 50000) throw new Error('log');
+      log = m.log.map(e => { if (!Array.isArray(e) || !Number.isInteger(e[0]) || e[0] < 1 || e[0] > S0.NP) throw new Error('log'); const o = cleanOp(e[1]); if (!o) throw new Error('op'); return [e[0], o]; });
+    } catch (e) { console.warn('振り返りの記録が不正です', e); msg = '⚠ 振り返りの記録を読み込めませんでした'; render(); return; }
+    rpData = {gid: +m.gid || shownGid, S0, log};
+    try { rpBuild(); } catch (e) { console.error(e); rpData = null; rpRun = false; rpFast = false; if (liveS) applyView(liveS, true, null, true); msg = '⚠ 振り返りを作れませんでした'; render(); return; }
+    startReplay();
+  }
+  function snapState() {   // 再生中の盤面を、受け取った盤面と同じ形で書き出す
+    const k = c => c ? key(c.q, c.r) : null;
+    let cs = ''; const RB = RADIUS + COAST_MAX;
     for (let q = -RB; q <= RB; q++) for (let r = -RB; r <= RB; r++) if (Math.abs(q + r) <= RB) {
       const c = cells.get(key(q, r));
       cs += c ? String(c.o) + c.t + ((c.forest ? 1 : 0) | (c.f0 ? 2 : 0) | (c.res ? 4 : 0) | (c.harv ? 8 : 0) | (c.village ? 16 : 0)).toString(36) : 'xxx';
     }
-    const k = c => c ? key(c.q, c.r) : null;
-    return {NP, MAX_ROUNDS, SET, PNAME, PCOL, cells: cs, last: per(p => k(last[p])), baseCell: per(p => k(baseCell[p])),
-      sp, rp, pw, skills, started, bless, pot, boost, tool, lock, fixed, langOpen, fireOpen, stoneOpen, xOpen, pending, alive, retPick,
-      vNew: Object.keys(vNew), resT: Object.entries(resT).map(([k, e]) => [k, e[0], e[1]]),
-      turn, round, actions, over, winner, msg, selecting, traps: Object.entries(traps), scout: scoutV, result: RESULT.exportState()};
+    return JSON.stringify({NP, MAX_ROUNDS, SET, PNAME, PCOL, cells: cs, last: per(p => k(last[p])), baseCell: per(p => k(baseCell[p])),
+      sp, rp, pw, skills, started, bless, pot, boost, tool, lock, fixed, langOpen, fireOpen, stoneOpen, xOpen, alive, retPick,
+      vNew: Object.keys(vNew), resT: Object.entries(resT).map(([k, e]) => [k, e[0], e[1]]), traps: Object.entries(traps), scout: scoutV,
+      turn, round, actions, over, winner, msg, selecting, tieStay, gid: shownGid, result: RESULT.exportState()});
   }
-  function applyState(S, first) {
-    const prevTurn = first ? 0 : turn, prevOver = !first && over, sig0 = JSON.stringify([NP, PNAME, PCOL]);
-    applying = true;
-    try {
-      clearTimeout(timer);
-      NP = S.NP; MAX_ROUNDS = S.MAX_ROUNDS; SET = S.SET; RADIUS = RADIUS_BY_NP[NP] || 8; BASES = calcBases();
-      PNAME = S.PNAME || {}; PCOL = {...DEF_COL, ...(S.PCOL || {})}; applyColors();
-      cells = new Map(); let i = 0; const RB = RADIUS + COAST_MAX;
-      for (let q = -RB; q <= RB; q++) for (let r = -RB; r <= RB; r++) if (Math.abs(q + r) <= RB) {
-        const e = S.cells.substr(i * 3, 3), f = parseInt(e[2], 36) || 0; i++;
-        if (e === 'xxx') continue;   // 輪郭の外
-        cells.set(key(q, r), {q, r, o: +e[0] || 0, t: e[1] || 'p', forest: !!(f & 1), f0: !!(f & 2), res: !!(f & 4), harv: !!(f & 8), village: !!(f & 16)});
+  function rpLoad(s) { const S = validateState(JSON.parse(s)); putState(S); RESULT.importState(S.result || {}); }
+  function rpStep(seat, o) {   // 記録の操作を1つ、ゲーム本体の関数で行う（サーバーと同じ順序・同じ条件）
+    ONLINE.seat = seat; busy = false; clearTimeout(timer); rpAsk = null; popupQ = [];
+    const c = o.k ? cells.get(o.k) : null;
+    switch (o.a) {
+      case 'tap': if (c) act(c); break;
+      case 'mode':
+        if (c && !over && !selecting && started[turn] && last[turn]) {
+          villageMode = o.m === 'village' && canBuildVillage(turn); trapMode = o.m === 'trap' && canAffordTrap(turn); scoutMode = (o.m === 'hex' || o.m === 'line') && canScout(turn) && scoutModeOk(turn, o.m) ? o.m : null;
+          if (villageMode || trapMode || scoutMode) modePick(c);
+          villageMode = false; trapMode = false; scoutMode = null; scoutPrev = null;
+        }
+        break;
+      case 'demolish': if (c && !gm && actions >= 1) demolishVillage(c); break;
+      case 'pray': if (!over && !selecting && started[turn] && last[turn] && bless[turn] < 1 && sp[turn] >= 1) pray(); break;
+      case 'learn': learnSkill(o.id); break;
+      case 'tool': {   // クラフト画面のボタンを押したのと同じ処理を動かす
+        const b = document.createElement('button'); b.dataset.tool = o.kind + ':' + o.id; $('toolBody').appendChild(b);
+        try { b.click(); } finally { b.remove(); }
+        break;
       }
-      const g = k => k ? cells.get(k) || null : null;
-      last = per(p => g(S.last[p])); baseCell = {}; for (const p of PL()) { const b = g(S.baseCell[p]); if (b) baseCell[p] = b; }
-      ({sp, rp, pw, skills, started, bless, pot, boost, tool, lock, fixed, langOpen, fireOpen, stoneOpen, xOpen, pending, alive, retPick, turn, round, actions, over, winner, msg, selecting, traps} = S);
-      vNew = S.vNew; resT = S.resT;
-      scoutV = S.scout; if (prevTurn !== turn) { scoutMode = null; scoutPrev = null; trapMode = false; villageMode = false; }
-      viewer = turn; hover = null; authTurn = turn; busy = !myTurn();
-      RESULT.importState(S.result);
-      if (!over) RESULT.close();
-      if (!myTurn()) for (const id of ['confirmReset', 'tree', 'tools']) $(id).classList.remove('open');
-      if (first || sig0 !== JSON.stringify([NP, PNAME, PCOL])) buildHeader(); else if (S.selecting) resize();   // 輪郭が変わったら、盤面の大きさを合わせ直す
-      render();
-    } finally { applying = false; }
-    if (!over && !selecting && turn === ONLINE.seat && (first || prevTurn !== turn)) {   // 自分の番になった: 届いていたお知らせを表示
-      popupQ.push(...(pending[turn] || []).splice(0)); showPopup(); if (!first) SFX.play('turn');
-    } else if (!over && selecting && turn === ONLINE.seat && prevTurn !== turn && !first) SFX.play('turn');
-    if (over && !prevOver) { if (!first) SFX.play('fanfare'); RESULT.schedule(first ? 300 : 1400); }
-  }
-
-  // 自分の番の操作を送る（render のたびに確認し、変化があれば送る）
-  function maybeCommit() {
-    if (applying || !onPlay() || watching || authTurn !== ONLINE.seat || !cells || !code) return;
-    const s = JSON.stringify(exportState());
-    if (s === lastSent) return;
-    lastSent = s; authTurn = turn;   // 手番が移ったら、以後は次の人が送る
-    const v = ++ver;
-    if (isHost) { G.v = v; G.s = s; hostPush(true, false); }
-    else { lastOut = {v, s}; send(conn, {t: 'state', v, s}); }   // 切断中なら、つなぎ直したときに送る
-  }
-
-  // ホストが対戦を始める（again: 同じメンバーでもう一度）
-  function startGame(again) {
-    const d = G; if (!d || !isHost) return;
-    let seats, names = {}, cols = {};
-    const np = again ? NP : d.np, rounds = again ? MAX_ROUNDS : (+d.rounds || ROUNDS_BY_NP[np]);
-    if (again) { seats = d.seats; names = {...PNAME}; cols = {...PCOL}; }
-    else {
-      const list = players.slice(0, np);
-      if (list.length < np) { setErr2(`あと${np - list.length}人の参加が必要です`); return; }
-      seats = {}; const usedN = new Set();
-      list.forEach((pl, i) => {
-        const p = i + 1; let nm = cleanName(pl.name) || 'P' + p;
-        if (usedN.has(normName(nm))) nm = nm.slice(0, 7) + p;   // 同じ名前が残っていたら番号を付ける
-        usedN.add(normName(nm)); seats[p] = pl.uid; names[p] = nm; cols[p] = +pl.col || 0;
-      });
+      case 'end': endTurn(); break;
+      case 'resign': resign(seat); break;
     }
-    const seat = +(Object.keys(seats).find(k => seats[k] === uid) || 0);
-    if (!seat) { setErr2('ホストが参加者に入っていません'); return; }
-    applying = true;
-    try {
-      NP = np; MAX_ROUNDS = rounds; PNAME = names; PCOL = {...DEF_COL, ...cols}; applyColors();
-      ONLINE = {code, seat, uid, playing: false};
-      init();   // ホストの端末でマップを作る
-    } finally { applying = false; }
-    const s = JSON.stringify(exportState()), v = Math.max(ver, +G.v || 0) + 1;
-    Object.assign(G, {phase: 'play', seats, v, s});
-    hostPush(true, false);   // 全員に配る（自分の画面もここで切り替わる）
+    if (rpAsk) { const A = rpAsk; rpAsk = null; if (o.ch === 'yes' && A.fn) A.fn(); else if (o.ch === 'alt' && A.alt) A.alt(); }
+    clearTimeout(timer); busy = false; popupQ = []; pickMode = null;
   }
-  function again() {
-    if (!onPlay()) return;
-    if (!isHost) { msg = 'もう一度遊ぶときは、ホストが「もう一度」を押します'; render(); return; }
-    startGame(true);
+  function quietly(f) {   // 再生の計算中は、画面の描画と音を止める
+    const play = SFX.play; SFX.play = () => {}; rpRun = true; rpFast = true;
+    try { return f(); } finally { SFX.play = play; rpRun = false; rpFast = false; }
   }
+  function rpBuild() {
+    quietly(() => {
+      putState(rpData.S0); RESULT.importState({});
+      rpCk = [{i: 0, s: snapState()}]; rpMsgs = [msg];
+      rpData.log.forEach(([seat, o], i) => { rpStep(seat, o); rpMsgs.push(msg); if ((i + 1) % 25 === 0) rpCk.push({i: i + 1, s: snapState()}); });
+      rpData.final = snapState();
+    });
+  }
+  function rpGo(i) {
+    const N = rpData.log.length; i = Math.max(0, Math.min(N, i)); rpIdx = i;
+    quietly(() => {
+      let ck = rpCk[0]; for (const x of rpCk) if (x.i <= i) ck = x;
+      rpLoad(ck.s);
+      for (let j = ck.i; j < i; j++) rpStep(rpData.log[j][0], rpData.log[j][1]);
+    });
+    msg = rpMsgs[i] || msg;
+    ONLINE.seat = 0; ONLINE.spec = true; ONLINE.view = rpView; viewer = turn; busy = true; hover = null;
+    buildHeader(); render();
+    $('rpRange').max = N; $('rpRange').value = i; $('rpPos').textContent = `${i} / ${N}手`;
+  }
+  function startReplay() {
+    rpOn = true; RESULT.close(); clearTimeout(stuckT); popupQ = []; $('notice').classList.remove('open'); $('confirmReset').classList.remove('open');
+    document.body.classList.add('rp');
+    $('rpViewSel').innerHTML = '<option value="all">全体</option>' + PL().map(p => `<option value="${p}">${esc(name(p))}の視点</option>`).join('');
+    $('rpViewSel').value = String(rpView);
+    $('rpBar').style.display = '';
+    rpGo(rpData.log.length);
+  }
+  function closeReplay(silent) {
+    if (!rpOn) return;
+    rpOn = false; document.body.classList.remove('rp'); $('rpBar').style.display = 'none';
+    if (silent || !ONLINE) return;
+    ONLINE.spec = asSpec; ONLINE.seat = mySeat; ONLINE.view = asSpec ? (devGranted ? devView : 0) : 0;
+    if (liveS) applyView(liveS, false, null, true);
+  }
+  $('rpFirst').addEventListener('click', () => rpGo(0));
+  $('rpPrev').addEventListener('click', () => rpGo(rpIdx - 1));
+  $('rpNext').addEventListener('click', () => rpGo(rpIdx + 1));
+  $('rpLast').addEventListener('click', () => rpGo(rpData.log.length));
+  $('rpRange').addEventListener('input', () => rpGo(+$('rpRange').value));
+  $('rpViewSel').addEventListener('change', () => { const v = $('rpViewSel').value; rpView = v === 'all' ? 'all' : +v; rpGo(rpIdx); });
+  $('rpClose').addEventListener('click', () => closeReplay(false));
+  $('rpCopy').addEventListener('click', async () => {   // 棋譜（各手のあとのメッセージ）をコピー
+    if (!rpData) return;
+    const t = `HEXAREA ルーム ${roomCode} 第${rpData.gid}局 ／ ${PL().map(p => name(p)).join('・')}\n` + rpMsgs.map((m, i) => `${i}. ${m}`).join('\n');
+    try { await navigator.clipboard.writeText(t); msg = '棋譜をコピーしました'; } catch (e) { window.prompt('コピーしてください', t); }
+    render();
+  });
+  $('rsReplay').addEventListener('click', openReplay);
 
-  // ルームIDと招待リンクの共有
-  const inviteUrl = () => location.href.split(/[?#]/)[0] + '?room=' + code;
-  async function copyText(t, okMsg) {
-    try { await navigator.clipboard.writeText(t); setErr2(''); $('onWait').textContent = okMsg; setTimeout(renderLobby, 1800); }
-    catch (e) { window.prompt('コピーしてください', t); }
+  // ---- Devモードの観戦者 ----
+  function onDev(m) {
+    if (!asSpec || !onPlay() && !roomInfo) return;
+    devGranted = m.ok === true;
+    if (devGranted) { devView = 'all'; if (ONLINE) ONLINE.view = 'all'; }
+    else { devKey = ''; if (ONLINE) ONLINE.view = 0; msg = 'Devモード: 暗証番号を確かめられませんでした'; }
+    if (onPlay()) render();
   }
+  function dev(pin) {
+    if (pin === null) { devKey = ''; devGranted = false; devView = 'all'; if (ONLINE) ONLINE.view = 0; sendRaw({t: 'dev', off: true}); if (onPlay()) render(); return; }
+    devKey = String(pin).slice(0, 8);
+    if (ONLINE && asSpec) sendRaw({t: 'dev', pin: devKey});
+  }
+  $('devView').addEventListener('change', () => { const v = $('devView').value; devView = v === 'all' ? 'all' : +v; if (ONLINE && devGranted) ONLINE.view = devView; render(); });
 
-  // 画面の操作
+  // ---- 画面の操作 ----
   $('tiOnline').addEventListener('click', open);
-  $('tiSpec').addEventListener('click', () => { open(); $('onCode').focus(); });   // タイトルの「観戦」: ルームIDを入れる画面へ
+  $('tiSpec').addEventListener('click', () => { open(); $('onCode').focus(); });
   $('onClose').addEventListener('click', () => { box.classList.remove('open'); $('title').classList.remove('hide'); });
   $('onCreate').addEventListener('click', create);
-  $('onJoin').addEventListener('click', join);
-  $('onCode').addEventListener('keydown', e => { if (e.key === 'Enter') join(); });
+  $('onJoin').addEventListener('click', () => join(null, false));
+  $('onWatch').addEventListener('click', () => join(null, true));
+  $('onCode').addEventListener('keydown', e => { if (e.key === 'Enter') join(null, false); });
   $('onCode').addEventListener('input', () => { $('onCode').value = $('onCode').value.toUpperCase(); });
+  $('onCont').addEventListener('click', e => { const b = e.target.closest('button[data-c]'); if (b) join(b.dataset.c, false); });
   $('onLeave').addEventListener('click', () => leave(false).then(open));
-  $('onCopyId').addEventListener('click', () => copyText(code, 'ルームIDをコピーしました。'));
+  $('onCopyId').addEventListener('click', () => copyText(roomCode, 'ルームIDをコピーしました。'));
   $('onShareLink').addEventListener('click', async () => {
-    const url = inviteUrl();
-    if (navigator.share) { try { await navigator.share({title: 'HEXAREA', text: `ルームID ${code} で対戦しよう`, url}); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+    const url = location.href.split(/[?#]/)[0] + '?room=' + roomCode;
+    if (navigator.share) { try { await navigator.share({title: 'HEXAREA', text: `ルームID ${roomCode} で対戦しよう`, url}); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
     copyText(url, '招待リンクをコピーしました。');
   });
+  async function copyText(t, okMsg) {
+    try { await navigator.clipboard.writeText(t); $('onWait').textContent = okMsg; setTimeout(renderLobby, 1800); }
+    catch (e) { window.prompt('コピーしてください', t); }
+  }
   $('onStart').addEventListener('click', () => {
-    const dup = players.slice(0, gameDoc ? gameDoc.np : 0).map(x => normName(cleanName(x.name) || '')).filter(Boolean);
-    if (new Set(dup).size !== dup.length && !$('onErr2').dataset.warned) { $('onErr2').dataset.warned = '1'; setErr2('同じ名前の参加者がいます。もう一度押すと、番号を付けて始めます'); return; }
+    const r = roomInfo; if (!r) return;
+    const names = r.members.filter(x => x.seated).map(x => normName(x.name || '')).filter(Boolean);
+    if (new Set(names).size !== names.length && !$('onErr2').dataset.warned) { $('onErr2').dataset.warned = '1'; setErr2('同じ名前の参加者がいます。もう一度押すと、番号を付けて始めます'); return; }
     delete $('onErr2').dataset.warned;
-    startGame(false);
+    sendRaw({t: 'start'});
   });
-  $('onName').addEventListener('input', () => {
-    myName = cleanName($('onName').value); renderLobby();
-    clearTimeout(nameTimer); nameTimer = setTimeout(() => saveMe({name: myName}), 400);   // 入力が止まってから送る
-  });
-  $('onColors').addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if (!b || b.disabled) return; myCol = +b.dataset.k; renderLobby(); saveMe({col: myCol}); });
-  $('onSetNP').addEventListener('change', () => { const np = Math.max(2, Math.min(6, parseInt($('onSetNP').value) || 2)); if (isHost && G && G.phase === 'lobby') { G.np = np; G.rounds = ROUNDS_BY_NP[np]; hostPush(true, false); } });
-  $('onSetDV').addEventListener('change', () => { if (!hostGM) { $('onSetDV').checked = !!(G && G.dv); return; } if (isHost && G && G.phase === 'lobby') { G.dv = $('onSetDV').checked; hostPush(true, false); } });
-  $('onSetSpec').addEventListener('change', () => { if (isHost && G && G.phase === 'lobby') { G.spec = $('onSetSpec').checked; hostPush(true, false); } });
-  $('onWatch').addEventListener('click', watch);
-  $('onSetRounds').addEventListener('change', () => { const r = Math.max(1, Math.min(999, parseInt($('onSetRounds').value) || 0)); if (r && isHost && G && G.phase === 'lobby') { G.rounds = r; hostPush(true, false); } });
+  $('onSit').addEventListener('click', () => { const me = roomInfo && roomInfo.members.find(x => x.id === myMid); sendRaw({t: me && me.seated ? 'stand' : 'sit'}); });
+  $('onName').addEventListener('input', () => { nameEdited = true; myName = cleanName($('onName').value); renderLobby(); clearTimeout(nameT); nameT = setTimeout(() => saveMe({name: myName}), 400); });
+  $('onColors').addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if (!b || b.disabled) return; myCol = +b.dataset.k; nameEdited = true; renderLobby(); saveMe({col: myCol}); });
+  $('onSetNP').addEventListener('change', () => sendRaw({t: 'set', np: Math.max(2, Math.min(6, parseInt($('onSetNP').value) || 2))}));
+  $('onSetRounds').addEventListener('change', () => { const r = parseInt($('onSetRounds').value); if (r >= 1 && r <= 999) sendRaw({t: 'set', rounds: r}); });
+  $('onSetSpec').addEventListener('change', () => sendRaw({t: 'set', spec: $('onSetSpec').checked}));
+  $('resignBtn').addEventListener('click', () => { if (onPlay() && !asSpec && !over && !selecting && alive[mySeat]) ask('投了しますか？<br>あなたは脱落します（取り消せません）。残りが1人になると、その人の勝ちになります。', '投了', () => sendOp({a: 'resign'})); });
+  $('onlineTag').addEventListener('click', () => { if (onPlay()) ask(`ルームID <b>${roomCode}</b>（${asSpec ? '観戦中' : 'P' + mySeat}）<br>🔒 中継サーバーを経由しているため、対戦相手にあなたのIPアドレスは見えません。<br>${esc(netText(false))}`, 'OK', null); });
   document.getElementById('settingsBtn').addEventListener('click', () => {   // オンライン中は、チュートリアルとプレイヤー設定を隠す
     $('tutStart').parentElement.style.display = ONLINE ? 'none' : '';
     $('setPlayers').parentElement.style.display = ONLINE ? 'none' : '';
   });
-  // ホストが対戦中にページを閉じようとしたら、確認を出す
-  window.addEventListener('beforeunload', e => { if (isHost && onPlay() && !over) { e.preventDefault(); e.returnValue = ''; } });
-  // 画面に戻ってきたとき（スマホのスリープ解除など）は、すぐに接続を確かめる
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState !== 'visible' || !code) return;
-    if (!isHost && !conn && !hostGone) { clearTimeout(retryT); retry(); } else beat();
-  });
-  window.addEventListener('online', () => { if (code && !isHost && !conn && !hostGone) { clearTimeout(retryT); retry(); } });
-  // 招待リンク（?room=XXXX）で開いたときは、IDを入れた状態で参加画面を出す
+  // 再読み込みしたときは、同じタブで入っていたルームに自動で入り直す。招待リンク（?room=XXXX）なら、IDを入れた参加画面を出す
   setTimeout(() => {
+    const cur = ssGet('hexCur');
+    if (ready() && cur && ROOM_RE.test(cur.c) && !ONLINE) { join(cur.c, !!cur.s); return; }
     const q = new URLSearchParams(location.search).get('room');
-    if (q && !ONLINE) { $('onCode').value = q.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4); $('title').classList.add('hide'); open(); }
+    if (q && !ONLINE) { open(); $('onCode').value = q.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4); }
   }, 0);
 
-  // render を包んで、オンライン用の表示と送信を行う（いちばん外側）
-  const wrap = (nm, f) => { const orig = window[nm]; window[nm] = function (...a) { return f(orig, a); }; };
-  wrap('render', (orig, a) => {
-    if (onPlay() && !myTurn()) busy = true;   // 自分の番以外は操作できない
+  // ---- 接続の状態の表示 ----
+  function netText(lobbyOnly) {
+    if (!roomCode) return '';
+    if (!sock || sock.readyState !== 1 || !welcomed) return welcomed || netNote ? '🟡 再接続中…' : (lobbyOnly ? '' : '🟡 接続中…');
+    if (lobbyOnly) return '';
+    const r = roomInfo; if (!r || r.phase !== 'play') return '🟢 接続中';
+    const off = Object.keys(r.seats).map(Number).filter(p => { const x = r.members.find(m => m.id === r.seats[p]); return !x || !x.on; }).filter(p => p !== mySeat && alive[p]);
+    return off.length ? `🔴 相手切断中（${off.map(p => name(p)).join('・')}）` : '🟢 接続中';
+  }
+  function refreshNet() { if (onPlay()) render(); else if (roomInfo) renderLobby(); }
+  wrapFn('render', (orig, a) => {   // オンライン用の表示（いちばん外側に近いところで包む）
+    if (rpFast) return;
+    if (onPlay() && !rpRun && (!myTurn() || opWait)) busy = true;   // 自分の番以外と、返事を待つ間は操作できない
     const r = orig.apply(null, a);
-    const tag = $('onlineTag');
+    const tag = $('onlineTag'), line = $('netLine');
     if (onPlay()) {
-      tag.style.display = ''; tag.textContent = netMsg ? '⚠' : ONLINE.spec ? '👁' : '🌐'; tag.title = `オンライン対戦（ルーム ${ONLINE.code}）`;
-      const seats = (gameDoc && gameDoc.seats) || {};
-      for (const p of PL()) { const pe = $('pl' + p); if (pe) { pe.classList.toggle('me', p === ONLINE.seat); pe.classList.toggle('off', !!seats[p] && !onlineSet.has(seats[p])); } }
-      const st = $('status');
-      document.body.classList.toggle('spec', !!ONLINE.spec);
-      if (!over && ONLINE.spec) st.textContent = `👁 観戦中 ／ ${name(turn)}の${selecting ? '拠点選び' : 'ターン'}`;
-      else if (!over && !myTurn()) {
-        const prev = st.textContent; const skip = !prev || prev.includes(name(turn) + 'のターン') || prev.includes('拠点を選んでください');
-        const off = seats[turn] && !onlineSet.has(seats[turn]) ? '（接続が切れています。戻るのを待っています）' : '';
-        st.textContent = `${name(turn)}の${selecting ? '拠点選び' : 'ターン'}を待っています${off}` + (skip ? '' : ' ／ ' + prev);
+      const nt = netText(false);
+      tag.style.display = ''; tag.textContent = rpOn ? '🎞' : asSpec ? '👁' : '🌐';
+      line.style.display = ''; line.textContent = rpOn ? '🎞 振り返り（全員の情報が公開されています）' : `🔒 対戦相手にIPアドレスは見えません　${nt}`;
+      if (pubInfo && !rpOn) for (const p of PL()) {   // プレイヤー欄の数字は、サーバーが計算した値（ほかの人の情報を持たないため）
+        const v = pubInfo[p]; if (!v) continue;
+        const set = (id, t) => { const el = $(id + p); if (el) el.textContent = t; };
+        set('cn', v.cn); set('in', v.inc); set('cap', sp[p] + '/' + v.cap); set('pw', v.pw); set('ac', v.ac);
       }
-      if (netMsg) st.textContent = '⚠ ' + netMsg + ' ／ ' + st.textContent;
-      if (!myTurn()) $('end').disabled = true;
-      $('rsAgain').disabled = !isHost; $('rsAgain').textContent = isHost ? 'もう一度' : '再戦はホストが開始';
-    } else { tag.style.display = 'none'; $('rsAgain').disabled = false; $('rsAgain').textContent = 'もう一度'; }
-    gmBtn.style.display = ONLINE ? 'none' : '';
-    maybeCommit();
+      const seats = roomInfo && roomInfo.phase === 'play' ? roomInfo.seats : {};
+      for (const p of PL()) { const pe = $('pl' + p); if (pe) { const x = roomInfo && roomInfo.members.find(m => m.id === seats[p]); pe.classList.toggle('me', !rpOn && p === mySeat); pe.classList.toggle('off', !rpOn && !!seats[p] && !(x && x.on)); } }
+      document.body.classList.toggle('spec', !!ONLINE.spec);
+      const st = $('status');
+      if (rpOn) st.textContent = `🎞 ${rpIdx}手目 ／ ${msg.replace(/R\d+\/\d+（[朝昼夕夜]）\s*/, '')}`;
+      else if (!over && asSpec) {
+        const prev = st.textContent, skip = !prev || prev.includes(name(turn) + 'のターン') || prev.includes('拠点を選んでください');
+        st.textContent = `👁 観戦中（${devGranted ? (devView === 'all' ? 'Dev: 全体' : 'Dev: ' + name(devView) + 'の視点') : '公開情報だけ'}） ／ ${name(turn)}の${selecting ? '拠点選び' : 'ターン'}` + (skip ? '' : ' ／ ' + prev);
+      }
+      else if (!over && !myTurn()) {
+        const prev = st.textContent, skip = !prev || prev.includes(name(turn) + 'のターン') || prev.includes('拠点を選んでください');
+        st.textContent = `${name(turn)}の${selecting ? '拠点選び' : 'ターン'}を待っています` + (skip ? '' : ' ／ ' + prev);
+      } else if (opWait) st.textContent = '⏳ サーバーの返事を待っています… ／ ' + st.textContent;
+      if (!myTurn() || opWait) $('end').disabled = true;
+      $('resignBtn').style.display = !asSpec && !rpOn && !over && !selecting && alive[mySeat] ? '' : 'none';
+      $('devView').style.display = asSpec && devGranted && !rpOn ? '' : 'none';
+      if (asSpec && devGranted && $('devView').options.length !== NP + 1) $('devView').innerHTML = '<option value="all">全体</option>' + PL().map(p => `<option value="${p}">${esc(name(p))}</option>`).join('');
+      if (asSpec && devGranted) $('devView').value = String(devView);
+      const seated = !asSpec && !!mySeat;
+      $('rsAgain').disabled = !seated; $('rsAgain').textContent = seated ? 'もう一局' : 'もう一局（席の人が開始）';
+      $('rsReplay').style.display = '';
+    } else { tag.style.display = 'none'; line.style.display = 'none'; $('resignBtn').style.display = 'none'; $('devView').style.display = 'none'; $('rsAgain').disabled = false; $('rsAgain').textContent = 'もう一度'; $('rsReplay').style.display = 'none'; }
+    gmBtn.style.display = ONLINE ? (ONLINE.spec && !rpOn ? '' : 'none') : '';
+    const lay = $('netLine').style.display + '|' + $('rpBar').style.display;   // 盤面の上下の帯が出入りしたら、盤面の大きさを合わせ直す
+    if (lay !== layoutKey) { layoutKey = lay; requestAnimationFrame(() => { if (cells) resize(); }); }
+    if (ONLINE && ONLINE.spec) { gmBtn.classList.toggle('on', devGranted); gmBtn.textContent = devGranted ? 'Dev ON' : 'Dev'; }
     return r;
   });
-  return { open, leave, again, leaveMsg, resync, active: () => !!code };
+  return {
+    open, leave, leaveMsg, dev, devOn: () => devGranted,
+    again() { if (onPlay() && !asSpec && mySeat) sendRaw({t: 'again'}); },
+    resync() { syncAt = 0; askSync(); },
+    active: () => !!roomCode,
+    _t: {validateState, cleanRoom, get state() { return {roomCode, asSpec, mySeat, liveVer, opWait, rpOn, devGranted, welcomed, netNote}; }, rp: () => rpData, sendRaw, snapState}   // テスト用
+  };
 })();
 
 // AI（コンピューター）プレイヤー: オフライン対戦で、CPU[席] が設定された席を自動で操作する
@@ -3133,7 +3116,7 @@ const AI = (() => {
   const $ = id => document.getElementById(id);
   $('settingsBtn').addEventListener('click', () => {
     $('sDayVis').checked = dayVision; $('sDayVis').disabled = !!ONLINE || !gm;   // Devモードのときだけ切り替えられる
-    $('setDayNote').textContent = ONLINE ? 'オンライン対戦では、ホストが決めた部屋の設定が使われます。'
+    $('setDayNote').textContent = ONLINE ? 'オンライン対戦では使えません（常にオフです）。'
       : gm ? 'オンにすると、昼（朝・昼）は盤面全体が見えます。夜（夕・夜）は通常の視界です。ページを開き直すとオフに戻ります。'
       : `いまは${dayVision ? 'オン' : 'オフ'}です（初期値はオフ）。切り替えはDevモードのときだけできます。`;
   });
