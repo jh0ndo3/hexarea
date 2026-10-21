@@ -437,7 +437,7 @@
 <dt>平地</dt><dd>移動に食料1。</dd>
 <dt>山 ▲</dt><dd>移動に食料2（牧畜の開始で1）。単独、2マスの直線、3マスのかたまり（直線に限らない）で出現し、最外周にも出ます。山同士は離れていて、拠点候補に隣接する山は1マスまでです。</dd>
 <dt>水域 ≈</dt><dd>通行できません。最大3マスまでつながり、3マスのときは直線になりません。拠点候補の周囲1マスには出ません。</dd>
-<dt>森（緑）</dt><dd>獣の縄張りです。獣に勝つと、そのマスは森のまま自分の領地になり（左上に小さな木）、以後は戦闘なしで出入りできます。獣の戦力は、だれの領地でもない森のつながりで数えます。脱落したプレイヤーの森は、獣の縄張りに戻ります。獣の戦力は、つながった森のマス数（1〜3）です。2マス以上の森の獣に勝つと、牧畜の開始が解放されます。2マスの森はマップの半径の3分の2以内、3マスの森は3分の1以内にだけ出ます。拠点候補の周囲1マスには出ません。</dd>
+<dt>森（緑）</dt><dd>獣の縄張りです。獣に勝つと資源1を得て、そのマスは森のまま自分の領地になり（左上に小さな木）、以後は戦闘なしで出入りできます。獣の戦力は、だれの領地でもない森のつながりで数えます。脱落したプレイヤーの森は、獣の縄張りに戻ります。獣の戦力は、つながった森のマス数（1〜3）です。2マス以上の森の獣に勝つと、牧畜の開始が解放されます。2マスの森はマップの半径の3分の2以内、3マスの森は3分の1以内にだけ出ます。拠点候補の周囲1マスには出ません。</dd>
 </dl>
 <ul><li>地形は毎回ランダムで、同じ種類同士がなるべく離れるよう、マップ全体に分散して置かれます。</li><li>マップの輪郭（外周の形）も毎回ランダムです。</li></ul>
 </div></details>
@@ -451,11 +451,11 @@
 <li>資源は、スキルの習得、クラフトの作製・修繕、村の建設に使います。</li>
 </ul></div></details>
 <details><summary>戦闘</summary><div class="sec"><ul>
-<li>現在地に隣接する相手の色のマスや森のマス（赤い枠）をタップすると、確認のうえ戦闘を挑めます。</li>
+<li>現在地に隣接する相手の色のマスや森のマス、自分の領地を通行中の相手の♟がいるマス（赤い枠）をタップすると、確認のうえ戦闘を挑めます。</li>
 <li>戦闘には、行動1と、そのマスへの移動と同じ食料を使います（勝敗にかかわらず消費）。</li>
-<li>戦力が大きい方が勝ちです。勝つとそのマスを自分の色にし、相手のマスなら資源1、森なら食料1を奪います。</li>
+<li>戦力が大きい方が勝ちです。勝つとそのマスを自分の色にし、相手のマスなら資源1を奪い、森なら資源1を得ます。</li>
 <li>同じ戦力のときは、そのマスを通行できるだけです（相手がいるマスには入れません）。負けると何も起きません。</li>
-<li>相手の現在地（白枠）のマスにも戦闘を挑めます。勝つと、相手は<b>強制帰還</b>します。奪ったマスから一番近い自分の拠点（最初の拠点または村）へ戻され、行動は使いません。同じ距離の拠点が複数あるときは、相手が次の自分の番に、戻る拠点を選びます。最後の拠点を奪われた相手は脱落するので、帰還はありません。</li>
+<li>相手の現在地（白枠）のマスにも戦闘を挑めます。勝つと、相手は<b>強制帰還</b>します（自分の領地を通行中の相手に勝ったときも同じです。マスはもともと自分の色なので、相手の資源1を奪って相手を追い払います）。奪ったマスから一番近い自分の拠点（最初の拠点または村）へ戻され、行動は使いません。同じ距離の拠点が複数あるときは、相手が次の自分の番に、戻る拠点を選びます。最後の拠点を奪われた相手は脱落するので、帰還はありません。</li>
 </ul>
 <h3>戦力</h3><ul>
 <li>初期値は1で、夜間は-1されます（火の発見で無効。0未満にはなりません）。</li>
@@ -651,7 +651,7 @@ const humanSeat = () => (viewer && !isCPU(viewer) && alive[viewer]) ? viewer : (
 const viewP = () => onPlay() ? (ONLINE.spec ? (ONLINE.view > 0 ? ONLINE.view : ONLINE.view === 'all' ? turn : 0) : ONLINE.seat) : isCPU(turn) ? humanSeat() : turn;   // 盤面を見るプレイヤー（オンラインでは自分の席。観戦者は、選んだプレイヤーの視点。公開情報だけのときは 0）
 const myTurn = () => onPlay() ? ONLINE.seat === turn : !isCPU(turn);
 let langOpen = per(false), fireOpen = per(false), stoneOpen = per(false), pending = per(() => []), popupQ = [], gmBackup = null, xOpen = {};   // xOpen: 新石器スキルの解放状態
-const XIDS = ['farm','herd','polish','pottery','faith','cook','settle','trap','survey','summit']; const resetX = () => { for (const k of XIDS) xOpen[k] = per(false); }; resetX(); let baseCell = {}, retPick = {}, tieStay = false, vNew = {}, resT = {};   // vNew: 建てたばかり（次の自分の番まで拠点扱いでない）の村 {マスのキー: 1} ／ resT: 回収した資源マスの復活 {マスのキー: [回収した回数, 復活するラウンド]}
+const XIDS = ['farm','herd','polish','pottery','faith','cook','settle','trap','survey','summit']; const resetX = () => { for (const k of XIDS) xOpen[k] = per(false); }; resetX(); let baseCell = {}, retPick = {}, tieStay = false, battleWon = false, vNew = {}, resT = {};   // vNew: 建てたばかり（次の自分の番まで拠点扱いでない）の村 {マスのキー: 1} ／ resT: 回収した資源マスの復活 {マスのキー: [回収した回数, 復活するラウンド]}
   //   // retPick: 強制帰還で同じ距離の拠点が複数あるとき、本人が選ぶ候補 {席: [マスのキー…] または null} ／ tieStay: 現在地への攻撃が引き分けで、攻撃側が入れなかった
   //   // 「言語の獲得」の解放状態と、表示待ちのお知らせ   // 手番交代の1秒待ち中は操作を受け付けない
 
@@ -889,6 +889,7 @@ const canStep = p => last[p] && nbrs(last[p]).some(n => n.t !== 's' && (n.o === 
 const isTarget = (c,p) => {
   if (c.t === 's') return false;
   if (c.o !== 0 && c.o !== p) return !!started[p] && !!last[p] && nbrs(c).includes(last[p]);   // 相手の現在地（白枠）も攻撃できる   // 相手の色のマス: 現在位置に隣接していれば戦闘を挑める
+  if (c.o === p && intruder(c, p)) return !!started[p] && !!last[p] && nbrs(c).includes(last[p]);   // 自分の領地を通行中の相手: 現在位置の隣なら戦闘を挑める
   if (c.o === p) return started[p] && c !== last[p] && (isReturn(c, p) || nbrs(c).includes(last[p]) || (roadRange(p) > 1 && hexDist(c, last[p]) <= roadRange(p) && onRoad(c,p)));   // 自領: 通常は隣のマスだけ。煮炊きの技術で、道でつながった半径2マス以内も移動できる
   if (!started[p]) return isFrontier(c,p);
   if (!canStep(p)) return isFrontier(c,p);
@@ -990,8 +991,8 @@ function act(c) {
   if (!busy && !over && actions > 0 && isTarget(c, turn) && !isHarvest(c, turn) && sp[turn] < moveCost(c, turn)) { msg = `食料が足りません（このマスには食料${moveCost(c, turn)}が必要です）`; render(); return; }
   if (busy || !isLegal(c, turn)) return;
   if (isBattle(c, turn)) {   // 相手の色のマス・森のマス: 確認のうえ戦闘
-    const wild = c.forest && c.o === 0;
-    ask(wild ? `獣（戦力 ${forestSize(c)}）の縄張りです。<br>戦闘しますか？（自分の戦力 ${battlePower(turn, true, c)} ／ 食料${cost(c, turn)}消費）` : `${name(c.o)}と戦闘しますか？<br>（自分の戦力 ${battlePower(turn, false, c)} ／ 相手の戦力 ${battlePower(c.o, false, c)} ／ 食料${cost(c, turn)}消費）` + (isPlayer(c.o) && isMyBase(c, c.o) ? (basesOf(c.o).length === 1 ? '<br>🏴 ここは相手の最後の拠点です。奪うと相手は脱落します' : '<br>🏴 ここは相手の拠点です。拠点をすべて奪うと相手は脱落します') : ''), '戦闘', () => battle(c));
+    const wild = c.forest && c.o === 0, fo = foeOf(c, turn), intr = !wild && fo !== c.o;
+    ask(wild ? `獣（戦力 ${forestSize(c)}）の縄張りです。<br>戦闘しますか？（自分の戦力 ${battlePower(turn, true, c)} ／ 食料${cost(c, turn)}消費）` : `${name(fo)}と戦闘しますか？<br>（自分の戦力 ${battlePower(turn, false, c)} ／ 相手の戦力 ${battlePower(fo, false, c)} ／ 食料${cost(c, turn)}消費）` + (intr ? '<br>♟ 自分の領地を通行中の相手です。勝つと、相手は拠点へ強制帰還します' : '') + (!intr && isPlayer(c.o) && isMyBase(c, c.o) ? (basesOf(c.o).length === 1 ? '<br>🏴 ここは相手の最後の拠点です。奪うと相手は脱落します' : '<br>🏴 ここは相手の拠点です。拠点をすべて奪うと相手は脱落します') : ''), '戦闘', () => battle(c));
     return;
   }
   if (isHarvest(c, turn) && !pickMode && c !== last[turn] && isTarget(c, turn) && sp[turn] >= 1 && sp[turn] >= moveCost(c, turn)) {   // 回収と移動の両方できるマス（言語の獲得）: 選べる
@@ -1022,7 +1023,9 @@ function forestSize(c) {   // 獣の戦力 = つながった「だれの領地�
   while (st.length) { const x = st.pop(); for (const n of nbrs(x)) if (n.forest && n.o === 0 && !seen.has(key(n.q,n.r))) { seen.add(key(n.q,n.r)); st.push(n); } }
   return seen.size;
 }
-const isBattle = (c, p) => (c.forest && c.o === 0) || isEnemy(c.o, p);
+const intruder = (c, p) => (c && c.o === p && isPlayer(p)) ? (PL().find(q => q !== p && alive[q] && last[q] === c) || 0) : 0;   // 自分の領地を通行中の相手（そのマスに♟がいる相手の席。いなければ0）
+const foeOf = (c, p) => (c.forest && c.o === 0) ? 0 : (intruder(c, p) || c.o);   // 戦闘の相手: 獣は0 ／ 自分の領地にいる相手 ／ 相手の色のマスの持ち主
+const isBattle = (c, p) => (c.forest && c.o === 0) || isEnemy(c.o, p) || !!intruder(c, p);   // 自分の領地を通行中の相手の♟にも戦闘を挑める
 function meetCheck(p, c) {   // 「未知の存在との出会い」: 隣り合ったプレイヤー全員に解放
   const adj = [...new Set(nbrs(c).map(n => n.o).filter(o => isEnemy(o, p)))];
   if (adj.length) { unlock(p, '未知の存在との出会い'); for (const o of adj) unlock(o, '未知の存在との出会い'); }
@@ -1038,15 +1041,17 @@ function forceReturn(o, from) {   // 現在地を奪われた人を、奪われ�
   return cand;
 }
 function battle(c) {   // 戦闘に挑む（確認済み）。勝利でマスを奪う／同数は通行のみ／敗北は何も起きない。行動は必ず1回使う
-  const p = turn, o = c.o, wild = c.forest && c.o === 0, wasBase = !wild && isPlayer(o) && isMyBase(c, o), wasLoc = !wild && isPlayer(o) && last[o] === c;   // wasBase: 奪うマスは相手の拠点 ／ wasLoc: 相手の現在地への攻撃
-  tieStay = false;
+  const p = turn, wild = c.forest && c.o === 0, o = foeOf(c, p), intr = !wild && o !== c.o, wasBase = !wild && !intr && isPlayer(o) && isMyBase(c, o), wasLoc = !wild && isPlayer(o) && last[o] === c;   // intr: 自分の領地を通行中の相手への攻撃（マスはもともと自分の色）   // wasBase: 奪うマスは相手の拠点 ／ wasLoc: 相手の現在地への攻撃
+  tieStay = false; battleWon = false;
   if (!gm) sp[p] -= cost(c, p);   // 戦闘の食料（そのマスへ移動するのと同じ）
   const me = battlePower(p, wild, c), foe = wild ? forestSize(c) : battlePower(o, false, c);
   const title = wild ? '縄張りの主張' : '戦闘';
   let sub;
   if (me > foe) {
-    c.o = p; c.village = false; delete vNew[key(c.q, c.r)]; started[p] = true; last[p] = c;   // 森は獣に勝っても森のまま（自分の領地の森になる）
-    if (wild) { skills[p].beastWon = true; addSp(p, 1); sub = `勝利！（戦力 ${me} 対 ${foe}）食料を1奪った`; }
+    battleWon = true;
+    if (!intr) { c.o = p; c.village = false; delete vNew[key(c.q, c.r)]; }   // 通行中の相手を追い払ったときは、自分のマス・村はそのまま
+    started[p] = true; last[p] = c;   // 森は獣に勝っても森のまま（自分の領地の森になる）
+    if (wild) { skills[p].beastWon = true; rp[p]++; if (rp[p] >= 2) unlock(p, '打撃の共鳴', 'stone'); sub = `勝利！（戦力 ${me} 対 ${foe}）資源を1得た`; }   // 森の獣に勝つと資源+1
     else if (rp[o] > 0) { rp[o]--; rp[p]++; sub = `勝利！（戦力 ${me} 対 ${foe}）資源を1奪った`; }
     else sub = `勝利！（戦力 ${me} 対 ${foe}）マスを奪った`;
   } else if (me === foe) {
@@ -1062,7 +1067,7 @@ function battle(c) {   // 戦闘に挑む（確認済み）。勝利でマスを
   }
   if (!isCPU(p)) popupQ.push({t: title, s: sub});
   else if (!wild && !isCPU(o)) {   // AIに攻められた人へ、守った側から見た結果を知らせる
-    const ds = me > foe ? `マスを奪われた…（戦力 ${me} 対 ${foe}）` + (sub.includes('資源') ? ' 資源を1奪われた' : '') : me === foe ? `引き分け（戦力 ${me} 対 ${foe}）` + (wasLoc ? '相手は通行できなかった' : '相手はこのマスを通行した') : `撃退した！（戦力 ${me} 対 ${foe}）`;
+    const ds = me > foe ? (intr ? `通行中に攻撃され、負けた…（戦力 ${me} 対 ${foe}）` : `マスを奪われた…（戦力 ${me} 対 ${foe}）`) + (sub.includes('資源') ? ' 資源を1奪われた' : '') : me === foe ? `引き分け（戦力 ${me} 対 ${foe}）` + (wasLoc ? '相手は通行できなかった' : '相手はこのマスを通行した') : `撃退した！（戦力 ${me} 対 ${foe}）`;
     (o === viewP() && humansAlive() < 2 ? popupQ : pending[o]).push({t: `⚔ ${name(p)}の攻撃`, s: ds});
   }
   const baseTaken = me > foe && wasBase, baseHit = baseTaken && basesOf(o).length === 0;   // 拠点潰し: 相手の拠点（最初の拠点・村）をすべて奪った
@@ -1350,7 +1355,7 @@ function draw() {
     if (c.o === turn && target) { hexPath(x,y,size-2); ctx.lineWidth = 3; ctx.strokeStyle = legal ? '#3fb950' : '#9ccfa6'; ctx.stroke(); }
     if (PL().some(q => last[q] === c)) { hexPath(x,y,size-5); ctx.lineWidth = 2.5; ctx.strokeStyle = 'rgba(255,255,255,0.95)'; ctx.stroke(); }
     if (MT && !over && isHarvest(c,turn)) { hexPath(x,y,size-2); ctx.lineWidth = 3; ctx.strokeStyle = legal ? '#ffd23f' : 'rgba(255,210,63,0.5)'; ctx.stroke(); }
-    if (target && ((c.forest && c.o === 0) || isEnemy(c.o, turn))) { hexPath(x,y,size-2); ctx.lineWidth = 3; ctx.strokeStyle = legal ? '#e5484d' : '#d9a0a2'; ctx.stroke(); }   // 戦闘できるマスは赤い枠
+    if (target && isBattle(c, turn)) { hexPath(x,y,size-2); ctx.lineWidth = 3; ctx.strokeStyle = legal ? '#e5484d' : '#d9a0a2'; ctx.stroke(); }   // 戦闘できるマスは赤い枠
     if (c.t === 'm' && target) { hexPath(x,y,size-2); ctx.lineWidth = 3; ctx.strokeStyle = legal ? '#3fb950' : '#9ccfa6'; ctx.stroke(); }
     if (target && c.o !== turn && !(c.forest && c.o === 0) && !(c.res && showRes)) {
       ctx.fillStyle = '#fff'; ctx.font = `bold ${size*0.45}px system-ui,sans-serif`;
@@ -1789,7 +1794,7 @@ const SFX = (() => {
   });
   wrap('battle', (orig, a) => {
     const c = a[0], p = turn, o0 = c.o; orig.apply(null, a);
-    if (!over) SFX.play(c.o === p && o0 !== p ? 'win' : (last[p] === c || tieStay) ? 'draw' : 'lose');
+    if (!over) SFX.play(battleWon ? 'win' : (last[p] === c || tieStay) ? 'draw' : 'lose');
   });
   wrap('buildVillage', (orig, a) => { const had = a[0].village; orig.apply(null, a); if (!had && a[0].village) SFX.play('build'); });
   wrap('demolishVillage', (orig, a) => { const had = a[0].village; orig.apply(null, a); if (had && !a[0].village) SFX.play('demolish'); });
@@ -1828,7 +1833,7 @@ const TUT = (() => {
     {text: '続けて、光っているマスへ。✨が付いたマスは資源マスで、このあと資源を回収します。', hl: () => [T.R], only: c => c === T.R, done: () => T.R.o === 1},
     {text: '行動を使い切りました。1ターンの行動は、昼間（朝・昼）は2回です。上の「ターン終了」を押してください（行動できなくなると、確認も自動で出ます）。', nudge: '上の「ターン終了」を押してください', done: () => round >= 2},
     {text: 'ターンが進みました。資源マスの上にいるときに、そのマスをもう一度タップすると、資源が+1されます（行動1・食料1）。回収したマスは、2ラウンド後に復活します（回収のたびに、復活が1ラウンドずつ遅くなります）。資源は、スキルの習得や村の建設などに使います。', hl: () => [T.R], only: c => c === T.R, done: () => T.R.harv},
-    {text: '光っている緑のマスは、獣の縄張りです。タップして戦闘しましょう。自分の戦力が獣より大きければ勝ちで、マスを奪って食料+1（森は自分の領地の森になり、次からは戦闘なしで通れます）。拠点の近くでは戦力が上がります。確認画面で、自分の戦力と食料の消費を確かめられます。負けても、行動と食料は消費します。', hl: () => [T.F], only: c => c === T.F, done: () => T.F.o === 1},
+    {text: '光っている緑のマスは、獣の縄張りです。タップして戦闘しましょう。自分の戦力が獣より大きければ勝ちで、マスを奪って資源+1（森は自分の領地の森になり、次からは戦闘なしで通れます）。拠点の近くでは戦力が上がります。確認画面で、自分の戦力と食料の消費を確かめられます。負けても、行動と食料は消費します。', hl: () => [T.F], only: c => c === T.F, done: () => T.F.o === 1},
     {text: '時間帯は、1ラウンドごとに朝→昼→夕→夜の順に進みます（左上の時間帯ボタンをタップで確認）。朝・昼が昼間、夕・夜が夜間です。夜間は行動が1に減り、視界が狭くなり、戦力も-1されます。'},
     {text: '食料は毎ターンの開始時に+2され、貯蔵は3までです。移動・戦闘・資源の回収に使います（平地は1、山▲は2、水域≈は通れません）。食料が足りないと動けないので、計画的に使いましょう。'},
     {text: '勝利条件は2つです。①ラウンドが終わったとき（または盤面が埋まったとき）に、領地が最も多い。②相手の拠点（最初の拠点と村）を、すべて戦闘で奪う（拠点潰し）。相手がいるマスも攻撃でき、勝つと相手は、一番近い拠点へ強制帰還します。村・スキル・クラフト・命の糧は、右上のボタンと、右下の❔（ルール説明）で確認できます。', last: true}
@@ -2212,7 +2217,7 @@ const RESULT = (() => {
   wrap('act', (orig, a) => { const c = a[0], p = turn, h0 = c && c.harv, r = orig.apply(null, a); if (c && !h0 && c.harv && stats[p]) stats[p].harv++; return r; });
   wrap('battle', (orig, a) => {
     const c = a[0], p = turn, o0 = c.o, wild = c.forest && c.o === 0, r = orig.apply(null, a), s = stats[p];
-    if (s) { if (c.o === p && o0 !== p) { s.win++; if (wild) s.beast++; } else if (last[p] === c || tieStay) s.draw++; else s.lose++; }
+    if (s) { if (battleWon) { s.win++; if (wild) s.beast++; } else if (last[p] === c || tieStay) s.draw++; else s.lose++; }
     return r;
   });
   wrap('buildVillage', (orig, a) => { const had = a[0].village, r = orig.apply(null, a); if (!had && a[0].village && stats[turn]) stats[turn].built++; return r; });
@@ -3003,15 +3008,15 @@ const AI = (() => {
       }
       if (!isTarget(c, p) || sp[p] < moveCost(c, p) || actions < 1) continue;
       if (isBattle(c, p)) {
-        const wild = c.forest && c.o === 0, me = battlePower(p, wild, c), foe = wild ? forestSize(c) : battlePower(c.o, false, c), b = boostsFor(p, c, wild, L);
+        const wild = c.forest && c.o === 0, me = battlePower(p, wild, c), foe = wild ? forestSize(c) : battlePower(foeOf(c, p), false, c), b = boostsFor(p, c, wild, L);
         const need = foe + 1 - me; if (need > b.n) continue;   // 勝てる戦いだけ挑む
         const use = Math.max(0, need);
         let s;
         if (wild) s = 12 + (skills[p].stone && !skills[p].beastWon ? 3 : 0) + (xOpen.herd[p] || forestSize(c) < 2 ? 0 : 5) + nbrs(c).filter(n => n.t !== 's' && n.o === 0 && !n.forest).length * 0.6;
         else {
           if (!aggro) continue;
-          const o = c.o, safe = battlePower(o, false, c) + 1 <= me - use;   // 奪ったあと、取り返されにくいか
-          s = 10 + (rp[o] > 0 ? 2 : 0) + (isMyBase(c, o) ? 4 : 0) + (c.village ? 2 : 0) + (safe ? 1 : 0);
+          const o = foeOf(c, p), safe = battlePower(o, false, c) + 1 <= me - use;   // 奪ったあと、取り返されにくいか
+          s = 10 + (rp[o] > 0 ? 2 : 0) + (isMyBase(c, o) ? 4 : 0) + (c.village && c.o === o ? 2 : 0) + (safe ? 1 : 0);
           if (last[o] === c) s += 3;   // 相手がいるマスを奪うと、相手を拠点へ戻せる
           if (isMyBase(c, o)) s += basesOf(o).length === 1 ? 45 : 8;   // 拠点潰し: 最後の拠点なら脱落させられる
           if (L === 3 && !isCPU(o)) s += 1;
